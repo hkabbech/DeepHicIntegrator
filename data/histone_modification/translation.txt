@@ -1,0 +1,9 @@
+H3K4me1_rep1
+H3K4me1_rep2
+H3K4me1_rep3
+H3K4me3_rep1
+H3K4me3_rep2
+H3K27ac_rep1
+H3K27ac_rep2
+H3K27me3_rep1
+H3K27me3_rep2
