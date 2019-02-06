@@ -17,9 +17,10 @@ from pysam import Samfile
 chromosome = sys.argv[1]
 resolution = int(sys.argv[2])
 minimum_reads_threshold = float(sys.argv[3])
-chromSizesFileName = sys.argv[4]
-signalBamFileName = sys.argv[5]
-outputLocation = sys.argv[6]
+totalCount = float(sys.argv[4])
+chromSizesFileName = sys.argv[5]
+signalBamFileName = sys.argv[6]
+outputLocation = sys.argv[7]
 
 # Initialization
 command = "mkdir -p "+outputLocation
@@ -52,39 +53,64 @@ def fetch_total_reads_bam(bam_file, region):
   # Returning objects
   return returnN
 
-def distribution_of_signal_dictionary(chromosome, resolution, minimum_reads_threshold, chromosome_list, chrom_sizes_dict, signal_bam_file):
+def writing_mark_matrix_sparse(chromosome, resolution, minimum_reads_threshold, total_count, chromosome_list, chrom_sizes_dict, signal_bam_file, output_location):
 
-  # Resulting list
+  # Resulting dictionary
   signal_distribution_dict = dict()
-  signal_distribution_list = []
 
-  # Iterating on chromosomes
-  for chrom in chromosome_list:
+  # Opening files
+  output_matrix_file_name = output_location + chromosome + ".txt"
+  output_matrix_file = open(output_matrix_file_name, "w")
 
-    if(chrom != chromosome): continue
+  # Iterating on genome
+  for pos1 in range(0, chrom_sizes_dict[chromosome]+resolution, resolution):
+
+    # Fetching locations
+    start1 = pos1
+    end1 = min(pos1+resolution, chrom_sizes_dict[chromosome])
+    if(end1 <= start1): continue
+
+    # Fetching reads
+    region1 = [chromosome, start1, end1]
+    try: total_reads1 = fetch_total_reads_bam(signal_bam_file, region1)
+    except Exception: continue
+    if(math.isnan(total_reads1) or not np.isfinite(total_reads1)): continue
+    if(total_reads1 == 0 or total_reads1 <= minimum_reads_threshold): total_reads1 = 1
 
     # Iterating on genome
-    for pos in range(0, chrom_sizes_dict[chrom]+resolution, resolution):
+    for pos2 in range(start1, chrom_sizes_dict[chromosome]+resolution, resolution):
 
       # Fetching locations
-      start = pos
-      end = min(pos+resolution, chrom_sizes_dict[chrom])
-      if(end <= start): continue
+      start2 = pos2
+      end2 = min(pos2+resolution, chrom_sizes_dict[chromosome])
+      if(end2 <= start2): continue
+
+      # Dictionary keys
+      dict_key1 = ":".join([str(e) for e in [chromosome, start1, start2]])
+      dict_key2 = ":".join([str(e) for e in [chromosome, start2, start1]])
 
       # Fetching reads
-      region = [chrom, start, end]
-      try: total_reads = fetch_total_reads_bam(signal_bam_file, region)
+      region2 = [chromosome, start2, end2]
+      try: total_reads2 = fetch_total_reads_bam(signal_bam_file, region2)
       except Exception: continue
+      if(math.isnan(total_reads2) or not np.isfinite(total_reads2)): continue
+      if(total_reads2 == 0): total_reads2 = 1
+      if(total_reads1 <= minimum_reads_threshold and total_reads1 <= minimum_reads_threshold): continue
 
-      # Writing to dictionary
-      if(total_reads <= minimum_reads_threshold or math.isnan(total_reads) or not np.isfinite(total_reads)): continue
-      signal_distribution_dict[":".join([str(e) for e in region])] = total_reads
-      signal_distribution_list.append(total_reads)
+      # Writing to file
+      total_reads = (total_reads1 * total_reads2) / total_count
+      output_matrix_file.write("\t".join(dict_key1+[str(total_reads)])+"\n")
+      output_matrix_file.write("\t".join(dict_key2+[str(total_reads)])+"\n")
+
+  # Closing files
+  output_matrix_file.close()
+  output_matrix_file = None
+  gc.collect()
 
   # Returning objects
-  return signal_distribution_list, signal_distribution_dict
+  return 0
 
-def write_mark_dictionary(chromosome, resolution, minimum_reads_threshold, chromosome_sizes_file_name, signal_bam_file_name, output_location):
+def write_mark_dictionary(chromosome, resolution, minimum_reads_threshold, total_count, chromosome_sizes_file_name, signal_bam_file_name, output_location):
 
   # Create output location
   command = "mkdir -p "+output_location
@@ -97,56 +123,14 @@ def write_mark_dictionary(chromosome, resolution, minimum_reads_threshold, chrom
   signal_bam_file = Samfile(signal_bam_file_name, "rb")
 
   # Reading distribution of signals
-  signal_distribution_list, signal_distribution_dict = distribution_of_signal_dictionary(chromosome, resolution, minimum_reads_threshold, chromosome_list, chrom_sizes_dict, signal_bam_file)
-
-  # Iterating on chromosomes
-  for chrom in chromosome_list:
-
-    if(chrom != chromosome): continue
-
-    # Opening files
-    output_matrix_file_name = output_location + chrom + ".txt"
-    output_matrix_file = open(output_matrix_file_name, "w", buffering=1)
-
-    # Iterating on genome
-    for pos in range(0, chrom_sizes_dict[chrom]+resolution, resolution):
-
-      # Fetching locations
-      start = pos
-      end = min(pos+resolution, chrom_sizes_dict[chrom])
-      if(end <= start): continue
-
-      # Fetching reads
-      region = [chrom, start, end]
-      try: total_reads = signal_distribution_dict[":".join([str(e) for e in region])]
-      except Exception: continue
-
-      # Calculating percentile
-      percentile = round(stats.percentileofscore(signal_distribution_list, total_reads),2)
-
-      # Writing to dictionary
-      output_matrix_file.write("\t".join([str(e) for e in region + [total_reads, percentile]])+"\n")
-      output_matrix_file.flush()
-
-      start = None
-      end = None
-      region = None
-      total_reads = None
-      percentile = None
-      gc.collect()
-
-    # Closing files
-    output_matrix_file.close()
-    output_matrix_file = None
-    gc.collect()
+  distribution_of_signal_dictionary(chromosome, resolution, minimum_reads_threshold, total_count, chromosome_list, chrom_sizes_dict, signal_bam_file, output_location)
 
   # Closing files
   signal_bam_file.close()
 
   # Free memory from unused objects
-  signal_bam_file = None
-  signal_distribution = None
   chromosome_list = None
+  signal_bam_file = None
   chrom_sizes_dict = None
   gc.collect()
 
@@ -155,6 +139,6 @@ def write_mark_dictionary(chromosome, resolution, minimum_reads_threshold, chrom
 ###################################################################################################
 
 # Writing mark dictionary
-write_mark_dictionary(chromosome, resolution, minimum_reads_threshold, chromSizesFileName, signalBamFileName, outputLocation)
+write_mark_dictionary(chromosome, resolution, minimum_reads_threshold, totalCount, chromSizesFileName, signalBamFileName, outputLocation)
 
 

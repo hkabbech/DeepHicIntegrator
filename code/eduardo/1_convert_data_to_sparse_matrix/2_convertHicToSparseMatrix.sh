@@ -9,12 +9,12 @@
 #SBATCH --mem=48gb
 #SBATCH --time=12:00:00
 #SBATCH --account=UniKoeln
-#SBATCH --array=1-36
+#SBATCH --array=1-1
 
 # Commands
 # sbatch 2_convertHicToSparseMatrix.sh
 # squeue -u egusmao
-# scancel 10831978, 10835597, 10838014
+# scancel xxxxxxxxxxxx
 
 # Modules
 module add python/2.7.5-V2
@@ -38,17 +38,10 @@ export PYTHONPATH=$PYTHONPATH:"/projects/ag-papan/install/cutadapt-1.15/inst/lib
 export PYTHONPATH=$PYTHONPATH:"/projects/ag-papan/install/MACS2-2.1.1.20160309/inst/lib/python2.7/site-packages/"
 
 # Input
-inputFileName="/projects/ag-papan/eduardo/Papantonis_Intrinsic/Code/12_DirichletV1/input3/"${SLURM_ARRAY_TASK_ID}"_chs.txt"
-juicerCommand=`sed '1q;d' $inputFileName`
-kindOfMatrix=`sed '2q;d' $inputFileName`
-kindOfNormalization=`sed '3q;d' $inputFileName`
-unitOfResolution=`sed '4q;d' $inputFileName`
-resolution=`sed '5q;d' $inputFileName`
-chromSizesFileName=`sed '6q;d' $inputFileName`
-inputHicFileName=`sed '7q;d' $inputFileName`
-outputLocation=`sed '8q;d' $inputFileName`
+inputFileName="/projects/ag-papan/eduardo/Papantonis_Integrative/code/eduardo/1_convert_data_to_sparse_matrix/2_chs.txt"
+parameters=`sed "${SLURM_ARRAY_TASK_ID}q;d" $inputFileName`
 
 # Creating matrix
-python /projects/ag-papan/eduardo/Papantonis_Intrinsic/Code/12_DirichletV1/2_convertHicToSparseMatrix.py $juicerCommand $kindOfMatrix $kindOfNormalization $unitOfResolution $resolution $chromSizesFileName $inputHicFileName $outputLocation
+python /projects/ag-papan/eduardo/Papantonis_Integrative/code/eduardo/1_convert_data_to_sparse_matrix/2_convertHicToSparseMatrix.py $parameters
 
 

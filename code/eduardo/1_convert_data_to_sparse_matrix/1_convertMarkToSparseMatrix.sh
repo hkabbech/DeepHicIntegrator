@@ -7,14 +7,14 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --mem=24gb
-#SBATCH --time=10:00:00
+#SBATCH --time=48:00:00
 #SBATCH --account=UniKoeln
-#SBATCH --array=1-1383
+#SBATCH --array=1-4
 
 # Commands
 # sbatch 1_convertMarkToSparseMatrix.sh
 # squeue -u egusmao
-# scancel 10831898, 10833884
+# scancel xxxxxxxxxxxxx
 
 # Modules
 module add python/2.7.5-V2
@@ -38,15 +38,12 @@ export PYTHONPATH=$PYTHONPATH:"/projects/ag-papan/install/cutadapt-1.15/inst/lib
 export PYTHONPATH=$PYTHONPATH:"/projects/ag-papan/install/MACS2-2.1.1.20160309/inst/lib/python2.7/site-packages/"
 
 # Input
-inputFileName="/projects/ag-papan/eduardo/Papantonis_Intrinsic/Code/12_DirichletV1/input2/"${SLURM_ARRAY_TASK_ID}"_mts.txt"
-chromosome=`sed '1q;d' $inputFileName`
-resolution=`sed '2q;d' $inputFileName`
-minimum_reads_threshold=`sed '3q;d' $inputFileName`
-chromSizesFileName=`sed '4q;d' $inputFileName`
-signalBamFileName=`sed '5q;d' $inputFileName`
-outputLocation=`sed '6q;d' $inputFileName`
+inputFileName="/projects/ag-papan/eduardo/Papantonis_Integrative/code/eduardo/1_convert_data_to_sparse_matrix/1_mts.txt"
+parameters=`sed "${SLURM_ARRAY_TASK_ID}q;d" $inputFileName`
+
+echo $parameters
 
 # Creating matrix
-python /projects/ag-papan/eduardo/Papantonis_Intrinsic/Code/12_DirichletV1/1_convertMarkToSparseMatrix.py $chromosome $resolution $minimum_reads_threshold $chromSizesFileName $signalBamFileName $outputLocation
+#python /projects/ag-papan/eduardo/Papantonis_Integrative/code/eduardo/1_convert_data_to_sparse_matrix/1_convertMarkToSparseMatrix.py $parameters
 
 

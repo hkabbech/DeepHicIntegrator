@@ -4,49 +4,44 @@ import os
 import sys
 
 # Folder List
-counter = 1
-flag = False
 chromSizesFile = "/home/egusmao/rgtdata/hg19/chrom.sizes.hg19.filter"
-fl = "/projects/ag-papan/eduardo/Papantonis_Intrinsic/Code/12_DirichletV1/input2/"
-itl = "/projects/ag-papan/eduardo/Papantonis_Intrinsic/Results/9_Process_All_NGS_Data/0_Input_Tables/"
-il = "/projects/ag-papan/eduardo/Papantonis_Intrinsic/Results/9_Process_All_NGS_Data/2_Merged_Bam_Files/"
-ol = "/projects/ag-papan/eduardo/Papantonis_Intrinsic/Results/12_DirichletV1/1_Signal_Sparse_Matrices/"
-folderList = ["1_4dn_atac", "2_encode_chipseq", "2_encode_dnaseseq", "3_roadmap_fetal_heart_chipseq", "3_roadmap_fetal_heart_dnaseseq", "6_ang2016_atac", "6_ang2016_chipseq", "7_banovich2018_atac", "8_sakabe2018_chipseq"]
+fl = "/projects/ag-papan/eduardo/Papantonis_Integrative/code/eduardo/1_convert_data_to_sparse_matrix/"
+il = "/projects/ag-papan/eduardo/Papantonis_Integrative/data/histone_modification/"
+ol = "/projects/ag-papan/eduardo/Papantonis_Integrative/results/eduardo/1_convert_data_to_sparse_matrix/1_regulatory_matrices/"
+bamFileNameList = ["HUVEC_H3K4me1", "HUVEC_H3K4me3", "HUVEC_H3K27ac", "HUVEC_H3K27me3"]
+totalReadsList = ["32422952", "13940804", "16902517", "16516826"]
 
-# Folder Loop
-for fd in folderList:
+# Opening input matrix file
+inFileName = fl + "1_mts.txt"
+inFile = open(inFileName,"w")
 
-  # Bam List
-  bamFileNameList = []
-  tableFileName = itl + fd + ".txt"
-  tableFile = open(tableFileName, "rU")
-  for line in tableFile: bamFileNameList.append(line.strip().split("#")[1])
-  tableFile.close()
+# Bam Loop
+for i in range(0,len(bamFileNameList)):
 
-  # Bam Loop
-  for bamFileName in bamFileNameList:
+  # Parameters
+  bamFileName = bamFileNameList[i]
+  counts = totalReadsList[i]
 
-    # Chromosome List
-    chrList = ["chr"+str(e) for e in range(1,23)+["X"]]
+  # Chromosome List
+  chrList = ["chr"+str(e) for e in range(1,23)+["X"]]
 
-    # Chromosome Loop
-    for chrom in chrList:
+  # Chromosome Loop
+  for chrom in chrList:
 
-      if(counter > 1400 or flag == True):
-        flag = True
-        # Input
-        chromosome = chrom
-        resolution = "1000"
-        minimum_reads_threshold = "10"
-        chromSizesFileName = chromSizesFile
-        signalBamFileName = il + fd + "/" + bamFileName + ".bam"
-        outputLocation = ol + fd + "/" + bamFileName + "/"
+    # Input
+    chromosome = chrom
+    resolution = "25000"
+    minimum_reads_threshold = "25000"
+    totalCounts = counts
+    chromSizesFileName = chromSizesFile
+    signalBamFileName = il + bamFileName + ".bam"
+    outputLocation = ol + bamFileName + "/"
 
-        # Creating files
-        inFileName = fl + str(counter-1400) + "_mts.txt"
-        inFile = open(inFileName,"w")
-        inFile.write("\n".join([chromosome, resolution, minimum_reads_threshold, chromSizesFileName, signalBamFileName, outputLocation]))
-        inFile.close()
-      counter += 1
+    # Write to input matrix
+    inFile.write(" ".join([chromosome, resolution, minimum_reads_threshold, totalCounts, chromSizesFileName, signalBamFileName, outputLocation])+"\n")
+    counter += 1
+
+# Closing input matrix file
+inFile.close()
 
 
