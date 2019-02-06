@@ -1,0 +1,3 @@
+
+gunzip /media/egg/cheops_agpapan/eduardo/Papantonis_Integrative/data/rao_juicer_hic/GSE63525_HUVEC_combined_30.hic.gz
+
