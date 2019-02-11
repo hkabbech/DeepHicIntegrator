@@ -6,15 +6,15 @@
 #SBATCH --error=MTS.%A_%a.err
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --mem=24gb
-#SBATCH --time=48:00:00
+#SBATCH --mem=60gb
+#SBATCH --time=100:00:00
 #SBATCH --account=UniKoeln
-#SBATCH --array=1-4
+#SBATCH --array=1-92
 
 # Commands
 # sbatch 1_convertMarkToSparseMatrix.sh
 # squeue -u egusmao
-# scancel xxxxxxxxxxxxx
+# scancel 10890619
 
 # Modules
 module add python/2.7.5-V2
@@ -38,12 +38,10 @@ export PYTHONPATH=$PYTHONPATH:"/projects/ag-papan/install/cutadapt-1.15/inst/lib
 export PYTHONPATH=$PYTHONPATH:"/projects/ag-papan/install/MACS2-2.1.1.20160309/inst/lib/python2.7/site-packages/"
 
 # Input
-inputFileName="/projects/ag-papan/eduardo/Papantonis_Integrative/code/eduardo/1_convert_data_to_sparse_matrix/1_mts.txt"
+inputFileName="/projects/ag-papan/eduardo/Papantonis_Integrative/code/eduardo/1_convert_data_to_sparse_matrix/input/1_mts.txt"
 parameters=`sed "${SLURM_ARRAY_TASK_ID}q;d" $inputFileName`
 
-echo $parameters
-
 # Creating matrix
-#python /projects/ag-papan/eduardo/Papantonis_Integrative/code/eduardo/1_convert_data_to_sparse_matrix/1_convertMarkToSparseMatrix.py $parameters
+python /projects/ag-papan/eduardo/Papantonis_Integrative/code/eduardo/1_convert_data_to_sparse_matrix/1_convertMarkToSparseMatrix.py $parameters
 
 

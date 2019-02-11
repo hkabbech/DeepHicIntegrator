@@ -75,7 +75,7 @@ def writing_mark_matrix_sparse(chromosome, resolution, minimum_reads_threshold, 
     try: total_reads1 = fetch_total_reads_bam(signal_bam_file, region1)
     except Exception: continue
     if(math.isnan(total_reads1) or not np.isfinite(total_reads1)): continue
-    if(total_reads1 == 0 or total_reads1 <= minimum_reads_threshold): total_reads1 = 1
+    if(total_reads1 == 0 or total_reads1 < minimum_reads_threshold): total_reads1 = 1
 
     # Iterating on genome
     for pos2 in range(start1, chrom_sizes_dict[chromosome]+resolution, resolution):
@@ -85,22 +85,18 @@ def writing_mark_matrix_sparse(chromosome, resolution, minimum_reads_threshold, 
       end2 = min(pos2+resolution, chrom_sizes_dict[chromosome])
       if(end2 <= start2): continue
 
-      # Dictionary keys
-      dict_key1 = ":".join([str(e) for e in [chromosome, start1, start2]])
-      dict_key2 = ":".join([str(e) for e in [chromosome, start2, start1]])
-
       # Fetching reads
       region2 = [chromosome, start2, end2]
       try: total_reads2 = fetch_total_reads_bam(signal_bam_file, region2)
       except Exception: continue
       if(math.isnan(total_reads2) or not np.isfinite(total_reads2)): continue
       if(total_reads2 == 0): total_reads2 = 1
-      if(total_reads1 <= minimum_reads_threshold and total_reads1 <= minimum_reads_threshold): continue
+      if(total_reads1 < minimum_reads_threshold and total_reads2 < minimum_reads_threshold): continue
 
       # Writing to file
       total_reads = (total_reads1 * total_reads2) / total_count
-      output_matrix_file.write("\t".join(dict_key1+[str(total_reads)])+"\n")
-      output_matrix_file.write("\t".join(dict_key2+[str(total_reads)])+"\n")
+      output_matrix_file.write("\t".join([chromosome, str(start1), str(start2), str(total_reads)])+"\n")
+      output_matrix_file.write("\t".join([chromosome, str(start2), str(start1), str(total_reads)])+"\n")
 
   # Closing files
   output_matrix_file.close()
@@ -122,8 +118,8 @@ def write_mark_dictionary(chromosome, resolution, minimum_reads_threshold, total
   # Opening files
   signal_bam_file = Samfile(signal_bam_file_name, "rb")
 
-  # Reading distribution of signals
-  distribution_of_signal_dictionary(chromosome, resolution, minimum_reads_threshold, total_count, chromosome_list, chrom_sizes_dict, signal_bam_file, output_location)
+  # Writing distribution of signals
+  writing_mark_matrix_sparse(chromosome, resolution, minimum_reads_threshold, total_count, chromosome_list, chrom_sizes_dict, signal_bam_file, output_location)
 
   # Closing files
   signal_bam_file.close()

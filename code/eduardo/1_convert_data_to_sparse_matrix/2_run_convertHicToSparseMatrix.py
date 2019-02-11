@@ -9,7 +9,7 @@ kindMatrix = "observed"
 kindNormalization = "KR"
 unitResolution = "BP"
 chromSizesFile = "/home/egusmao/rgtdata/hg19/chrom.sizes.hg19.filter"
-fl = "/projects/ag-papan/eduardo/Papantonis_Integrative/code/eduardo/1_convert_data_to_sparse_matrix/"
+fl = "/projects/ag-papan/eduardo/Papantonis_Integrative/code/eduardo/1_convert_data_to_sparse_matrix/input/"
 il = "/projects/ag-papan/eduardo/Papantonis_Integrative/data/rao_juicer_hic/"
 ol = "/projects/ag-papan/eduardo/Papantonis_Integrative/results/eduardo/1_convert_data_to_sparse_matrix/2_hic_matrices/"
 hicList = ["GSE63525_HUVEC"]
@@ -19,7 +19,7 @@ inFileName = fl + "2_chs.txt"
 inFile = open(inFileName,"w")
 
 # Hic Loop
-for hicName in range(0,len(hicList)):
+for hicName in hicList:
 
   # Resolution List
   resList = ["25000"]
@@ -42,7 +42,7 @@ for hicName in range(0,len(hicList)):
     outputLocation = ol + outName + "/"
 
     # Write to input matrix
-    inFile.write("\n".join([juicerCommand, kindOfMatrix, kindOfNormalization, unitOfResolution, resolution, chromSizesFileName, inputHicFileName, outputLocation]))
+    inFile.write(" ".join([juicerCommand, kindOfMatrix, kindOfNormalization, unitOfResolution, resolution, chromSizesFileName, inputHicFileName, outputLocation])+"\n")
 
 # Closing input matrix file
 inFile.close()

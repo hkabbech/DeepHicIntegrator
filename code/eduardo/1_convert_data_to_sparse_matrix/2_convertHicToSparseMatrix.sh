@@ -14,7 +14,7 @@
 # Commands
 # sbatch 2_convertHicToSparseMatrix.sh
 # squeue -u egusmao
-# scancel xxxxxxxxxxxx
+# scancel 10889820
 
 # Modules
 module add python/2.7.5-V2
@@ -38,7 +38,7 @@ export PYTHONPATH=$PYTHONPATH:"/projects/ag-papan/install/cutadapt-1.15/inst/lib
 export PYTHONPATH=$PYTHONPATH:"/projects/ag-papan/install/MACS2-2.1.1.20160309/inst/lib/python2.7/site-packages/"
 
 # Input
-inputFileName="/projects/ag-papan/eduardo/Papantonis_Integrative/code/eduardo/1_convert_data_to_sparse_matrix/2_chs.txt"
+inputFileName="/projects/ag-papan/eduardo/Papantonis_Integrative/code/eduardo/1_convert_data_to_sparse_matrix/input/2_chs.txt"
 parameters=`sed "${SLURM_ARRAY_TASK_ID}q;d" $inputFileName`
 
 # Creating matrix
