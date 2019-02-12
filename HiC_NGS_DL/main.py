@@ -22,12 +22,11 @@ __authors__ = "Eduardo Gade Gusmão and Hélène Kabbech"
 
 
 # Third-party modules
-from multiprocessing import Pool, cpu_count
+from multiprocessing import cpu_count#, Pool
 from datetime import datetime
+import os
 from schema import Schema, And, Use, SchemaError
 from docopt import docopt
-import os
-import pandas as pd
 
 # Local modules
 from src.hic import Hic
@@ -35,7 +34,7 @@ from src.hic import Hic
 
 def check_args():
     """
-        Checks and validates the types of inputs parsed by docopt from command linSe.
+        Checks and validates the types of inputs parsed by docopt from command line.
     """
     schema = Schema({
         '<file>': Use(open),
@@ -46,7 +45,7 @@ def check_args():
     try:
         schema.validate(ARGS)
     except SchemaError as err:
-      exit(err)
+        exit(err)
 
 
 if __name__ == "__main__":
@@ -63,7 +62,7 @@ if __name__ == "__main__":
     HIC = Hic(ARGS['<file>'])
 
     # Example How to get a value from 2 given bases :
-    base_1, base_2 = 75000, 350000
-    print(HIC.get_value(base_1, base_2))
+    BASE_1, BASE_2 = 75000, 350000
+    print(HIC.get_value(BASE_1, BASE_2))
 
     print("\nTotal runtime: {} seconds".format(str(datetime.now() - START_TIME)))

@@ -35,17 +35,16 @@ class Hic:
         # The row could be find by two positions (base_1 base_2 or base_2 base_1)
         if not isinstance(base_1, int) or not isinstance(base_2, int):
             raise TypeError("Args must be integer.")
-        
+
         filtered_matrix_1 = self.matrix[(self.matrix['base_1'] == base_1) &
                                         (self.matrix['base_2'] == base_2)]
         filtered_matrix_2 = self.matrix[(self.matrix['base_1'] == base_2) &
                                         (self.matrix['base_2'] == base_1)]
 
-        # The row does not exist :                              
-        if filtered_matrix_1.empty and filtered_matrix_2.empty:
-            return 0
         # The row exists in one of the two filtered dataframes :
-        elif not filtered_matrix_1.empty:
+        if not filtered_matrix_1.empty:
             return float(filtered_matrix_1['value'])
         elif not filtered_matrix_2.empty:
             return float(filtered_matrix_2['value'])
+        # The row does not exist :
+        return 0
