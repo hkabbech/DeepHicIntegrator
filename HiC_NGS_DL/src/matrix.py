@@ -1,20 +1,20 @@
 """
-.. module:: HiC
-   :synopsis: This module implements the HiC class.
+.. module:: Matrix
+   :synopsis: This module implements the matrix class.
 """
 
 # Third-party modules
 import pandas as pd
 
 
-class Hic:
+class Matrix:
     """
-    .. class:: Hic
+    .. class:: Matrix
 
-        This class groups informations about a HiC matrix.
+        This class groups informations about a Hi-C or NGS data matrix.
 
     Attributes:
-        matrix (Pandas DataFrame): HiC matrix.
+        matrix (Pandas DataFrame): Hi-C or NGS matrix.
     """
 
     def __init__(self, filename):
@@ -23,7 +23,7 @@ class Hic:
 
     def get_value(self, base_1, base_2):
         """
-            Search in a Pandas Dataframe (the HiC matrix) the unique row decribed
+            Search in a Pandas Dataframe (the Hi-C/NGS matrix) the unique row decribed
             by two given nucleotid bases and return the value corresponding.
 
             Args:

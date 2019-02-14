@@ -3,12 +3,11 @@
 
 """
     Usage:
-        ./main.py <file> <path> [--cpu INT]
+        ./main.py <file_1> <file_2> [--cpu INT]
 
     Arguments:
-        <file>                          Path to the Hi-C matrix file.
-        <path>                          Path to the folder containing all NGS data relative
-                                        to the HiC matrix.
+        <file_1>                          Path to the Hi-C matrix file.
+        <file_2>                          Path to the NGS matrix file.
 
     Options:
         -h, --help                      Show this.
@@ -29,7 +28,7 @@ from schema import Schema, And, Use, SchemaError
 from docopt import docopt
 
 # Local modules
-from src.hic import Hic
+from src.matrix import Matrix
 
 
 def check_args():
@@ -37,8 +36,8 @@ def check_args():
         Checks and validates the types of inputs parsed by docopt from command line.
     """
     schema = Schema({
-        '<file>': Use(open),
-        '<path>': os.path.exists,
+        '<file_1>': Use(open),
+        '<file_2>': Use(open),
         '--cpu': And(Use(int), lambda n: 0 <= n <= cpu_count(),
                      error='--cpus should be integer 1 <= N <= ' + str(cpu_count()))
         })
@@ -57,12 +56,17 @@ if __name__ == "__main__":
     ARGS = docopt(__doc__)
     # Check the types and ranges of the command line arguments parsed by docopt
     check_args()
-    NGS = ARGS['<path>']
+    HIC = Matrix(ARGS['<file_1>'])
+    NGS = Matrix(ARGS['<file_2>'])
     CPU = ARGS['--cpu']
-    HIC = Hic(ARGS['<file>'])
+    
 
     # Example How to get a value from 2 given bases :
     BASE_1, BASE_2 = 75000, 350000
     print(HIC.get_value(BASE_1, BASE_2))
+
+     # Example How to get a value from 2 given bases :
+    BASE_1, BASE_2 = 23050000, 58100000
+    print(NGS.get_value(BASE_1, BASE_2))
 
     print("\nTotal runtime: {} seconds".format(str(datetime.now() - START_TIME)))
