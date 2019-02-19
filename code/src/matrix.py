@@ -27,8 +27,8 @@ class Matrix:
             by two given nucleotid bases and return the value corresponding.
 
             Args:
-                base_1(int): Index of the first nucleotid base.
-                base_2(int): Index of the second nucleotid base.
+                base_1 (int): Index of the first nucleotid base.
+                base_2 (int): Index of the second nucleotid base.
             Returns:
                 float: The corresponding value if the row exists or 0 if not.
         """
