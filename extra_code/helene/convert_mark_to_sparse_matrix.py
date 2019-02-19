@@ -3,9 +3,9 @@
 
 """
     Usage:
-        ./run_convert_mark_to_sparse_matrix.py <info_file> <chr_sizes_file> <input_path>
-                                               <output_path> [--resolution INT] [--threshold INT]
-                                               [--chr_list STR] [--cpu INT]
+        ./convert_mark_to_sparse_matrix.py <info_file> <chr_sizes_file> <input_path>
+                                           <output_path> [--resolution INT] [--threshold INT]
+                                           [--chr_list STR] [--cpu INT]
 
     Arguments:
         <info_file>                         Path to the bam information file
@@ -21,7 +21,7 @@
         -l STR, --chr_list STR              List of chromosome names separeted by "_".
                                             [default: all]
         -c INT, --cpu INT                   Number of cpus to use for parallelisation.
-                                            By default using all available (0).
+                                            By default using all available.
                                             [default: 0]
         -h, --help                          Show this.
 """
@@ -102,6 +102,7 @@ def process(job):
     bam_file = Samfile(job["bam_filename"], "rb")
     output_file = open(job["output_filename"], "w")
 
+
     # Iterating on genome
     for start_1 in range(0, CHR_SIZES_DICT[job["chromosome"]], RESOLUTION):
 
@@ -127,16 +128,16 @@ def process(job):
             total_reads_2 = fetch_total_reads(bam_file, [job["chromosome"], start_2, end_2])
             if total_reads_2 == 0:
                 total_reads_2 = 1
-            if (total_reads_1 < THRESHOLD\
-                and total_reads_2 < THRESHOLD):
+            if (total_reads_1 < THRESHOLD and total_reads_2 < THRESHOLD):
                 continue
-
-            total = (total_reads_1 * total_reads_2) / job["total_reads"]
-            output_file.write("{}\t{}\t{}\t{}\n".\
-                             format(job["chromosome"], str(start_1), str(start_2), str(total)))
+            else:
+                total = (total_reads_1 * total_reads_2) / job["total_reads"]
+                output_file.write("{}\t{}\t{}\t{}\n".\
+                                 format(job["chromosome"], str(start_1), str(start_2), str(total)))
     # Closing files
     bam_file.close()
     output_file.close()
+
 
 if __name__ == "__main__":
 
@@ -149,11 +150,11 @@ if __name__ == "__main__":
     check_args()
     BAM_READS_DICT = create_dictionary(ARGS['<info_file>'])
     CHR_SIZES_DICT = create_dictionary(ARGS['<chr_sizes_file>'])
-    RESOLUTION = ARGS['--resolution']
-    THRESHOLD = ARGS['--threshold']
+    RESOLUTION = int(ARGS['--resolution'])
+    THRESHOLD = int(ARGS['--threshold'])
     CHR_LIST = ["chr"+str(k) for k in range(1, 23)] + ["chrX"] if ARGS["--chr_list"] == "all"\
                else ARGS["--chr_list"].split("_")
-    NB_PROC = cpu_count() if int(ARGS["--cpu"]) == "all" else int(ARGS["--cpu"])
+    NB_PROC = cpu_count() if int(ARGS["--cpu"]) == 0 else int(ARGS["--cpu"])
 
 
     ## Multiprocessing
@@ -172,11 +173,12 @@ if __name__ == "__main__":
                                              "bam_filename": ARGS['<input_path>'] + "/" + BAM_NAME + ".bam",
                                              "output_filename": OUTPUT_LOCATION + CHROMOSOME + "_" + BAM_NAME + ".txt",
                                              "total_reads": TOTAL_READS})
-    # Run the multiproess
+    # Run the multiprocess
     with Pool(processes=NB_PROC) as pool:
         FUNC = partial(process)
         # Progress bar
+        print("\n\n" + str(cpu_count()) + " cpus detected, using " + str(NB_PROC))
         print("Processing on output files (Sparse matrices) ...\n")
-        tqdm(pool.imap_unordered(FUNC, LIST_FOR_MULTIPROCESSING), total=len(LIST_FOR_MULTIPROCESSING))
+        tqdm(pool.map(FUNC, LIST_FOR_MULTIPROCESSING), total=len(LIST_FOR_MULTIPROCESSING))
 
     print("\nTotal runtime: {} seconds".format(str(datetime.now() - START_TIME)))
