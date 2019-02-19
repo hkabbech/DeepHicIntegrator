@@ -27,13 +27,11 @@
 """
 
 # Third-party modules
-# import subprocess
-# from multiprocessing import Pool, cpu_count
-from multiprocessing import cpu_count
-# from functools import partial
+from multiprocessing import Pool, cpu_count
+from functools import partial
 from datetime import datetime
-# from tqdm import tqdm
 import os
+from tqdm import tqdm
 from docopt import docopt
 from schema import Schema, And, Use, SchemaError
 from pysam import Samfile
@@ -66,10 +64,10 @@ def create_dictionary(filename):
         Create a dictionary with key = str and value = int.
 
         Args:
-            filname(str): Path to the file containing the informations
-                          (format: column_1\tcolumn_2).
+            filname (str): Path to the file containing the informations
+                          (format: column_1\tcolumn_2)
         Returns:
-            dict: The created dictionary.
+            dict: The created dictionary
     """
     info_dict = {}
     with open(filename, "r") as file:
@@ -80,18 +78,65 @@ def create_dictionary(filename):
 
 def fetch_total_reads(bamfile, region):
     """
-        fsdfsd
+        Fetch the total number of reads in a bam file.
 
         Args:
-            bamfile (file): fs
-            region (list): sdf
+            bamfile (file): Bam file
+            region (list): Region to fetch in the bam file [chromosome, start, end]
         Returns:
-            int: dsf
+            int: Total number of reads
     """
     count = 0
     for _ in bamfile.fetch(region[0], region[1], region[2]):
         count += 1
     return count
+
+def process(job):
+    """
+        Create a sparse matrix file from a given bam file.
+
+        Args:
+            job (dict): Dictionary containing variables for the surrent job :
+                        chromosome, bam_filename, output_filename and total_reads
+    """
+    bam_file = Samfile(job["bam_filename"], "rb")
+    output_file = open(job["output_filename"], "w")
+
+    # Iterating on genome
+    for start_1 in range(0, CHR_SIZES_DICT[job["chromosome"]], RESOLUTION):
+
+        # Fetching locations
+        end_1 = start_1 + RESOLUTION
+        if end_1 > CHR_SIZES_DICT[job["chromosome"]]:
+            end_1 = CHR_SIZES_DICT[job["chromosome"]]
+
+        # Fetching reads 1
+        total_reads_1 = fetch_total_reads(bam_file, [job["chromosome"], start_1, end_1])
+        if (total_reads_1 == 0 or total_reads_1 < THRESHOLD):
+            total_reads_1 = 1
+
+        # Iterating on genome
+        for start_2 in range(start_1, CHR_SIZES_DICT[job["chromosome"]], RESOLUTION):
+
+            # Fetching locations
+            end_2 = start_2 + RESOLUTION
+            if end_2 > CHR_SIZES_DICT[job["chromosome"]]:
+                end_2 = CHR_SIZES_DICT[job["chromosome"]]
+
+            # Fetching reads 2
+            total_reads_2 = fetch_total_reads(bam_file, [job["chromosome"], start_2, end_2])
+            if total_reads_2 == 0:
+                total_reads_2 = 1
+            if (total_reads_1 < THRESHOLD\
+                and total_reads_2 < THRESHOLD):
+                continue
+
+            total = (total_reads_1 * total_reads_2) / job["total_reads"]
+            output_file.write("{}\t{}\t{}\t{}\n".\
+                             format(job["chromosome"], str(start_1), str(start_2), str(total)))
+    # Closing files
+    bam_file.close()
+    output_file.close()
 
 if __name__ == "__main__":
 
@@ -107,53 +152,31 @@ if __name__ == "__main__":
     RESOLUTION = ARGS['--resolution']
     THRESHOLD = ARGS['--threshold']
     CHR_LIST = ["chr"+str(k) for k in range(1, 23)] + ["chrX"] if ARGS["--chr_list"] == "all"\
-                else ARGS["--chr_list"].split("_")
+               else ARGS["--chr_list"].split("_")
     NB_PROC = cpu_count() if int(ARGS["--cpu"]) == "all" else int(ARGS["--cpu"])
-    # Bam Loop
+
+
+    ## Multiprocessing
+    ##################
+
+    # Creating list for the multiprocessing
+    # Each element of the list corresponds to a dictionary containing specific variables for a job
+    LIST_FOR_MULTIPROCESSING = []
+    # Loop crossing all bam name
     for BAM_NAME, TOTAL_READS in BAM_READS_DICT.items():
-        BAM_FILE = Samfile(ARGS['<input_path>'] + "/" + BAM_NAME + ".bam", "rb")
         OUTPUT_LOCATION = ARGS['<output_path>'] + "/" + BAM_NAME + "/"
         os.makedirs(OUTPUT_LOCATION, exist_ok=True)
-
-        # Chromosome Loop
+        # Loop crossing all chromosome name
         for CHROMOSOME in CHR_LIST:
-            OUTPUT_FILE = open(OUTPUT_LOCATION + CHROMOSOME + "_" + BAM_NAME + ".txt", "w")
-
-            # Iterating on genome
-            for START_1 in range(0, CHR_SIZES_DICT[CHROMOSOME], RESOLUTION):
-
-                # Fetching locations
-                END_1 = START_1 + RESOLUTION
-                if END_1 > CHR_SIZES_DICT[CHROMOSOME]:
-                    END_1 = CHR_SIZES_DICT[CHROMOSOME]
-
-                # Fetching reads
-                TOTAL_READS_1 = fetch_total_reads(BAM_FILE, [CHROMOSOME, START_1, END_1])
-                if (TOTAL_READS_1 == 0 or TOTAL_READS_1 < THRESHOLD):
-                    TOTAL_READS_1 = 1
-
-                # Iterating on genome
-                for START_2 in range(START_1, CHR_SIZES_DICT[CHROMOSOME], RESOLUTION):
-
-                    # Fetching locations
-                    END_2 = START_2 + RESOLUTION
-                    if END_2 > CHR_SIZES_DICT[CHROMOSOME]:
-                        END_2 = CHR_SIZES_DICT[CHROMOSOME]
-
-                    # Fetching reads
-                    TOTAL_READS_2 = fetch_total_reads(BAM_FILE, [CHROMOSOME, START_2, END_2])
-                    if TOTAL_READS_2 == 0:
-                        TOTAL_READS_2 = 1
-                    if (TOTAL_READS_1 < THRESHOLD\
-                        and TOTAL_READS_2 < THRESHOLD):
-                        continue
-
-                    # Writing to file
-                    TOTAL = (TOTAL_READS_1 * TOTAL_READS_2) / TOTAL_READS
-                    OUTPUT_FILE.write("{}\t{}\t{}\t{}\n".\
-                                     format(CHROMOSOME, str(START_1), str(START_2), str(TOTAL)))
-            # Closing files
-            OUTPUT_FILE.close()
-        BAM_FILE.close()
+            LIST_FOR_MULTIPROCESSING.append({"chromosome": CHROMOSOME,
+                                             "bam_filename": ARGS['<input_path>'] + "/" + BAM_NAME + ".bam",
+                                             "output_filename": OUTPUT_LOCATION + CHROMOSOME + "_" + BAM_NAME + ".txt",
+                                             "total_reads": TOTAL_READS})
+    # Run the multiproess
+    with Pool(processes=NB_PROC) as pool:
+        FUNC = partial(process)
+        # Progress bar
+        print("Processing on output files (Sparse matrices) ...\n")
+        tqdm(pool.imap_unordered(FUNC, LIST_FOR_MULTIPROCESSING), total=len(LIST_FOR_MULTIPROCESSING))
 
     print("\nTotal runtime: {} seconds".format(str(datetime.now() - START_TIME)))
