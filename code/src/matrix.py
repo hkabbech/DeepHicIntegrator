@@ -30,7 +30,7 @@ class Matrix:
                 base_1(int): Index of the first nucleotid base.
                 base_2(int): Index of the second nucleotid base.
             Returns:
-                value(float): The corresponding value if the row exists or 0 if not.
+                float: The corresponding value if the row exists or 0 if not.
         """
         # The row could be find by two positions (base_1 base_2 or base_2 base_1)
         if not isinstance(base_1, int) or not isinstance(base_2, int):
