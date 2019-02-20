@@ -3,26 +3,27 @@
 
 """
     Usage:
-        ./convert_mark_to_sparse_matrix.py <info_file> <chr_sizes_file> <input_path>
-                                           <output_path> [--resolution INT] [--threshold INT]
-                                           [--chr_list STR] [--cpu INT]
+        ./2.1_convert_bam_to_sparse_matrix.py <bam_path> <total_reads_file> <chr_sizes_file>
+                                              <output_path> [--resolution INT] [--threshold INT]
+                                              [--chr_list STR] [--cpu INT]
 
     Arguments:
-        <info_file>                         Path to the bam information file
-                                            (bam_name\treads_number).
-        <chr_sizes_file>                    Path to the chromosome sizes file
-                                            (chr_name\tchr_size).
-        <input_path>                        Path to the folder containing bam files.
-        <output_path>                       Path to the output folder.
+        <bam_path>                          Path of the folder containing the bam files.
+        <total_reads_file>                  Path of the file giving the total number
+                                            of reads for each bam file.
+                                            format : bam_name \t total_number_reads
+        <chr_sizes_file>                    Path of the file containing the size
+                                            for each chromosome.
+                                            format : chr_name \t chr_size
+        <output_path>                       Path of the output folder.
 
     Options:
         -r INT, --resolution INT            Resolution value. [default: 25000]
         -m INT, --threshold INT             Minimum reads threshold value. [default: 2500]
         -l STR, --chr_list STR              List of chromosome names separeted by "_".
                                             [default: all]
-        -c INT, --cpu INT                   Number of cpus to use for parallelisation.
-                                            By default using all available.
-                                            [default: 0]
+        -c INT, --cpu INT                   Number of cpus to use for parallelization.
+                                            By default using all cpus available. [default: 0]
         -h, --help                          Show this.
 """
 
@@ -41,9 +42,9 @@ def check_args():
         Checks and validates the types of inputs parsed by docopt from command line.
     """
     schema = Schema({
-        '<info_file>': Use(open),
+        '<bam_path>': os.path.exists,
+        '<total_reads_file>': Use(open),
         '<chr_sizes_file>': And(Use(open)),
-        '<input_path>': os.path.exists,
         '--resolution': And(Use(int), lambda n: n >= 0,
                             error='--resolution=INT should be a positive integer'),
         '--threshold': And(Use(int), lambda n: n >= 0,
@@ -65,7 +66,7 @@ def create_dictionary(filename):
 
         Args:
             filname (str): Path to the file containing the informations
-                          (format: column_1\tcolumn_2)
+                           format: column_1 \t column_2
         Returns:
             dict: The created dictionary
     """
@@ -81,10 +82,10 @@ def fetch_total_reads(bamfile, region):
         Fetch the total number of reads in a bam file.
 
         Args:
-            bamfile (file): Bam file
-            region (list): Region to fetch in the bam file [chromosome, start, end]
+            bamfile (file): An opened bam file
+            region (list): A region to fetch in the bam file [chromosome, start, end]
         Returns:
-            int: Total number of reads
+            int: The total number of reads
     """
     count = 0
     for _ in bamfile.fetch(region[0], region[1], region[2]):
@@ -96,22 +97,23 @@ def process(job):
         Create a sparse matrix file from a given bam file.
 
         Args:
-            job (dict): Dictionary containing variables for the surrent job :
-                        chromosome, bam_filename, output_filename and total_reads
+            job (dict): Dictionary containing variables for the current job :
+                        keys: chromosome, bam_filename, output_filename and total_reads
     """
+    # Opening the files
     bam_file = Samfile(job["bam_filename"], "rb")
     output_file = open(job["output_filename"], "w")
-
 
     # Iterating on genome
     for start_1 in range(0, CHR_SIZES_DICT[job["chromosome"]], RESOLUTION):
 
-        # Fetching locations
+        # Set the value of end_1
+        # region 1 = [start_1, .., end_1]
         end_1 = start_1 + RESOLUTION
         if end_1 > CHR_SIZES_DICT[job["chromosome"]]:
             end_1 = CHR_SIZES_DICT[job["chromosome"]]
 
-        # Fetching reads 1
+        # Fetching the total number of reads for the first region
         total_reads_1 = fetch_total_reads(bam_file, [job["chromosome"], start_1, end_1])
         if (total_reads_1 == 0 or total_reads_1 < THRESHOLD):
             total_reads_1 = 1
@@ -119,24 +121,26 @@ def process(job):
         # Iterating on genome
         for start_2 in range(start_1, CHR_SIZES_DICT[job["chromosome"]], RESOLUTION):
 
-            # Fetching locations
+            # Set the value of end_2
+            # region 2 = [start_2, .., end_2]
             end_2 = start_2 + RESOLUTION
             if end_2 > CHR_SIZES_DICT[job["chromosome"]]:
                 end_2 = CHR_SIZES_DICT[job["chromosome"]]
 
-            # Fetching reads 2
+            # Fetching the total number of reads for the second region
             total_reads_2 = fetch_total_reads(bam_file, [job["chromosome"], start_2, end_2])
             if total_reads_2 == 0:
                 total_reads_2 = 1
             if (total_reads_1 < THRESHOLD and total_reads_2 < THRESHOLD):
                 continue
-            else:
-                total = (total_reads_1 * total_reads_2) / job["total_reads"]
-                output_file.write("{}\t{}\t{}\t{}\n".\
-                                 format(job["chromosome"], str(start_1), str(start_2), str(total)))
+            # Calculation of the total and writing in the output file
+            total = (total_reads_1 * total_reads_2) / job["total_reads"]
+            output_file.write("{}\t{}\t{}\t{}\n".\
+                             format(job["chromosome"], str(start_1), str(start_2), str(total)))
     # Closing files
     bam_file.close()
     output_file.close()
+    print("{} done".format(job["output_filename"]))
 
 
 if __name__ == "__main__":
@@ -145,10 +149,13 @@ if __name__ == "__main__":
 
     ### Parse command line
     ######################
+
     ARGS = docopt(__doc__)
     # Check the types and ranges of the command line arguments parsed by docopt
     check_args()
-    BAM_READS_DICT = create_dictionary(ARGS['<info_file>'])
+    # Creation of dictionaries from the files containing necessary informations
+    # with format : name \t integer
+    BAM_READS_DICT = create_dictionary(ARGS['<total_reads_file>'])
     CHR_SIZES_DICT = create_dictionary(ARGS['<chr_sizes_file>'])
     RESOLUTION = int(ARGS['--resolution'])
     THRESHOLD = int(ARGS['--threshold'])
@@ -170,15 +177,14 @@ if __name__ == "__main__":
         # Loop crossing all chromosome name
         for CHROMOSOME in CHR_LIST:
             LIST_FOR_MULTIPROCESSING.append({"chromosome": CHROMOSOME,
-                                             "bam_filename": ARGS['<input_path>'] + "/" + BAM_NAME + ".bam",
+                                             "bam_filename": ARGS['<bam_path>'] + "/" + BAM_NAME + ".bam",
                                              "output_filename": OUTPUT_LOCATION + CHROMOSOME + "_" + BAM_NAME + ".txt",
                                              "total_reads": TOTAL_READS})
-    # Run the multiprocess
+    # Run the multiprocessing
     with Pool(processes=NB_PROC) as pool:
-        FUNC = partial(process)
         # Progress bar
         print("\n\n" + str(cpu_count()) + " cpus detected, using " + str(NB_PROC))
         print("Processing on output files (Sparse matrices) ...\n")
-        tqdm(pool.map(FUNC, LIST_FOR_MULTIPROCESSING), total=len(LIST_FOR_MULTIPROCESSING))
+        pool.map(partial(process), LIST_FOR_MULTIPROCESSING)
 
     print("\nTotal runtime: {} seconds".format(str(datetime.now() - START_TIME)))
