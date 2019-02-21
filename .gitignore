@@ -1,3 +1,4 @@
-data/histone_modification/
-data/rao_juicer_hic/
+data/toy_example/1_binaries/bam/*.bam
+data/toy_example/1_binaries/bam/*.bai
+data/toy_example/1_binaries/hic/*.hic
 results/eduardo
