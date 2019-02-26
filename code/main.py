@@ -64,14 +64,11 @@ if __name__ == "__main__":
     NB_PROC = cpu_count() if int(ARGS["--cpu"]) == 0 else int(ARGS["--cpu"])
 
 
+    HIC.set_matrix()
+    print(HIC.matrix)
 
     # Example How to get a value from 2 given bases :
     BASE_1, BASE_2 = 75000, 350000
     print(HIC.get_value('chr20', BASE_1, BASE_2))
-
-    # from datetime import datetime
-    # START_TIME = datetime.now()
-    # h.set_matrix()
-    # print("\nTotal runtime: {} seconds".format(str(datetime.now() - START_TIME)))
 
     print("\nTotal runtime: {} seconds".format(str(datetime.now() - START_TIME)))
