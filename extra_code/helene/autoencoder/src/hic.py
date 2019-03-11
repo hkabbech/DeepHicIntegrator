@@ -4,6 +4,7 @@
 """
 
 # Third-party modules
+import csv
 import pandas as pd
 import numpy as np
 from scipy.sparse import coo_matrix
@@ -24,23 +25,19 @@ class Hic:
 
     Attributes:
         sparse (Pandas DataFrame): A data frame containing the Hi-C sparse matrix.
-        resolution (int): The resolution of the matrix.
-        size (int):
         matrix (numpy array):
     """
 
-    def __init__(self, filename, resolution):
+    def __init__(self, filename):
         self.df = pd.read_csv(filename, sep='\t', header=None)
         self.df.columns = ['chr', 'base_1', 'base_2', 'value']
         self.chr_name = ", ".join(self.df.chr.unique())
-        self.resolution = resolution
-        self.size = int(int(max(self. df['base_2'])) / self.resolution)
         self.matrix = None
         self.sub_matrices = None
         self.predicted_sub_matrices = None
         self.reconstructed_matrix = None
 
-    def set_matrix(self, added_lines, deleted_lines):
+    def set_matrix(self, resolution, added_lines, deleted_lines):
         """
             Create a sparse matrix in a very fast way using scipy.sparse module
             and convert it into a numpy array.
@@ -51,13 +48,14 @@ class Hic:
         data = np.array(values.append(values))
         # base_1 and base_2 columns must be converted to index by dividing by the resolution number
         # This step is necesary for the creation of the sparse matrix with scipy.sparse
-        base_1_index = ((self.df.base_1 / self.resolution)+added_lines).astype(int)
-        base_2_index = ((self.df.base_2 / self.resolution)+added_lines).astype(int)
+        base_1_index = ((self.df.base_1 / resolution)+added_lines).astype(int)
+        base_2_index = ((self.df.base_2 / resolution)+added_lines).astype(int)
         row = np.array(base_1_index.append(base_2_index))
         col = np.array(base_2_index.append(base_1_index))
         # Creation of the sparse matrix and conversion into a numpy array
+        size = int(max(max(self.df['base_2']), max(self.df['base_1'])) / resolution)
         matrix = coo_matrix((data, (row, col)),
-                            shape=(self.size+added_lines+1, self.size+added_lines+1)
+                            shape=(size+added_lines+1, size+added_lines+1)
                            ).toarray()
         matrix = matrix[deleted_lines:, deleted_lines:]
         matrix = np.float32(matrix)
@@ -91,31 +89,40 @@ class Hic:
         """
         self.predicted_sub_matrices = predicted_sub_matrices
 
-    def set_reconstructed_matrix(self, N):
+    def set_reconstructed_matrix(self, side):
         """
         TO DO doctrings
         """
-        nb_sub_matrices = int(self.matrix.shape[0]/N)
+        nb_sub_matrices = int(self.matrix.shape[0] / side)
         j = 1
         for _, sub_matrix in enumerate(self.predicted_sub_matrices):
             if j == nb_sub_matrices:
                 try:
                     line = np.concatenate((line, sub_matrix), axis=1)
                     reconstructed_matrix = np.concatenate((reconstructed_matrix, line), axis=0)
-                except:
+                except NameError:
                     reconstructed_matrix = line
                 j = 1
                 del line
             else:
                 try:
                     line = np.concatenate((line, sub_matrix), axis=1)
-                except:
+                except NameError:
                     line = sub_matrix
                 j += 1
         self.reconstructed_matrix = reconstructed_matrix.reshape(reconstructed_matrix.shape[0],
                                                                  reconstructed_matrix.shape[1])
+    def save_reconstructed_matrix(self, output_path, resolution):
+        """
+        TO DO doctrings
+        """
+        sparse = coo_matrix(np.triu(self.reconstructed_matrix))
+        with open(output_path+'files/reconstructed_'+self.chr_name+'.txt', 'w') as file:
+            writer = csv.writer(file, delimiter='\t')
+            writer.writerows(zip([self.chr_name]*len(sparse.row), sparse.row*resolution,
+                                 sparse.col*resolution, sparse.data))
 
-    def plot_matrix(self, chr_type="true"):
+    def plot_matrix(self, chr_type, output_path):
         """
         TO DO doctrings
         """
@@ -124,16 +131,16 @@ class Hic:
         else:
             matrix = self.matrix
         fig = plt.figure(figsize=(12, 12))
-        ax = plt.subplot(111, aspect='equal')
-        im = ax.matshow(matrix, cmap=NEW_CMP)
-        divider = make_axes_locatable(ax)
+        axes = plt.subplot(111, aspect='equal')
+        img = axes.matshow(matrix, cmap=NEW_CMP)
+        divider = make_axes_locatable(axes)
         cax = divider.append_axes("right", size="2%", pad=0.15)
-        plt.colorbar(im, cax=cax)
+        plt.colorbar(img, cax=cax)
         plt.subplots_adjust(left=0.07, bottom=0, right=0.95, top=0.91, wspace=0, hspace=0)
-        ax.set_title('{} {} Hi-C matrix'.format(chr_type, self.chr_name), fontsize=25)
-        fig.savefig('{}_{}.png'.format(chr_type, self.chr_name))
+        axes.set_title('{} {} Hi-C matrix'.format(chr_type, self.chr_name), fontsize=25)
+        fig.savefig('{}plots/{}_{}.png'.format(output_path, self.chr_name, chr_type))
 
-    def plot_ten_sub_matrices(self, indices_list, chr_type="true"):
+    def plot_ten_sub_matrices(self, chr_type, indices_list, output_path):
         """
         TO DO doctrings
         """
@@ -141,9 +148,10 @@ class Hic:
             sub_matrices = self.predicted_sub_matrices
         else:
             sub_matrices = self.sub_matrices
-        plt.figure(figsize=(22, 4))
+        plt.figure(figsize=(18, 2))
         for i, sub_matrix_index in enumerate(indices_list):
-            plt.subplot(2, 10, i+1)
+            plt.subplot(1, 10, i+1)
             plt.imshow(sub_matrices[sub_matrix_index, ..., 0], cmap=NEW_CMP)
             plt.title("submatrix n°{}".format(sub_matrix_index))
-            plt.savefig('{}_{}_10_submatrices.png'.format(chr_type, self.chr_name))
+        plt.subplots_adjust(left=0.03, right=0.98, wspace=0.3)
+        plt.savefig('{}plots/10submatrices_{}_{}_.png'.format(output_path, self.chr_name, chr_type))

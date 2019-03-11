@@ -27,9 +27,11 @@
 
 
 # Third-party modules
-from multiprocessing import cpu_count#, Pool
+# from multiprocessing import cpu_count#, Pool
 from datetime import datetime
-#from schema import Schema, And, Use, SchemaError
+# from schema import Schema, And, Use, SchemaError
+import os
+from contextlib import redirect_stdout
 from docopt import docopt
 from sklearn.model_selection import train_test_split
 from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D
@@ -61,28 +63,39 @@ def autoencoder_network(input_img):
     decoded = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(up2)
     return decoded
 
-def train_autoencoder():
+def plot_loss(autoencoder_train):
     """
     TO DO doctrings
     """
-    train_x, valid_x, train_ground, valid_ground = train_test_split(TRAIN.sub_matrices, TRAIN.sub_matrices, test_size=0.2,
-                                                                    random_state=13)
-    input_image = Input(shape=(N, N, INCHANNEL))
-
-    autoencoder = Model(input_image, autoencoder_network(input_image))
-    autoencoder.compile(loss='mean_squared_error', optimizer=RMSprop())
-    autoencoder.summary()
-    autoencoder_train = autoencoder.fit(train_x, train_ground, batch_size=BATCH_SIZE, epochs=EPOCHS,
-                                        verbose=1, validation_data=(valid_x, valid_ground))
     plt.figure()
     plt.plot(range(EPOCHS), autoencoder_train.history['loss'], 'bo', label='Training loss')
     plt.plot(range(EPOCHS), autoencoder_train.history['val_loss'], 'b', label='Validation loss')
     plt.title('Training and validation loss')
     plt.legend()
-    plt.savefig('training_validation_loss.png')
+    plt.savefig(OUTPUT_PATH+'plots/training_validation_loss.png')
 
-    TEST.set_predicted_sub_matrices(autoencoder.predict(TEST))
+def save_summary(model):
+    """
+    TO DO doctrings
+    """
+    with open(OUTPUT_PATH+'files/model_summary.txt', 'w') as file:
+        with redirect_stdout(file):
+            model.summary()
 
+def save_parameters():
+    """
+    TO DO doctrings
+    """
+    with open(OUTPUT_PATH+'files/parameters.log', 'w') as file:
+        file.write('Hi-C parameters:\n Resolution: {}\n Size sub-matrices: {}*{}\n\n'
+                   .format(RESOLUTION, N, N))
+        file.write('Train:\n Filename: {}\n Added lines: {}\n Deleted lines: {}\n\n'
+                   .format(TRAIN_FILENAME, ADDED_LINES_TRAIN, DELETED_LINES_TRAIN))
+        file.write('Test:\n Filename: {}\n Added lines: {}\n Deleted lines: {}\n\n'
+                   .format(TEST_FILENAME, ADDED_LINES_TEST, DELETED_LINES_TEST))
+        file.write('Autoencoder parameters:\n Epochs: {}\n Batch size: {}\n InChannel: {}\n\n'
+                   .format(EPOCHS, BATCH_SIZE, INCHANNEL, TRAIN_FILENAME, TEST_FILENAME))
+        file.write('Running time: {}'.format(TIME_TOTAL))
 
 if __name__ == "__main__":
 
@@ -93,29 +106,60 @@ if __name__ == "__main__":
     ARGS = docopt(__doc__)
     # Check the types and ranges of the command line arguments parsed by docopt
     # check_args()
-    TRAIN = Hic(ARGS['<train_hic>'], int(ARGS['--resolution']))
-    TEST = Hic(ARGS['<test_hic>'], int(ARGS['--resolution']))
+    TRAIN_FILENAME = ARGS['<train_hic>']
+    TEST_FILENAME = ARGS['<test_hic>']
+    RESOLUTION = int(ARGS['--resolution'])
     N = int(ARGS['--square_side'])
     EPOCHS = int(ARGS['--epochs'])
     BATCH_SIZE = int(ARGS['--batch_size'])
     INCHANNEL = int(ARGS['--inchannel'])
-    NB_PROC = cpu_count() if int(ARGS["--cpu"]) == 0 else int(ARGS["--cpu"])
+    # NB_PROC = cpu_count() if int(ARGS["--cpu"]) == 0 else int(ARGS["--cpu"])
+    OUTPUT_PATH = ARGS['--output']
+    os.makedirs(OUTPUT_PATH+'plots/', exist_ok=True)
+    os.makedirs(OUTPUT_PATH+'files/', exist_ok=True)
 
-    TRAIN.set_matrix(added_lines=0, deleted_lines=21)
+
+    ### Autoencoder Training
+    ########################
+
+    TRAIN = Hic(TRAIN_FILENAME)
+    # ADDED_LINES_TRAIN, DELETED_LINES_TRAIN = 0, 21
+    ADDED_LINES_TRAIN, DELETED_LINES_TRAIN = 0, 0
+    TRAIN.set_matrix(RESOLUTION, ADDED_LINES_TRAIN, DELETED_LINES_TRAIN)
     TRAIN.set_sub_matrices(N, N)
 
-    TEST.set_matrix(added_lines=1, deleted_lines=0)
+    TRAIN_X, VALID_X, TRAIN_GROUND, VALID_GROUND = train_test_split(TRAIN.sub_matrices,
+                                                                    TRAIN.sub_matrices,
+                                                                    test_size=0.2, random_state=13)
+    INPUT_IMG = Input(shape=(N, N, INCHANNEL))
+    AUTOENCODER = Model(INPUT_IMG, autoencoder_network(INPUT_IMG))
+    AUTOENCODER.compile(loss='mean_squared_error', optimizer=RMSprop())
+    AUTOENCODER_TRAIN = AUTOENCODER.fit(TRAIN_X, TRAIN_GROUND, batch_size=BATCH_SIZE, epochs=EPOCHS,
+                                        verbose=1, validation_data=(VALID_X, VALID_GROUND))
+    plot_loss(AUTOENCODER_TRAIN)
+    save_summary(AUTOENCODER)
+
+
+    ### Test
+    ########
+    TEST = Hic(TEST_FILENAME)
+    # ADDED_LINES_TEST, DELETED_LINES_TEST = 1, 0
+    ADDED_LINES_TEST, DELETED_LINES_TEST = 0, 0
+    TEST.set_matrix(RESOLUTION, ADDED_LINES_TEST, DELETED_LINES_TEST)
+    #TEST.set_matrix(RESOLUTION, added_lines=1, deleted_lines=0)
+    TEST.set_matrix(RESOLUTION, added_lines=0, deleted_lines=0)
     TEST.set_sub_matrices(N, N)
+    TEST.set_predicted_sub_matrices(AUTOENCODER.predict(TEST.sub_matrices))
+    TEST.set_reconstructed_matrix(N)
+    TEST.save_reconstructed_matrix(OUTPUT_PATH, RESOLUTION)
 
-    train_autoencoder()
+    # INDICES_LIST = [85, 86, 258, 311, 312, 313, 502, 624, 908, 1203]
+    INDICES_LIST = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    TEST.plot_ten_sub_matrices("true", INDICES_LIST, OUTPUT_PATH)
+    TEST.plot_ten_sub_matrices("predicted", INDICES_LIST, OUTPUT_PATH)
+    TEST.plot_matrix("true", OUTPUT_PATH)
+    TEST.plot_matrix("predicted", OUTPUT_PATH)
 
-
-    ### Plots
-    #########
-    INDICES_LIST = [85, 86, 258, 311, 312, 313, 502, 624, 908, 1203]
-    TRAIN.plot_ten_sub_matrices(INDICES_LIST)
-    TRAIN.plot_matrix()
-    TEST.plot_ten_sub_matrices(INDICES_LIST, chr_type="predicted")
-    TEST.plot_matrix(chr_type="predicted")
-
-    print("\nTotal runtime: {} seconds".format(datetime.now() - START_TIME))
+    TIME_TOTAL = datetime.now() - START_TIME
+    print("\nTotal runtime: {} seconds".format(TIME_TOTAL))
+    save_parameters()
