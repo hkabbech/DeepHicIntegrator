@@ -117,7 +117,7 @@ class Hic:
         TO DO doctrings
         """
         sparse = coo_matrix(np.triu(self.reconstructed_matrix))
-        with open(output_path+'files/reconstructed_'+self.chr_name+'.txt', 'w') as file:
+        with open(output_path+'/reconstructed_'+self.chr_name+'.txt', 'w') as file:
             writer = csv.writer(file, delimiter='\t')
             writer.writerows(zip([self.chr_name]*len(sparse.row), sparse.row*resolution,
                                  sparse.col*resolution, sparse.data))
@@ -138,7 +138,7 @@ class Hic:
         plt.colorbar(img, cax=cax)
         plt.subplots_adjust(left=0.07, bottom=0, right=0.95, top=0.91, wspace=0, hspace=0)
         axes.set_title('{} {} Hi-C matrix'.format(chr_type, self.chr_name), fontsize=25)
-        fig.savefig('{}plots/{}_{}.png'.format(output_path, self.chr_name, chr_type))
+        fig.savefig('{}/{}_{}.png'.format(output_path, self.chr_name, chr_type))
 
     def plot_ten_sub_matrices(self, chr_type, indices_list, output_path):
         """
@@ -154,4 +154,21 @@ class Hic:
             plt.imshow(sub_matrices[sub_matrix_index, ..., 0], cmap=NEW_CMP)
             plt.title("submatrix n°{}".format(sub_matrix_index))
         plt.subplots_adjust(left=0.03, right=0.98, wspace=0.3)
-        plt.savefig('{}plots/10submatrices_{}_{}_.png'.format(output_path, self.chr_name, chr_type))
+        plt.savefig('{}/10submatrices_{}_{}_.png'.format(output_path, self.chr_name, chr_type))
+
+
+# N = 30
+# chr20 = 180*180, chr10 = 84*84
+#
+# N = 60 
+# chr20 =  90*90 , chr10 = 42*42
+#
+# N = 120
+# chr20 =  45*45 , chr10 = 21*21
+#
+# N = 180
+# chr20 =  30*30 , chr10 = 14*14
+#
+# N = 360
+# chr20 =  15*15 , chr10 =  7*7 
+#

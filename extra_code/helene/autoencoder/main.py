@@ -65,22 +65,13 @@ def autoencoder_network(input_img):
     decoded = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(up2)
     return decoded
 
-def plot_loss(autoencoder_train):
-    """
-    TO DO doctrings
-    """
-    plt.figure()
-    plt.plot(range(EPOCHS), autoencoder_train.history['loss'], 'bo', label='Training loss')
-    plt.plot(range(EPOCHS), autoencoder_train.history['val_loss'], 'b', label='Validation loss')
-    plt.title('Training and validation loss')
-    plt.legend()
-    plt.savefig(OUTPUT_PATH+'files/training_validation_loss.png')
 
 def save_parameters():
     """
     TO DO doctrings
     """
-    with open(OUTPUT_PATH+'files/parameters.log', 'w') as file:
+    # Parameters
+    with open(OUTPUT_PATH+'model/parameters.log', 'w') as file:
         file.write('Hi-C parameters:\n Resolution: {}\n Size sub-matrices: {}*{}\n\n'
                    .format(RESOLUTION, N, N))
         file.write('Train:\n Filename: {}\n Added lines: {}\n Deleted lines: {}\n\n'
@@ -91,14 +82,44 @@ def save_parameters():
                    .format(EPOCHS, BATCH_SIZE, INCHANNEL))
         file.write('Running time: {}'.format(TIME_TOTAL))
 
-    with open(OUTPUT_PATH+'files/model_summary.txt', 'w') as file:
+    # Model Summary
+    with open(OUTPUT_PATH+'model/model_summary.txt', 'w') as file:
         with redirect_stdout(file):
             AUTOENCODER.summary()
 
-    with open(OUTPUT_PATH+'files/timeline.json', 'w') as file:
+    # Timeline
+    with open(OUTPUT_PATH+'model/timeline.json', 'w') as file:
         tl = timeline.Timeline(RUN_METADATA.step_stats)
         ctf = tl.generate_chrome_trace_format()
         file.write(ctf)
+
+    AUTOENCODER.save(OUTPUT_PATH+'model/model.h5')
+
+    # serialize weights to HDF5
+    AUTOENCODER.save_weights(OUTPUT_PATH+'model/model_num.h5')
+
+
+    with open(OUTPUT_PATH+'model/model_num.json', 'w') as json_file:
+        json_file.write(AUTOENCODER.to_json())
+
+    plt.figure()
+    plt.plot(range(EPOCHS), AUTOENCODER_TRAIN.history['loss'], 'b', label='Training')
+    plt.plot(range(EPOCHS), AUTOENCODER_TRAIN.history['val_loss'], 'r', label='Validation')
+    plt.title('Training and validation loss')
+    plt.xlabel('epochs')
+    plt.ylabel('loss')
+    plt.legend()
+    plt.savefig(OUTPUT_PATH+'model/training_validation_loss.png')
+
+
+    plt.figure()
+    plt.plot(range(EPOCHS), AUTOENCODER_TRAIN.history['acc'], 'b', label='Training')
+    plt.plot(range(EPOCHS), AUTOENCODER_TRAIN.history['val_acc'], 'r', label='Validation')
+    plt.title('Training and validation accuracy')
+    plt.xlabel('epochs')
+    plt.ylabel('loss')
+    plt.legend()
+    plt.savefig(OUTPUT_PATH+'model/training_validation_acc.png')
 
 if __name__ == "__main__":
 
@@ -118,7 +139,7 @@ if __name__ == "__main__":
     INCHANNEL = int(ARGS['--inchannel'])
     # NB_PROC = cpu_count() if int(ARGS["--cpu"]) == 0 else int(ARGS["--cpu"])
     OUTPUT_PATH = ARGS['--output']
-    os.makedirs(OUTPUT_PATH+'files/', exist_ok=True)
+    os.makedirs(OUTPUT_PATH+'model/', exist_ok=True)
 
 
     ### Autoencoder Training
@@ -129,9 +150,10 @@ if __name__ == "__main__":
 
 
     TRAIN = Hic(TRAIN_FILENAME)
-    ADDED_LINES_TRAIN, DELETED_LINES_TRAIN = 0, 21
-    # ADDED_LINES_TRAIN, DELETED_LINES_TRAIN = 0, 0
+    ADDED_LINES_TRAIN, DELETED_LINES_TRAIN = 0, 21 # shape (5400, 5400)
+    # ADDED_LINES_TRAIN, DELETED_LINES_TRAIN = 1, 0
     TRAIN.set_matrix(RESOLUTION, ADDED_LINES_TRAIN, DELETED_LINES_TRAIN)
+    TRAIN.plot_matrix("true", OUTPUT_PATH+'model') 
     TRAIN.set_sub_matrices(N, N)
 
     TRAIN_X, VALID_X, TRAIN_GROUND, VALID_GROUND = train_test_split(TRAIN.sub_matrices,
@@ -140,28 +162,29 @@ if __name__ == "__main__":
     INPUT_IMG = Input(shape=(N, N, INCHANNEL))
     AUTOENCODER = Model(INPUT_IMG, autoencoder_network(INPUT_IMG))
     AUTOENCODER.compile(loss='mean_squared_error', optimizer=RMSprop(),
+                        metrics=['accuracy'],
                         options=RUN_OPTIONS,
                         run_metadata=RUN_METADATA)
     AUTOENCODER_TRAIN = AUTOENCODER.fit(TRAIN_X, TRAIN_GROUND, batch_size=BATCH_SIZE, epochs=EPOCHS,
                                         verbose=1, validation_data=(VALID_X, VALID_GROUND))
-    plot_loss(AUTOENCODER_TRAIN)
-
-    INDICES_LIST = [85, 86, 258, 311, 312, 313, 502, 624, 908, 1203]
-    # INDICES_LIST = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
     ### Tests
     ###############
-    TEST_LIST = ['HUVEC', 'IMR90', 'K562']
-    for CELL in TEST_LIST:
-        TEST = Hic(TEST_PATH+'chr20_GSE63525_'+CELL+'.txt')
+    GENOME = 'GSE63525'
+    CELL_LIST = ['HUVEC', 'IMR90', 'K562']
+    CHR = 'chr20'
+    for CELL in CELL_LIST:
+        TEST = Hic(TEST_PATH+CHR+'_'+GENOME+'_'+CELL+'.txt')
         os.makedirs(OUTPUT_PATH+CELL, exist_ok=True)
-        ADDED_LINES_TEST, DELETED_LINES_TEST = 1, 0
+        ADDED_LINES_TEST, DELETED_LINES_TEST = 1, 0 # shape (2520, 2520)
         TEST.set_matrix(RESOLUTION, ADDED_LINES_TEST, DELETED_LINES_TEST)
         TEST.set_sub_matrices(N, N)
         TEST.set_predicted_sub_matrices(AUTOENCODER.predict(TEST.sub_matrices))
         TEST.set_reconstructed_matrix(N)
-        TEST.save_reconstructed_matrix(OUTPUT_PATH+'HUVEC/', RESOLUTION)
+        TEST.save_reconstructed_matrix(OUTPUT_PATH+CELL, RESOLUTION)
 
+        INDICES_LIST = [85, 86, 258, 311, 312, 313, 502, 624, 908, 1203]
+        # INDICES_LIST = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         TEST.plot_ten_sub_matrices("true", INDICES_LIST, OUTPUT_PATH+CELL)
         TEST.plot_ten_sub_matrices("predicted", INDICES_LIST, OUTPUT_PATH+CELL)
         TEST.plot_matrix("true", OUTPUT_PATH+CELL)
@@ -170,3 +193,20 @@ if __name__ == "__main__":
     TIME_TOTAL = datetime.now() - START_TIME
     print("\nTotal runtime: {} seconds".format(TIME_TOTAL))
     save_parameters()
+
+
+# N = 30
+# chr20 = 180*180, chr10 = 84*84
+#
+# N = 60 
+# chr20 =  90*90 , chr10 = 42*42
+#
+# N = 120
+# chr20 =  45*45 , chr10 = 21*21
+#
+# N = 180
+# chr20 =  30*30 , chr10 = 14*14
+#
+# N = 360
+# chr20 =  15*15 , chr10 =  7*7 
+#
