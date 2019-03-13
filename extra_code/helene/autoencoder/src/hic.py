@@ -140,35 +140,19 @@ class Hic:
         axes.set_title('{} {} Hi-C matrix'.format(chr_type, self.chr_name), fontsize=25)
         fig.savefig('{}/{}_{}.png'.format(output_path, self.chr_name, chr_type))
 
-    def plot_ten_sub_matrices(self, chr_type, indices_list, output_path):
+    def plot_ten_sub_matrices(self, chr_type, output_path, random_index_list):
         """
         TO DO doctrings
         """
+
         if chr_type == "predicted":
             sub_matrices = self.predicted_sub_matrices
         else:
             sub_matrices = self.sub_matrices
         plt.figure(figsize=(18, 2))
-        for i, sub_matrix_index in enumerate(indices_list):
+        for i, index in enumerate(random_index_list):
             plt.subplot(1, 10, i+1)
-            plt.imshow(sub_matrices[sub_matrix_index, ..., 0], cmap=NEW_CMP)
-            plt.title("submatrix n°{}".format(sub_matrix_index))
+            plt.imshow(sub_matrices[index, ..., 0], cmap=NEW_CMP)
+            plt.title("submatrix n°{}".format(index))
         plt.subplots_adjust(left=0.03, right=0.98, wspace=0.3)
         plt.savefig('{}/10submatrices_{}_{}_.png'.format(output_path, self.chr_name, chr_type))
-
-
-# N = 30
-# chr20 = 180*180, chr10 = 84*84
-#
-# N = 60 
-# chr20 =  90*90 , chr10 = 42*42
-#
-# N = 120
-# chr20 =  45*45 , chr10 = 21*21
-#
-# N = 180
-# chr20 =  30*30 , chr10 = 14*14
-#
-# N = 360
-# chr20 =  15*15 , chr10 =  7*7 
-#

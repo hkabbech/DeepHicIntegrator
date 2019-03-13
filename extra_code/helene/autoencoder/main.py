@@ -15,7 +15,7 @@
         -h, --help                      Show this.
         -r, INT, --resolution INT       Resolution used for the sparse matrix.
                                         [default: 25000]
-        -s INT, --square_side INT       [default: 60]
+        -n INT, --square_side INT       [default: 60]
         -e INT, --epochs INT            [default: 50]
         -b INT, --batch_size INT        [default: 128]
         -i INT, --inchannel INT         [default: 1]
@@ -31,6 +31,7 @@
 from datetime import datetime
 # from schema import Schema, And, Use, SchemaError
 import os
+import random as rd
 from contextlib import redirect_stdout
 from docopt import docopt
 import tensorflow as tf
@@ -74,10 +75,10 @@ def save_parameters():
     with open(OUTPUT_PATH+'model/parameters.log', 'w') as file:
         file.write('Hi-C parameters:\n Resolution: {}\n Size sub-matrices: {}*{}\n\n'
                    .format(RESOLUTION, N, N))
-        file.write('Train:\n Filename: {}\n Added lines: {}\n Deleted lines: {}\n\n'
-                   .format(TRAIN_FILENAME, ADDED_LINES_TRAIN, DELETED_LINES_TRAIN))
-        file.write('Test:\n Filename: {}\n Added lines: {}\n Deleted lines: {}\n\n'
-                   .format(TEST_PATH, ADDED_LINES_TEST, DELETED_LINES_TEST))
+        file.write('Train:\n Filename: {}\n Added lines: {}\n Deleted lines: {}\n Shape matrix: {}\n Shape sub_matrices: {}\n\n'
+                   .format(TRAIN_FILENAME, ADDED_LINES_TRAIN, DELETED_LINES_TRAIN, TRAIN.matrix.shape, TRAIN.sub_matrices.shape))
+        file.write('Test:\n Filename: {}\n Added lines: {}\n Deleted lines: {}\n Shape matrix: {}\n Shape sub_matrices: {}\n\n'
+                   .format(TEST_PATH, ADDED_LINES_TEST, DELETED_LINES_TEST, TEST.matrix.shape, TEST.sub_matrices.shape))
         file.write('Autoencoder parameters:\n Epochs: {}\n Batch size: {}\n InChannel: {}\n\n'
                    .format(EPOCHS, BATCH_SIZE, INCHANNEL))
         file.write('Running time: {}'.format(TIME_TOTAL))
@@ -153,7 +154,7 @@ if __name__ == "__main__":
     ADDED_LINES_TRAIN, DELETED_LINES_TRAIN = 0, 21 # shape (5400, 5400)
     # ADDED_LINES_TRAIN, DELETED_LINES_TRAIN = 1, 0
     TRAIN.set_matrix(RESOLUTION, ADDED_LINES_TRAIN, DELETED_LINES_TRAIN)
-    TRAIN.plot_matrix("true", OUTPUT_PATH+'model') 
+    TRAIN.plot_matrix("true", OUTPUT_PATH+'model')
     TRAIN.set_sub_matrices(N, N)
 
     TRAIN_X, VALID_X, TRAIN_GROUND, VALID_GROUND = train_test_split(TRAIN.sub_matrices,
@@ -165,6 +166,10 @@ if __name__ == "__main__":
                         metrics=['accuracy'],
                         options=RUN_OPTIONS,
                         run_metadata=RUN_METADATA)
+    # Model Summary
+    with open(OUTPUT_PATH+'model/model_summary.txt', 'w') as file:
+        with redirect_stdout(file):
+            AUTOENCODER.summary()
     AUTOENCODER_TRAIN = AUTOENCODER.fit(TRAIN_X, TRAIN_GROUND, batch_size=BATCH_SIZE, epochs=EPOCHS,
                                         verbose=1, validation_data=(VALID_X, VALID_GROUND))
 
@@ -183,30 +188,13 @@ if __name__ == "__main__":
         TEST.set_reconstructed_matrix(N)
         TEST.save_reconstructed_matrix(OUTPUT_PATH+CELL, RESOLUTION)
 
-        INDICES_LIST = [85, 86, 258, 311, 312, 313, 502, 624, 908, 1203]
-        # INDICES_LIST = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        TEST.plot_ten_sub_matrices("true", INDICES_LIST, OUTPUT_PATH+CELL)
-        TEST.plot_ten_sub_matrices("predicted", INDICES_LIST, OUTPUT_PATH+CELL)
+        # INDICES_LIST = [85, 86, 258, 311, 312, 313, 502, 624, 908, 1203]
+        RANDOM_INDEX_LIST= rd.sample(range(0, TEST.sub_matrices.shape[0]), 10)
+        TEST.plot_ten_sub_matrices("true", OUTPUT_PATH+CELL, RANDOM_INDEX_LIST)
+        TEST.plot_ten_sub_matrices("predicted", OUTPUT_PATH+CELL, RANDOM_INDEX_LIST)
         TEST.plot_matrix("true", OUTPUT_PATH+CELL)
         TEST.plot_matrix("predicted", OUTPUT_PATH+CELL)
 
     TIME_TOTAL = datetime.now() - START_TIME
     print("\nTotal runtime: {} seconds".format(TIME_TOTAL))
     save_parameters()
-
-
-# N = 30
-# chr20 = 180*180, chr10 = 84*84
-#
-# N = 60 
-# chr20 =  90*90 , chr10 = 42*42
-#
-# N = 120
-# chr20 =  45*45 , chr10 = 21*21
-#
-# N = 180
-# chr20 =  30*30 , chr10 = 14*14
-#
-# N = 360
-# chr20 =  15*15 , chr10 =  7*7 
-#
