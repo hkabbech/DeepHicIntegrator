@@ -62,7 +62,7 @@ class PredictHic(Hic):
                         line = sub_matrix
                     else:
                         line = white_sub_matrix
-                        for i in range(1, nb_white):
+                        for _ in range(1, nb_white):
                             line = np.concatenate((line, white_sub_matrix), axis=1)
                             j += 1
                         line = np.concatenate((line, sub_matrix), axis=1)
@@ -85,7 +85,7 @@ class PredictHic(Hic):
 
     def plot_predicted_matrix(self, color_map, output_path):
         """
-            The reconstructed and predicted Hi-C matrix is plotted in a file. 
+            The reconstructed and predicted Hi-C matrix is plotted in a file.
         """
         fig = plt.figure(figsize=(12, 12))
         axes = plt.subplot(111, aspect='equal')
@@ -105,5 +105,6 @@ class PredictHic(Hic):
         sparse = coo_matrix(self.predicted_matrix)
         with open(output_path+'/predicted_chr'+str(self.chrom)+'.txt', 'w') as file:
             writer = csv.writer(file, delimiter='\t')
-            writer.writerows(zip(['chr'+str(self.chrom)]*len(sparse.row), sparse.row*self.resolution,
+            writer.writerows(zip(['chr'+str(self.chrom)]*len(sparse.row),
+                                 sparse.row*self.resolution,
                                  sparse.col*self.resolution, sparse.data))

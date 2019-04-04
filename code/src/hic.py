@@ -116,7 +116,7 @@ class Hic:
 
     def plot_matrix(self, color_map, output_path):
         """
-            The Hi-C matrix is plotted in a file. 
+            The Hi-C matrix is plotted in a file.
         """
         fig = plt.figure(figsize=(12, 12))
         axes = plt.subplot(111, aspect='equal')
