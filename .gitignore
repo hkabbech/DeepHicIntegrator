@@ -1,6 +1,8 @@
 data/1_binaries/bam/*.bam
 data/1_binaries/bam/*.bai
 data/1_binaries/hic/*.hic
+data/1_binaries/hic/*.cool
+data/1_binaries/hic/*.mcool
 data/2_sparse_matrices/
 results/
 code/src/__pycache__
