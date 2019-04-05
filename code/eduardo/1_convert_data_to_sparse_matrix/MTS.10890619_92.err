@@ -1,8 +1,0 @@
-This is an experimental version of Python 2.7.5-V2.
-PYTHONHOME is set to suppress use of vendor Python 2.6.
-This version and especially its site packages were build with gcc and gfortran.
-***** Use at your own risk! *****
-	
-	For available commands see /opt/rrzk/software/bowtie2/bowtie2-2.2.9/bin .
-	
-	For more information see manual pages of 'samtools' or 'bcftools'
