@@ -2,33 +2,38 @@
 # -*- coding: utf-8 -*-
 
 """
+
+    Integrative Deep-Learning Framework for Ana,lyzing Native Spatial Chromatin Dynamics.
+    Auteurs: Hélène Kabbech and Eduardo Gade Gusmão
+    Medical Center University of Göttingen (Germany), Institute of Pathologie, Papantonis Lab
+
     Usage:
-        ./main.py <HIC_FILE> [--resolution INT] [--square_side INT] [--epochs INT]
-                             [--batch_size INT] [--output PATH] [--train INT] [--test INT]
+        ./main.py <HIC_FILE> [--resolution INT] [--train INT] [--test INT] [--square_side INT]
+                             [--epochs INT] [--batch_size INT] [--output PATH]
 
     Arguments:
         <HIC_FILE>                      Path to the Hi-C matrix file
-                                        (.hic format).
+                                        (.hic format)
 
     Options:
-        -h, --help                      Show this.
-        -r, INT, --resolution INT       Resolution used. [default: 25000]
-        -a INT, --train INT             [default: 1]
-        -t INT, --test INT              [default: 20]
-        -n INT, --square_side INT       [default: 60]
-        -e INT, --epochs INT            [default: 50]
-        -b INT, --batch_size INT        [default: 128]
-        -o PATH, --output PATH          [default: output/]
+        -r, INT, --resolution INT       Hi-C matrice resolution to use. [default: 25000]
+        -a INT, --train INT             Chromosome for training [default: 1]
+        -t INT, --test INT              Chromosome for test [default: 20]
+        -n INT, --square_side INT       Size n*n of a sub-matrix [default: 60]
+        -e INT, --epochs INT            Number of epochs [default: 50]
+        -b INT, --batch_size INT        Size of a batch [default: 128]
+        -o PATH, --output PATH          Output path [default: output/]
+        -h, --help                      Show this
 
 """
 
 
 # Third-party modules
 from datetime import datetime
-# from schema import Schema, And, Use, SchemaError
 import os
 import random as rd
 from contextlib import redirect_stdout
+from schema import Schema, And, Use, SchemaError
 import numpy as np
 from docopt import docopt
 from tensorflow.python.client import timeline
@@ -48,9 +53,38 @@ from hic2cool import hic2cool_convert
 from src.hic import Hic
 from src.predict_hic import PredictHic
 
+
+def check_args(arguments):
+    """
+        Checks and validates the types of inputs parsed by docopt from command line.
+
+        Args:
+            arguments(class 'docopt.Dict'): The input arguments of the script
+    """
+    schema = Schema({
+        '<HIC_FILE>': Use(open, error='HIC_FILE should be readable'),
+        '--resolution': And(Use(int), lambda n: n%5000 == 0 and 5000 <= n <= 2500000,
+                            error='--resolution should be between 5,000 and 2,500,000'),
+        '--train': And(Use(int), lambda n: 1 <= n <= 23,
+                       error='--train shoud be integer 1<= N <= 23'),
+        '--test': And(Use(int), lambda n: 1 <= n <= 23,
+                      error='--test shoud be integer 1<= N <= 23'),
+        '--square_side': And(Use(int), lambda n: 1 <= n <= 210,
+                             error='--square_side shoud be integer 1<= N <= 23'),
+        '--epochs': And(Use(int), lambda n: 1 <= n <= 10000,
+                        error='--epochs shoud be integer 1<= N <= 10000'),
+        '--batch_size': And(Use(int), lambda n: n%16 == 0,
+                            error='--batch_size : The rest of the division by 16 should be 0'),
+        # The output PATH is created (if not exists) so we skip the check.
+        object: object})
+    try:
+        schema.validate(arguments)
+    except SchemaError as err:
+        exit(err)
+
 def autoencoder_network(input_img):
     """
-    TO DO doctrings
+    Network of the Autoencoder.
     """
     # Encoder
     conv1 = Conv2D(32, (3, 3), activation='relu', padding='same')(input_img)
@@ -73,11 +107,12 @@ if __name__ == "__main__":
     ### PARSE COMMAND LINE
     ######################
     ARGS = docopt(__doc__)
+    print(type(ARGS))
     # Check the types and ranges of the command line arguments parsed by docopt
-    # check_args()
+    check_args(ARGS)
     RESOLUTION = int(ARGS['--resolution'])
     HIC_FILE = ARGS['<HIC_FILE>']
-    COOL_FILE = HIC_FILE.split('.hic')[0]+'.cool'
+    COOL_FILE = HIC_FILE.split('.hic')[0]+'_'+str(RESOLUTION)+'.cool'
     # Conversion from .hic to .cool
     if not os.path.exists(COOL_FILE):
         hic2cool_convert(HIC_FILE, COOL_FILE, RESOLUTION)
@@ -88,18 +123,18 @@ if __name__ == "__main__":
     BATCH_SIZE = int(ARGS['--batch_size'])
     OUTPUT_PATH = ARGS['--output']
     os.makedirs(OUTPUT_PATH+'model/', exist_ok=True)
+    # Refine color map of the plots
+    REDS = cm.get_cmap('Reds', 300)
+    CMP = ListedColormap(np.vstack((np.array([1, 1, 1, 1]), REDS(np.linspace(0, 1, 300)))))
 
-    # HIC_FILE = 'data/1_binaries/hic/GSE63525_HUVEC_combined_30.hic'
-    # COOL_FILE = HIC_FILE.split('.hic')[0]+'.cool'
     # RESOLUTION = 25000
+    # HIC_FILE = 'data/1_binaries/hic/GSE63525_HUVEC_combined_30.hic'
+    # COOL_FILE = HIC_FILE.split('.hic')[0]+'_'+str(RESOLUTION)+'_.cool'
     # N = 60
     # EPOCHS = 50
     # BATCH_SIZE = 128
     # OUTPUT_PATH = 'results/03_04_2019_cooler/'
     # os.makedirs(OUTPUT_PATH+'model/', exist_ok=True)
-
-    REDS = cm.get_cmap('Reds', 300)
-    CMP = ListedColormap(np.vstack((np.array([1, 1, 1, 1]), REDS(np.linspace(0, 1, 300)))))
 
 
     ### TRAINING OF THE MODEL
