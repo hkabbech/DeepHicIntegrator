@@ -27,6 +27,7 @@ class Hic:
 
     def __init__(self, cooler, chrom, square_side):
         self.cooler = cooler
+        # retrieve the resolution integer from cooler file
         self.resolution = self.cooler.info['bin-size']
         self.chrom = chrom
         self.side = square_side
@@ -36,6 +37,10 @@ class Hic:
     def calculate_cum_length(self):
         """
             Calculates and returns the cumulated length from chromosome 1 to N.
+
+            Returns:
+                Pandas DataFrame: Informations on chromosomes, their length and cumulated length
+
         """
         chroms = self.cooler.chroms()[:]
         cum_length = []
@@ -105,6 +110,11 @@ class Hic:
     def plot_ten_sub_matrices(self, color_map, output_path, index_list):
         """
             10 sub-matrices are plotted in a file.
+
+            Args:
+                color_map(matplotlib.colors.ListedColormap): Color map for the plot
+                output_path(str): Path of the output plot
+                index_list(list): List of the 10 sub-matrix indexes to plot
         """
         plt.figure(figsize=(18, 2))
         for i, index in enumerate(index_list):
@@ -117,6 +127,10 @@ class Hic:
     def plot_matrix(self, color_map, output_path):
         """
             The Hi-C matrix is plotted in a file.
+
+            Args:
+                color_map(matplotlib.colors.ListedColormap): Color map for the plot
+                output_path(str): Path of the output plot
         """
         fig = plt.figure(figsize=(12, 12))
         axes = plt.subplot(111, aspect='equal')

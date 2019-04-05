@@ -33,6 +33,9 @@ class PredictHic(Hic):
     def set_predicted_sub_matrices(self, predicted_sub_matrices):
         """
             Set the sub-matrices predicted by a deep-learning model.
+
+            Args:
+                predicted_sub_matrices(Numpy array): The predicted sub-matrices
         """
         self.predicted_sub_matrices = predicted_sub_matrices
 
@@ -46,6 +49,7 @@ class PredictHic(Hic):
         j = 1
         for _, sub_matrix in enumerate(self.predicted_sub_matrices):
             if j == nb_sub_matrices - 1:
+                # The current line is concatenated with the previous lines
                 try:
                     line = np.concatenate((line, sub_matrix), axis=1)
                     predicted_matrix = np.concatenate((predicted_matrix, line), axis=0)
@@ -55,12 +59,14 @@ class PredictHic(Hic):
                 j = 1
                 del line
             else:
+                # A new sub-matrix is concatenated with the current line
                 try:
                     line = np.concatenate((line, sub_matrix), axis=1)
                 except NameError:
                     if nb_white == 0:
                         line = sub_matrix
                     else:
+                        # The matrix is upper triangular, we have to add white sub-matrices
                         line = white_sub_matrix
                         for _ in range(1, nb_white):
                             line = np.concatenate((line, white_sub_matrix), axis=1)
@@ -74,6 +80,11 @@ class PredictHic(Hic):
     def plot_ten_predicted_submatrices(self, color_map, output_path, index_list):
         """
             10 predicted sub-matrices are plotted in a file.
+
+            Args:
+                color_map(matplotlib.colors.ListedColormap): Color map for the plot
+                output_path(str): Path of the output plot
+                index_list(list): List of the 10 sub-matrix indexes to plot
         """
         plt.figure(figsize=(18, 2))
         for i, index in enumerate(index_list):
@@ -86,6 +97,10 @@ class PredictHic(Hic):
     def plot_predicted_matrix(self, color_map, output_path):
         """
             The reconstructed and predicted Hi-C matrix is plotted in a file.
+
+            Args:
+                color_map(matplotlib.colors.ListedColormap): Color map for the plot
+                output_path(str): Path of the output plot
         """
         fig = plt.figure(figsize=(12, 12))
         axes = plt.subplot(111, aspect='equal')
@@ -100,8 +115,14 @@ class PredictHic(Hic):
     def write_predicted_matrix(self, threshold, output_path):
         """
             The reconstructed and predicted Hi-C matrix is saved in a sparse matrix file.
+
+            Args:
+                threshold(float): The predicted values under the threshold will be set to 0
+                output_path(str): Path of the output plot
         """
+        # Prediction under threshold value are set to 0
         self.predicted_matrix[self.predicted_matrix < threshold] = 0
+        # Creation of the sparse matrix
         sparse = coo_matrix(self.predicted_matrix)
         with open(output_path+'/predicted_chr'+str(self.chrom)+'.txt', 'w') as file:
             writer = csv.writer(file, delimiter='\t')
