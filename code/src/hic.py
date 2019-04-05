@@ -1,22 +1,14 @@
 """
 .. module:: Hic
-   :synopsis: This module implements the matrix class.
+   :synopsis: This module implements the Hic class.
 """
 
 # Third-party modules
-import csv
-import pandas as pd
+import math as m
 import numpy as np
-from scipy.sparse import coo_matrix
 import matplotlib.pyplot as plt
-from matplotlib import cm
-from matplotlib.colors import ListedColormap
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-
-REDS = cm.get_cmap('Reds', 300)
-WHITE = np.array([1, 1, 1, 1])
-NEW_CMP = ListedColormap(np.vstack((WHITE, REDS(np.linspace(0, 1, 300)))))
 
 class Hic:
     """
@@ -24,135 +16,128 @@ class Hic:
         This class groups informations about a Hi-C matrix.
 
     Attributes:
-        sparse (Pandas DataFrame): A data frame containing the Hi-C sparse matrix.
-        matrix (numpy array):
+        cooler (cooler): Storage of the Hi-C matrix
+        resolution (int): Resolution (or bin-size) of the Hi-C matrix
+        chrom (int): Chromosome chosen among all chromosomes in cooler
+        side (int): Number of raws and columns of a numpy array sub-matrix
+        matrix (numpy array): Hi-C matrix of the chromosome chosen stored in a numpy array
+        sub_matrices (numpy array): The splitted Hi-C matrix into N sub-matrices of size side*side
+                                    stored in a numpy array of shape (Samples, side, side, 1)
     """
 
-    def __init__(self, filename):
-        self.df = pd.read_csv(filename, sep='\t', header=None)
-        self.df.columns = ['chr', 'base_1', 'base_2', 'value']
-        self.chr_name = ", ".join(self.df.chr.unique())
+    def __init__(self, cooler, chrom, square_side):
+        self.cooler = cooler
+        # retrieve the resolution integer from cooler file
+        self.resolution = self.cooler.info['bin-size']
+        self.chrom = chrom
+        self.side = square_side
         self.matrix = None
         self.sub_matrices = None
-        self.predicted_sub_matrices = None
-        self.reconstructed_matrix = None
 
-    def set_matrix(self, resolution, added_lines, deleted_lines):
+    def calculate_cum_length(self):
         """
-            Create a sparse matrix in a very fast way using scipy.sparse module
-            and convert it into a numpy array.
+            Calculates and returns the cumulated length from chromosome 1 to N.
+
+            Returns:
+                Pandas DataFrame: Informations on chromosomes, their length and cumulated length
+
         """
-        # All the values are stored in a numpy array
-        # The matrix will be symetric, so the values must be added twice
-        values = self.df.value
-        data = np.array(values.append(values))
-        # base_1 and base_2 columns must be converted to index by dividing by the resolution number
-        # This step is necesary for the creation of the sparse matrix with scipy.sparse
-        base_1_index = ((self.df.base_1 / resolution)+added_lines).astype(int)
-        base_2_index = ((self.df.base_2 / resolution)+added_lines).astype(int)
-        row = np.array(base_1_index.append(base_2_index))
-        col = np.array(base_2_index.append(base_1_index))
+        chroms = self.cooler.chroms()[:]
+        cum_length = []
+        for i, size in enumerate(list(chroms.length)):
+            if i == 0:
+                cum_length.append(size)
+            else:
+                cum_length.append(size + cum_length[i-1])
+        chroms['cum_length'] = cum_length
+        return chroms
+
+    def set_matrix(self):
+        """
+            Set the numpy array Hi-C matrix of the chromosome chrom.
+            The matrix is transformed into an upper triangular matrix and the values are converted
+            in float32, rescaled by log10 and normalized.
+        """
+        chroms = self.calculate_cum_length()
+        if self.chrom == 1:
+            bin_1 = 0
+        else:
+            bin_1 = m.ceil(chroms[self.chrom-2:self.chrom-1]['cum_length']/self.resolution)
+        bin_2 = m.ceil(chroms[self.chrom-1:self.chrom]['cum_length']/self.resolution)
         # Creation of the sparse matrix and conversion into a numpy array
-        size = int(max(max(self.df['base_2']), max(self.df['base_1'])) / resolution)
-        matrix = coo_matrix((data, (row, col)),
-                            shape=(size+added_lines+1, size+added_lines+1)
-                           ).toarray()
-        matrix = matrix[deleted_lines:, deleted_lines:]
+        matrix = self.cooler.matrix(balance=False, sparse=True)[bin_1:bin_2, bin_1:bin_2].toarray()
+        ## 0s are interpreted as missing values by Keras
+        # matrix = matrix + 1
+        # The matrix is symetric then we keep only the upper triangular matrix
+        matrix = np.triu(matrix)
+        # Conversion into float32
         matrix = np.float32(matrix)
-        matrix = np.log(matrix+1)
+        # Log scale to visualize better the matrix in plot
+        matrix = np.log10(matrix+1)
         # Rescaling of the values in range 0-1
         # (min-max scaling method)
-        self.matrix = (matrix - matrix.min()) / (matrix.max() - matrix.min())
+        matrix = (matrix - matrix.min()) / (matrix.max() - matrix.min())
+        # # Lines are removing or added (0s)
+        # if lines < 0:
+        #     matrix = matrix[abs(lines):, abs(lines):]
+        # elif lines > 0
+        #     matrix = np.insert(matrix, 0, 0, axis = 0)
+        #     matrix = np.insert(matrix, 0, 0, axis = 1)
+        self.matrix = matrix
 
-    def set_sub_matrices(self, nrow, ncol, nele=1):
+    def set_sub_matrices(self):
         """
-            Reshape of the sparse matrix in order to obtain N matrices of size nrow*ncol.
+            Split the Hi-C matrix of the chromosome chrom into N sub-matrices of size side*side.
+            The empty sub-matrices (sum(values)==0) are ignored.
+            The N resulted sub-matrices are stored and set in a numpy array
+            of shape (N, side, side, 1).
+        """
+        sub_matrices_list = []
+        for i in range(0, self.matrix.shape[1], self.side):
+            for j in range(0, self.matrix.shape[1], self.side):
+                sub_matrix = self.matrix[i:i+self.side, j:j+self.side]
+                # We do not want sub-matrix with a size different than side*side
+                if sub_matrix.shape != (self.side, self.side):
+                    break
+                # The empty sub-matrices are not taking into account
+                if sub_matrix.sum() != 0:
+                    sub_matrices_list.append(sub_matrix)
+        sub_matrices = np.array(sub_matrices_list)
+        # The number of sub-matrices is calculated automatically by using -1 in the first field
+        sub_matrices = sub_matrices.reshape(-1, self.side, self.side, 1)
+        self.sub_matrices = sub_matrices
+
+    def plot_ten_sub_matrices(self, color_map, output_path, index_list):
+        """
+            10 sub-matrices are plotted in a file.
 
             Args:
-                nrow (int): Number of rows for a sub-matrix
-                ncol (int): Number of columns a sub-matrix
-                nele (int): Number of element in a list (Default=1)
+                color_map(matplotlib.colors.ListedColormap): Color map for the plot
+                output_path(str): Path of the output plot
+                index_list(list): List of the 10 sub-matrix indexes to plot
         """
-        #self.sub_matrices = self.matrix.reshape(-1, nrow, ncol, nele)
-        # Another less fancy method
-        sub_matrices_list = []
-        for i in range(0, self.matrix.shape[1], nrow):
-            for j in range(0, self.matrix.shape[1], ncol):
-                sub_matrix = self.matrix[i:i+nrow, j:j+ncol]
-                sub_matrices_list.append(sub_matrix)
-        sub_matrices = np.array(sub_matrices_list)
-        self.sub_matrices = sub_matrices.reshape(-1, nrow, ncol, nele)
+        plt.figure(figsize=(18, 2))
+        for i, index in enumerate(index_list):
+            plt.subplot(1, 10, i+1)
+            plt.imshow(self.sub_matrices[index, ..., 0], cmap=color_map)
+            plt.title("submatrix n°{}".format(index))
+        plt.subplots_adjust(left=0.03, right=0.98, wspace=0.3)
+        plt.savefig('{}/10submatrices_chr{}_true.png'.format(output_path, self.chrom))
 
-    def set_predicted_sub_matrices(self, predicted_sub_matrices):
+    def plot_matrix(self, color_map, output_path):
         """
-        TO DO doctrings
-        """
-        self.predicted_sub_matrices = predicted_sub_matrices
+            The Hi-C matrix is plotted in a file.
 
-    def set_reconstructed_matrix(self, side):
+            Args:
+                color_map(matplotlib.colors.ListedColormap): Color map for the plot
+                output_path(str): Path of the output plot
         """
-        TO DO doctrings
-        """
-        nb_sub_matrices = int(self.matrix.shape[0] / side)
-        j = 1
-        for _, sub_matrix in enumerate(self.predicted_sub_matrices):
-            if j == nb_sub_matrices:
-                try:
-                    line = np.concatenate((line, sub_matrix), axis=1)
-                    reconstructed_matrix = np.concatenate((reconstructed_matrix, line), axis=0)
-                except NameError:
-                    reconstructed_matrix = line
-                j = 1
-                del line
-            else:
-                try:
-                    line = np.concatenate((line, sub_matrix), axis=1)
-                except NameError:
-                    line = sub_matrix
-                j += 1
-        self.reconstructed_matrix = reconstructed_matrix.reshape(reconstructed_matrix.shape[0],
-                                                                 reconstructed_matrix.shape[1])
-    def save_reconstructed_matrix(self, output_path, resolution):
-        """
-        TO DO doctrings
-        """
-        sparse = coo_matrix(np.triu(self.reconstructed_matrix))
-        with open(output_path+'/reconstructed_'+self.chr_name+'.txt', 'w') as file:
-            writer = csv.writer(file, delimiter='\t')
-            writer.writerows(zip([self.chr_name]*len(sparse.row), sparse.row*resolution,
-                                 sparse.col*resolution, sparse.data))
-
-    def plot_matrix(self, chr_type, output_path):
-        """
-        TO DO doctrings
-        """
-        if chr_type == "predicted":
-            matrix = self.reconstructed_matrix
-        else:
-            matrix = self.matrix
         fig = plt.figure(figsize=(12, 12))
         axes = plt.subplot(111, aspect='equal')
-        img = axes.matshow(matrix, cmap=NEW_CMP)
+        img = axes.matshow(self.matrix, cmap=color_map)
         divider = make_axes_locatable(axes)
         cax = divider.append_axes("right", size="2%", pad=0.15)
         plt.colorbar(img, cax=cax)
         plt.subplots_adjust(left=0.07, bottom=0, right=0.95, top=0.91, wspace=0, hspace=0)
-        axes.set_title('{} {} Hi-C matrix'.format(chr_type, self.chr_name), fontsize=25)
-        fig.savefig('{}/{}_{}.png'.format(output_path, self.chr_name, chr_type))
-
-    def plot_ten_sub_matrices(self, chr_type, output_path, random_index_list):
-        """
-        TO DO doctrings
-        """
-
-        if chr_type == "predicted":
-            sub_matrices = self.predicted_sub_matrices
-        else:
-            sub_matrices = self.sub_matrices
-        plt.figure(figsize=(18, 2))
-        for i, index in enumerate(random_index_list):
-            plt.subplot(1, 10, i+1)
-            plt.imshow(sub_matrices[index, ..., 0], cmap=NEW_CMP)
-            plt.title("submatrix n°{}".format(index))
-        plt.subplots_adjust(left=0.03, right=0.98, wspace=0.3)
-        plt.savefig('{}/10submatrices_{}_{}_.png'.format(output_path, self.chr_name, chr_type))
+        axes.set_title('True chr{} Hi-C matrix'.format(self.chrom), fontsize=25)
+        fig.savefig('{}/chr{}_true.png'.format(output_path, self.chrom))
