@@ -1,0 +1,1 @@
+juicertools observed KR BP 25000 /home/egusmao/rgtdata/hg19/chrom.sizes.hg19.filter /projects/ag-papan/eduardo/Papantonis_Integrative/data/rao_juicer_hic/GSE63525_HUVEC_combined_30.hic /projects/ag-papan/eduardo/Papantonis_Integrative/results/eduardo/1_convert_data_to_sparse_matrix/2_hic_matrices/GSE63525_HUVEC_25K/
