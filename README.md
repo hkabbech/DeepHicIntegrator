@@ -1,11 +1,18 @@
-![iHiC release](https://img.shields.io/badge/iHiC-v0.0.1-blue.svg)
+![DeepIntegrativeHiC release](https://img.shields.io/badge/DeepIntegrativeHiC-v0.1-blue.svg)
 [![License: GNU](https://img.shields.io/badge/License-GNU-yellow.svg)](https://opensource.org/licenses/gpl-license)
 ![Python version](https://img.shields.io/badge/python-3-brightgreen.svg)
+[![Documentation Status](https://readthedocs.org/projects/deepintegrativehic/badge/?version=latest)](https://deepintegrativehic.readthedocs.io/?badge=latest)
 
 
-# iHiC
+<br>
+
+# DeepIntegrativeHiC
 
 ## Installation
+
+```
+pip install -r requirements.txt
+```
 
 
 ## Run the program
@@ -18,8 +25,8 @@
 
 ## Authors
 
-- [Eduardo Gade Gusmao](https://github.com/eggduzao)
 - [Hélène Kabbech](https://github.com/kabhel)
+- [Eduardo Gade Gusmao](https://github.com/eggduzao)
 
 ## License
 
