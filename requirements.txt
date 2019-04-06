@@ -1,5 +1,5 @@
 docopt>=0.6.2
-tensorflow-gpu>=1.13.1
+# tensorflow-gpu>=1.13.1
 sklearn>=0.20.1
 keras>=2.2.4
 csv>=1.0
