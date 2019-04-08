@@ -108,7 +108,6 @@ if __name__ == "__main__":
     ### PARSE COMMAND LINE
     ######################
     ARGS = docopt(__doc__)
-    print(type(ARGS))
     # Check the types and ranges of the command line arguments parsed by docopt
     check_args(ARGS)
     RESOLUTION = int(ARGS['--resolution'])
