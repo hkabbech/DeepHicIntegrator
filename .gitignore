@@ -4,6 +4,7 @@ data/1_binaries/hic/*.hic
 data/1_binaries/hic/*.cool
 data/1_binaries/hic/*.mcool
 data/2_sparse_matrices/
+extra_code/helene/*
 results/
 src/__pycache__
 unittest/__pycache__
