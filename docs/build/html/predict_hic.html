@@ -149,78 +149,24 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-src.hic">
-<span id="predicthic"></span><h1>PredictHic<a class="headerlink" href="#module-src.hic" title="Permalink to this headline">¶</a></h1>
-<span class="target" id="module-Hic"></span><dl class="class">
-<dt id="src.hic.Hic">
-<em class="property">class </em><code class="descclassname">src.hic.</code><code class="descname">Hic</code><span class="sig-paren">(</span><em>cooler</em>, <em>chrom</em>, <em>square_side</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/hic.html#Hic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.hic.Hic" title="Permalink to this definition">¶</a></dt>
+  <div class="section" id="module-src.predict_hic">
+<span id="predicthic"></span><h1>PredictHic<a class="headerlink" href="#module-src.predict_hic" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-PredictHic"></span><dl class="class">
+<dt id="src.predict_hic.PredictHic">
+<em class="property">class </em><code class="descclassname">src.predict_hic.</code><code class="descname">PredictHic</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/predict_hic.html#PredictHic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.predict_hic.PredictHic" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="class">
-<dt id="src.hic.Hic.Hic">
-<em class="property">class </em><code class="descname">Hic</code><a class="headerlink" href="#src.hic.Hic.Hic" title="Permalink to this definition">¶</a></dt>
+<dt id="src.predict_hic.PredictHic.PredictHic">
+<em class="property">class </em><code class="descname">PredictHic</code><a class="headerlink" href="#src.predict_hic.PredictHic.PredictHic" title="Permalink to this definition">¶</a></dt>
 <dt>
-<code class="descname">This class groups informations about a Hi-C matrix.</code></dt>
+<code class="descname">This class herits attributes and methods from Hic class and</code></dt>
+<dt>
+<code class="descname">groups informations about a predicted Hi-C matrix.</code></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="src.hic.Hic.cooler">
-<code class="descname">cooler</code><a class="headerlink" href="#src.hic.Hic.cooler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Storage of the Hi-C matrix</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">cooler</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.hic.Hic.resolution">
-<code class="descname">resolution</code><a class="headerlink" href="#src.hic.Hic.resolution" title="Permalink to this definition">¶</a></dt>
-<dd><p>Resolution (or bin-size) of the Hi-C matrix</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.hic.Hic.chrom">
-<code class="descname">chrom</code><a class="headerlink" href="#src.hic.Hic.chrom" title="Permalink to this definition">¶</a></dt>
-<dd><p>Chromosome chosen among all chromosomes in cooler</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.hic.Hic.side">
-<code class="descname">side</code><a class="headerlink" href="#src.hic.Hic.side" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of raws and columns of a numpy array sub-matrix</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.hic.Hic.matrix">
-<code class="descname">matrix</code><a class="headerlink" href="#src.hic.Hic.matrix" title="Permalink to this definition">¶</a></dt>
-<dd><p>Hi-C matrix of the chromosome chosen stored in a numpy array</p>
+<dt id="src.predict_hic.PredictHic.predicted_sub_matrices">
+<code class="descname">predicted_sub_matrices</code><a class="headerlink" href="#src.predict_hic.PredictHic.predicted_sub_matrices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sub-matrices predicted by a deep-learning model</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -232,10 +178,9 @@
 </dd></dl>
 
 <dl class="attribute">
-<dt id="src.hic.Hic.sub_matrices">
-<code class="descname">sub_matrices</code><a class="headerlink" href="#src.hic.Hic.sub_matrices" title="Permalink to this definition">¶</a></dt>
-<dd><p>The splitted Hi-C matrix into N sub-matrices of size side*side
-stored in a numpy array of shape (Samples, side, side, 1)</p>
+<dt id="src.predict_hic.PredictHic.predicted_matrix">
+<code class="descname">predicted_matrix</code><a class="headerlink" href="#src.predict_hic.PredictHic.predicted_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>The reconstructed matrix from the predicted sub-matrices</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -247,25 +192,15 @@ stored in a numpy array of shape (Samples, side, side, 1)</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.hic.Hic.calculate_cum_length">
-<code class="descname">calculate_cum_length</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/hic.html#Hic.calculate_cum_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.hic.Hic.calculate_cum_length" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates and returns the cumulated length from chromosome 1 to N.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Informations on chromosomes, their length and cumulated length</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Pandas DataFrame</td>
-</tr>
-</tbody>
-</table>
+<dt id="src.predict_hic.PredictHic.construct_predicted_matrix">
+<code class="descname">construct_predicted_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/predict_hic.html#PredictHic.construct_predicted_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.predict_hic.PredictHic.construct_predicted_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construction and set of the predicted Hi-C matrix from the predicted sub-matrices.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.hic.Hic.plot_matrix">
-<code class="descname">plot_matrix</code><span class="sig-paren">(</span><em>color_map</em>, <em>output_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/hic.html#Hic.plot_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.hic.Hic.plot_matrix" title="Permalink to this definition">¶</a></dt>
-<dd><p>The Hi-C matrix is plotted in a file.</p>
+<dt id="src.predict_hic.PredictHic.plot_predicted_matrix">
+<code class="descname">plot_predicted_matrix</code><span class="sig-paren">(</span><em>color_map</em>, <em>output_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/predict_hic.html#PredictHic.plot_predicted_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.predict_hic.PredictHic.plot_predicted_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>The reconstructed and predicted Hi-C matrix is plotted in a file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -281,9 +216,9 @@ stored in a numpy array of shape (Samples, side, side, 1)</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.hic.Hic.plot_ten_sub_matrices">
-<code class="descname">plot_ten_sub_matrices</code><span class="sig-paren">(</span><em>color_map</em>, <em>output_path</em>, <em>index_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/hic.html#Hic.plot_ten_sub_matrices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.hic.Hic.plot_ten_sub_matrices" title="Permalink to this definition">¶</a></dt>
-<dd><p>10 sub-matrices are plotted in a file.</p>
+<dt id="src.predict_hic.PredictHic.plot_ten_predicted_submatrices">
+<code class="descname">plot_ten_predicted_submatrices</code><span class="sig-paren">(</span><em>color_map</em>, <em>output_path</em>, <em>index_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/predict_hic.html#PredictHic.plot_ten_predicted_submatrices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.predict_hic.PredictHic.plot_ten_predicted_submatrices" title="Permalink to this definition">¶</a></dt>
+<dd><p>10 predicted sub-matrices are plotted in a file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -300,20 +235,35 @@ stored in a numpy array of shape (Samples, side, side, 1)</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.hic.Hic.set_matrix">
-<code class="descname">set_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/hic.html#Hic.set_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.hic.Hic.set_matrix" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the numpy array Hi-C matrix of the chromosome chrom.
-The matrix is transformed into an upper triangular matrix and the values are converted
-in float32, rescaled by log10 and normalized.</p>
+<dt id="src.predict_hic.PredictHic.set_predicted_sub_matrices">
+<code class="descname">set_predicted_sub_matrices</code><span class="sig-paren">(</span><em>predicted_sub_matrices</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/predict_hic.html#PredictHic.set_predicted_sub_matrices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.predict_hic.PredictHic.set_predicted_sub_matrices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the sub-matrices predicted by a deep-learning model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>predicted_sub_matrices</strong> (<em>Numpy array</em>) – The predicted sub-matrices</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.hic.Hic.set_sub_matrices">
-<code class="descname">set_sub_matrices</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/hic.html#Hic.set_sub_matrices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.hic.Hic.set_sub_matrices" title="Permalink to this definition">¶</a></dt>
-<dd><p>Split the Hi-C matrix of the chromosome chrom into N sub-matrices of size side*side.
-The empty sub-matrices (sum(values)==0) are ignored.
-The N resulted sub-matrices are stored and set in a numpy array
-of shape (N, side, side, 1).</p>
+<dt id="src.predict_hic.PredictHic.write_predicted_matrix">
+<code class="descname">write_predicted_matrix</code><span class="sig-paren">(</span><em>threshold</em>, <em>output_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/predict_hic.html#PredictHic.write_predicted_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.predict_hic.PredictHic.write_predicted_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>The reconstructed and predicted Hi-C matrix is saved in a sparse matrix file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>threshold</strong> (<em>float</em>) – The predicted values under the threshold will be set to 0</li>
+<li><strong>output_path</strong> (<em>str</em>) – Path of the output plot</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>

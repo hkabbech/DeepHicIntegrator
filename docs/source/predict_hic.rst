@@ -1,5 +1,5 @@
 PredictHic
 **********
 
-.. automodule:: src.hic
+.. automodule:: src.predict_hic
    :members:
