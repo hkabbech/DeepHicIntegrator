@@ -18,7 +18,7 @@ class PredictHic(Hic):
     """
     .. class:: PredictHic
         This class herits attributes and methods from Hic class and
-        groups informations about a Hi-C matrix.
+        groups informations about a predicted Hi-C matrix.
 
     Attributes:
         predicted_sub_matrices (numpy array): Sub-matrices predicted by a deep-learning model
