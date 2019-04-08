@@ -8,9 +8,9 @@
     Medical Center University of Göttingen (Germany), Institute of Pathologie, Papantonis Lab
 
     Usage:
-        ./deep_integrative_hic <HIC_FILE> [--resolution INT] [--train INT] [--test INT]
-                                          [--square_side INT] [--epochs INT] [--batch_size INT]
-                                          [--output PATH]
+        ./deep_hic_integrator <HIC_FILE> [--resolution INT] [--train INT] [--test INT]
+                                         [--square_side INT] [--epochs INT] [--batch_size INT]
+                                         [--output PATH]
 
     Arguments:
         <HIC_FILE>                      Path to the Hi-C matrix file

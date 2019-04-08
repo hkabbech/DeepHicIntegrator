@@ -1,12 +1,12 @@
 ![DeepIntegrativeHiC release](https://img.shields.io/badge/DeepIntegrativeHiC-v0.1-blue.svg)
 [![License: GNU](https://img.shields.io/badge/License-GNU-yellow.svg)](https://opensource.org/licenses/gpl-license)
 ![Python version](https://img.shields.io/badge/python-3-brightgreen.svg)
-[![Documentation Status](https://readthedocs.org/projects/deepintegrativehic/badge/?version=latest)](https://deepintegrativehic.readthedocs.io/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/deephicintegrator/badge/?version=latest)](https://deephicintegrator.readthedocs.io/en/latest/?badge=latest)
 
 
 <br>
 
-# DeepIntegrativeHiC
+# DeepHicIntegrator
 
 ## Installation
 
@@ -30,4 +30,4 @@ pip install -r requirements.txt
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the GNU License.
