@@ -122,7 +122,7 @@ if __name__ == "__main__":
     EPOCHS = int(ARGS['--epochs'])
     BATCH_SIZE = int(ARGS['--batch_size'])
     OUTPUT_PATH = ARGS['--output']
-    os.makedirs(OUTPUT_PATH+'model/', exist_ok=True)
+    os.makedirs(OUTPUT_PATH+'/model/', exist_ok=True)
     # Refine color map of the plots
     REDS = cm.get_cmap('Reds', 300)
     CMP = ListedColormap(np.vstack((np.array([1, 1, 1, 1]), REDS(np.linspace(0, 1, 300)))))
@@ -134,14 +134,14 @@ if __name__ == "__main__":
     # EPOCHS = 50
     # BATCH_SIZE = 128
     # OUTPUT_PATH = 'results/03_04_2019_cooler/'
-    # os.makedirs(OUTPUT_PATH+'model/', exist_ok=True)
+    # os.makedirs(OUTPUT_PATH+'/model/', exist_ok=True)
 
 
     ### TRAINING OF THE MODEL
     #########################
     TRAIN = Hic(cooler.Cooler(COOL_FILE), CHROM_TRAIN, N)
     TRAIN.set_matrix()
-    TRAIN.plot_matrix(CMP, OUTPUT_PATH+'model')
+    TRAIN.plot_matrix(CMP, OUTPUT_PATH+'/model')
     TRAIN.set_sub_matrices()
 
     TRAIN_X, VALID_X, TRAIN_GROUND, VALID_GROUND = train_test_split(TRAIN.sub_matrices,
@@ -177,24 +177,24 @@ if __name__ == "__main__":
     RUN_METADATA = tf.RunMetadata()
 
     # Model Summary
-    with open(OUTPUT_PATH+'model/model_summary.txt', 'w') as file:
+    with open(OUTPUT_PATH+'/model/model_summary.txt', 'w') as file:
         with redirect_stdout(file):
             AUTOENCODER.summary()
 
     # Timeline in JSON format
-    with open(OUTPUT_PATH+'model/timeline.json', 'w') as file:
+    with open(OUTPUT_PATH+'/model/timeline.json', 'w') as file:
         tl = timeline.Timeline(RUN_METADATA.step_stats)
         file.write(tl.generate_chrome_trace_format())
 
     # Model in JSON format
-    with open(OUTPUT_PATH+'model/model.json', 'w') as json_file:
+    with open(OUTPUT_PATH+'/model/model.json', 'w') as json_file:
         json_file.write(AUTOENCODER.to_json())
 
     # Model in HDF5 format
-    AUTOENCODER.save(OUTPUT_PATH+'model/model.h5')
+    AUTOENCODER.save(OUTPUT_PATH+'/model/model.h5')
 
     # Serialize weights to HDF5
-    AUTOENCODER.save_weights(OUTPUT_PATH+'model/model_weights.h5')
+    AUTOENCODER.save_weights(OUTPUT_PATH+'/model/model_weights.h5')
 
     # Loss plot
     plt.figure()
@@ -204,7 +204,7 @@ if __name__ == "__main__":
     plt.xlabel('epochs')
     plt.ylabel('loss')
     plt.legend()
-    plt.savefig(OUTPUT_PATH+'model/training_validation_loss.png')
+    plt.savefig(OUTPUT_PATH+'/model/training_validation_loss.png')
     plt.close()
 
     # Accuracy plot
@@ -215,12 +215,12 @@ if __name__ == "__main__":
     plt.xlabel('epochs')
     plt.ylabel('loss')
     plt.legend()
-    plt.savefig(OUTPUT_PATH+'model/training_validation_acc.png')
+    plt.savefig(OUTPUT_PATH+'/model/training_validation_acc.png')
     plt.close()
 
     # Function parameters
     TIME = datetime.now() - START_TIME
-    with open(OUTPUT_PATH+'model/parameters.log', 'w') as file:
+    with open(OUTPUT_PATH+'/model/parameters.log', 'w') as file:
         file.write('Hi-C parameters:\n Resolution: {}\n Size sub-matrices: {}*{}\n\n'
                    .format(RESOLUTION, N, N))
         file.write('Train:\n Chromosome: {}\n Shape matrix: {}\n Shape sub_matrices: {}\n\n'
