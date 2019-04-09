@@ -20,11 +20,9 @@ cd DeepHicIntegrator
 
 1. A **linux** distribution.
 
-2. **Python3** and the following python packages :
+2. **Python3** and the following python packages : **tensorflow-gpu**, **keras**, **docopt**, **schema**, **pandas**, **numpy**, **scipy**, **matplotlib**, **sklearn**, **cooler**, **hic2cool** and **m2r** (for Sphinx).
 
-**tensorflow-gpu**, **keras**, **docopt**, **schema**, **pandas**, **numpy**, **scipy**, **matplotlib**, **sklearn**, **cooler**, **hic2cool** and **m2r** (for Sphinx).
-
-The next command will install all the required packages. Before running the command, make sure that the first line is uncommented. If you do not have GPUs (or do not want to use them) simply replace **tensorflow-gpu** by **tensorflow**.
+The next command will install all the required packages. Before running this command, make sure that the first line is uncommented. If you do not have GPUs (or do not want to use them) simply replace **tensorflow-gpu** by **tensorflow**.
 
 ```
 pip install -r requirements.txt
@@ -42,6 +40,12 @@ rm wget-log
 ```
 
 ## Run the program
+
+### Toy example
+
+```
+./deep_hic_integrator data/1_binaries/hic/GSE63525_HUVEC_combined_30.hic -a 10 -t 20 -o results/
+```
 
 ### Get help
 ```
@@ -61,14 +65,8 @@ rm wget-log
         -n INT, --square_side INT       Size n*n of a sub-matrix [default: 60]
         -e INT, --epochs INT            Number of epochs [default: 50]
         -b INT, --batch_size INT        Size of a batch [default: 128]
-        -o PATH, --output PATH          Output path [default: output/]
+        -o PATH, --output PATH          Output path [default: results/]
         -h, --help  
-```
-
-### Toy example
-
-```
-./deep_hic_integrator data/1_binaries/hic/GSE63525_HUVEC_combined_30.hic -a 10 -t 20 -o results/
 ```
 
 ## Documentation
