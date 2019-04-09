@@ -11,7 +11,7 @@ for i in range(1, 11):
 		filout.write('#!/bin/bash\n')
 		filout.write('#BSUB -q gpu\n')
 		filout.write('#BSUB -W 10:00\n')
-		filout.write('#BSUB -R "rusage[ngpus_shared=1]"\n')
+		filout.write('#BSUB -R "ngpus=2"\n')
 		filout.write('#BSUB -o results/train_'+str(i)+'/out-%J.txt\n')
 		filout.write('#BSUB -e results/train_'+str(i)+'/err-%J.txt\n\n')
 
