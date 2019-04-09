@@ -19,4 +19,4 @@ for i in range(1, 11):
 		filout.write('module load cuda90/blas/9.0.176\n')
 		filout.write('module load cudnn/90v7.3.1\n\n')
 
-		filout.write('./DeepHicIntegrator/deep_hic_integrator DeepHicIntegrator/data/1_binaries/hic/GSE63525_HUVEC_combined_30.hic -o results/train_'+str(i)+'/ --test 20 --train '+str(i)+'\n')
+		filout.write('./deep_hic_integrator data/1_binaries/hic/GSE63525_HUVEC_combined_30.hic -o results/train_'+str(i)+'/ --test 20 --train '+str(i)+'\n')
