@@ -88,13 +88,14 @@ class PredictHic(Hic):
         """
         fig, axes = plt.subplots(4, 10, figsize=(24, 11))
         fig.suptitle('Predicted chr{} Hi-C sub-matrices'.format(self.chrom), fontsize=20)
-        fig.subplots_adjust(left=0.03, right=0.98, wspace=0.3, hspace = 0.4)
+        fig.subplots_adjust(left=0.03, right=0.98, wspace=0.3, hspace=0.4)
         i = 0
-        for ax, index in zip(axes.flat, self.predicted_sub_matrices[index_list, ..., 0]):
-            ax.imshow(index, cmap=color_map)
-            ax.set_title("submatrix n°{}".format(index_list[i]))
+        for axe, index in zip(axes.flat, self.predicted_sub_matrices[index_list, ..., 0]):
+            axe.imshow(index, cmap=color_map)
+            axe.set_title("submatrix n°{}".format(index_list[i]))
             i += 1
         plt.savefig('{}/submatrices_chr{}_predicted.png'.format(output_path, self.chrom))
+        plt.close()
 
     def plot_predicted_matrix(self, color_map, output_path):
         """
@@ -113,6 +114,7 @@ class PredictHic(Hic):
         plt.subplots_adjust(left=0.07, bottom=0, right=0.95, top=0.91, wspace=0, hspace=0)
         axes.set_title('Predicted chr{} Hi-C matrix'.format(self.chrom), fontsize=25)
         fig.savefig('{}/chr{}_predicted.png'.format(output_path, self.chrom))
+        plt.close()
 
     def write_predicted_matrix(self, threshold, output_path):
         """
