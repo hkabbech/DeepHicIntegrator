@@ -19,9 +19,9 @@ sys.path.insert(0, os.path.abspath('../../'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'DeepIntegrativeHiC'
+project = 'DeepHiCIntegrator'
 copyright = '2019, Papantonis Lab'
-author = 'H. Kabbech, E.G. Gade, A. Papantonis'
+author = 'Hélène Kabbech'
 
 # The short X.Y version
 version = '0.1'
