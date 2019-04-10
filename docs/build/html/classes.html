@@ -1,0 +1,594 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Implemented classes &mdash; DeepIntegrativeHiC 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="DeepHicIntegrator" href="readme.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> DeepIntegrativeHiC
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">DeepHicIntegrator</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Implemented classes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-src.autoencoder">Autoencoder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-src.hic">Hic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-src.predict_hic">PredictHic</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">DeepIntegrativeHiC</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Implemented classes</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/classes.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="implemented-classes">
+<h1>Implemented classes<a class="headerlink" href="#implemented-classes" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-src.autoencoder">
+<span id="autoencoder"></span><h2>Autoencoder<a class="headerlink" href="#module-src.autoencoder" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-Autoencoder"></span><dl class="class">
+<dt id="src.autoencoder.Autoencoder">
+<em class="property">class </em><code class="descclassname">src.autoencoder.</code><code class="descname">Autoencoder</code><span class="sig-paren">(</span><em>input_img</em>, <em>chr_train</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/autoencoder.html#Autoencoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.autoencoder.Autoencoder" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="class">
+<dt id="src.autoencoder.Autoencoder.Autoencoder">
+<em class="property">class </em><code class="descname">Autoencoder</code><a class="headerlink" href="#src.autoencoder.Autoencoder.Autoencoder" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="descname">This class groups attributes and functions about the Autoencoder.</code></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.autoencoder.Autoencoder.chr_train">
+<code class="descname">chr_train</code><a class="headerlink" href="#src.autoencoder.Autoencoder.chr_train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instance of the HicPredict class - Chromosome for training the model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Hic object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.autoencoder.Autoencoder.model">
+<code class="descname">model</code><a class="headerlink" href="#src.autoencoder.Autoencoder.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instance of the Model keras class - Model of the Autoencoder</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Model object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.autoencoder.Autoencoder.trained_model">
+<code class="descname">trained_model</code><a class="headerlink" href="#src.autoencoder.Autoencoder.trained_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instance of the Model keras class - The trained Model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Model object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.autoencoder.Autoencoder.compile_model">
+<code class="descname">compile_model</code><span class="sig-paren">(</span><em>loss_function='mean_squared_error', metrics_list=['accuracy']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/autoencoder.html#Autoencoder.compile_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.autoencoder.Autoencoder.compile_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compilation of the Autoencoder model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>loss_function</strong> (<em>str</em>) – The loss function to use</p></li>
+<li><p><strong>matrics_list</strong> (<em>list</em>) – The metrics to generate during compilation</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.autoencoder.Autoencoder.plot_accuracy_curve">
+<code class="descname">plot_accuracy_curve</code><span class="sig-paren">(</span><em>epochs</em>, <em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/autoencoder.html#Autoencoder.plot_accuracy_curve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.autoencoder.Autoencoder.plot_accuracy_curve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot of the accuracy curve in a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>epochs</strong> (<em>int</em>) – Number of epochs</p></li>
+<li><p><strong>path</strong> (<em>str</em>) – Path of the output plot</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.autoencoder.Autoencoder.plot_loss_curve">
+<code class="descname">plot_loss_curve</code><span class="sig-paren">(</span><em>epochs</em>, <em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/autoencoder.html#Autoencoder.plot_loss_curve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.autoencoder.Autoencoder.plot_loss_curve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot of the loss curve in a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>epochs</strong> (<em>int</em>) – Number of epochs</p></li>
+<li><p><strong>path</strong> (<em>str</em>) – Path of the output plot</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.autoencoder.Autoencoder.save_model">
+<code class="descname">save_model</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/autoencoder.html#Autoencoder.save_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.autoencoder.Autoencoder.save_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>The model is saved in h5 and JSON formats, the weights are saved in h5 format and
+the summary of the model (the network layers) is saved in a txt file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – Path to the different files</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.autoencoder.Autoencoder.save_parameters">
+<code class="descname">save_parameters</code><span class="sig-paren">(</span><em>path</em>, <em>resolution</em>, <em>side</em>, <em>chr_test</em>, <em>epochs</em>, <em>batch_size</em>, <em>time</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/autoencoder.html#Autoencoder.save_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.autoencoder.Autoencoder.save_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>All the parameters of the training and test of the model are saved in a log file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – Path of the log file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.autoencoder.Autoencoder.train_model">
+<code class="descname">train_model</code><span class="sig-paren">(</span><em>batch_size</em>, <em>epochs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/autoencoder.html#Autoencoder.train_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.autoencoder.Autoencoder.train_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Training of the Autoencoder model and set of the trained_model attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>batch_size</strong> (<em>int</em>) – Size of a batch</p></li>
+<li><p><strong>epochs</strong> (<em>int</em>) – Number of epochs</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="src.autoencoder.build_network">
+<code class="descclassname">src.autoencoder.</code><code class="descname">build_network</code><span class="sig-paren">(</span><em>input_img</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/autoencoder.html#build_network"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.autoencoder.build_network" title="Permalink to this definition">¶</a></dt>
+<dd><p>Layers of the Autoencoder network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_img</strong> (<em>Input class</em>) – Input of the network</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The last decoded output layer of the Autoencoder</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>decoded(Conv2D keras layer)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-src.hic">
+<span id="hic"></span><h2>Hic<a class="headerlink" href="#module-src.hic" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-Hic"></span><dl class="class">
+<dt id="src.hic.Hic">
+<em class="property">class </em><code class="descclassname">src.hic.</code><code class="descname">Hic</code><span class="sig-paren">(</span><em>cooler</em>, <em>chrom</em>, <em>square_side</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/hic.html#Hic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.hic.Hic" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="class">
+<dt id="src.hic.Hic.Hic">
+<em class="property">class </em><code class="descname">Hic</code><a class="headerlink" href="#src.hic.Hic.Hic" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="descname">This class groups informations about a Hi-C matrix.</code></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.hic.Hic.cooler">
+<code class="descname">cooler</code><a class="headerlink" href="#src.hic.Hic.cooler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Storage of the Hi-C matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>cooler</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.hic.Hic.resolution">
+<code class="descname">resolution</code><a class="headerlink" href="#src.hic.Hic.resolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resolution (or bin-size) of the Hi-C matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.hic.Hic.chrom">
+<code class="descname">chrom</code><a class="headerlink" href="#src.hic.Hic.chrom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Chromosome chosen among all chromosomes in cooler</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.hic.Hic.side">
+<code class="descname">side</code><a class="headerlink" href="#src.hic.Hic.side" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of raws and columns of a numpy array sub-matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.hic.Hic.matrix">
+<code class="descname">matrix</code><a class="headerlink" href="#src.hic.Hic.matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hi-C matrix of the chromosome chosen stored in a numpy array</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.hic.Hic.sub_matrices">
+<code class="descname">sub_matrices</code><a class="headerlink" href="#src.hic.Hic.sub_matrices" title="Permalink to this definition">¶</a></dt>
+<dd><p>The splitted Hi-C matrix into N sub-matrices of size side*side
+stored in a numpy array of shape (Samples, side, side, 1)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.hic.Hic.calculate_cum_length">
+<code class="descname">calculate_cum_length</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/hic.html#Hic.calculate_cum_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.hic.Hic.calculate_cum_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates and returns the cumulated length from chromosome 1 to N.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Informations on chromosomes, their length and cumulated length</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Pandas DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.hic.Hic.plot_matrix">
+<code class="descname">plot_matrix</code><span class="sig-paren">(</span><em>color_map</em>, <em>output_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/hic.html#Hic.plot_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.hic.Hic.plot_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Hi-C matrix is plotted in a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>color_map</strong> (<em>matplotlib.colors.ListedColormap</em>) – Color map for the plot</p></li>
+<li><p><strong>output_path</strong> (<em>str</em>) – Path of the output plot</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.hic.Hic.plot_sub_matrices">
+<code class="descname">plot_sub_matrices</code><span class="sig-paren">(</span><em>color_map</em>, <em>output_path</em>, <em>index_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/hic.html#Hic.plot_sub_matrices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.hic.Hic.plot_sub_matrices" title="Permalink to this definition">¶</a></dt>
+<dd><p>40 random sub-matrices are plotted in a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>color_map</strong> (<em>matplotlib.colors.ListedColormap</em>) – Color map for the plot</p></li>
+<li><p><strong>output_path</strong> (<em>str</em>) – Path of the output plot</p></li>
+<li><p><strong>index_list</strong> (<em>list</em>) – List of the 40 sub-matrix indexes to plot</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.hic.Hic.set_matrix">
+<code class="descname">set_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/hic.html#Hic.set_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.hic.Hic.set_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the numpy array Hi-C matrix of the chromosome chrom.
+The matrix is transformed into an upper triangular matrix and the values are converted
+in float32, rescaled by log10 and normalized.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.hic.Hic.set_sub_matrices">
+<code class="descname">set_sub_matrices</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/hic.html#Hic.set_sub_matrices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.hic.Hic.set_sub_matrices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split the Hi-C matrix of the chromosome chrom into N sub-matrices of size side*side.
+The empty sub-matrices (sum(values)==0) are ignored.
+The N resulted sub-matrices are stored and set in a numpy array
+of shape (N, side, side, 1).</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-src.predict_hic">
+<span id="predicthic"></span><h2>PredictHic<a class="headerlink" href="#module-src.predict_hic" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-PredictHic"></span><dl class="class">
+<dt id="src.predict_hic.PredictHic">
+<em class="property">class </em><code class="descclassname">src.predict_hic.</code><code class="descname">PredictHic</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/predict_hic.html#PredictHic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.predict_hic.PredictHic" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="class">
+<dt id="src.predict_hic.PredictHic.PredictHic">
+<em class="property">class </em><code class="descname">PredictHic</code><a class="headerlink" href="#src.predict_hic.PredictHic.PredictHic" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="descname">This class herits attributes and methods from Hic class and</code></dt>
+<dt>
+<code class="descname">groups informations about a predicted Hi-C matrix.</code></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.predict_hic.PredictHic.predicted_sub_matrices">
+<code class="descname">predicted_sub_matrices</code><a class="headerlink" href="#src.predict_hic.PredictHic.predicted_sub_matrices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sub-matrices predicted by a deep-learning model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.predict_hic.PredictHic.predicted_matrix">
+<code class="descname">predicted_matrix</code><a class="headerlink" href="#src.predict_hic.PredictHic.predicted_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>The reconstructed matrix from the predicted sub-matrices</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.predict_hic.PredictHic.construct_predicted_matrix">
+<code class="descname">construct_predicted_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/predict_hic.html#PredictHic.construct_predicted_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.predict_hic.PredictHic.construct_predicted_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construction and set of the predicted Hi-C matrix from the predicted sub-matrices.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.predict_hic.PredictHic.plot_predicted_matrix">
+<code class="descname">plot_predicted_matrix</code><span class="sig-paren">(</span><em>color_map</em>, <em>output_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/predict_hic.html#PredictHic.plot_predicted_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.predict_hic.PredictHic.plot_predicted_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>The reconstructed and predicted Hi-C matrix is plotted in a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>color_map</strong> (<em>matplotlib.colors.ListedColormap</em>) – Color map for the plot</p></li>
+<li><p><strong>output_path</strong> (<em>str</em>) – Path of the output plot</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.predict_hic.PredictHic.plot_predicted_sub_matrices">
+<code class="descname">plot_predicted_sub_matrices</code><span class="sig-paren">(</span><em>color_map</em>, <em>output_path</em>, <em>index_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/predict_hic.html#PredictHic.plot_predicted_sub_matrices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.predict_hic.PredictHic.plot_predicted_sub_matrices" title="Permalink to this definition">¶</a></dt>
+<dd><p>40 predicted random sub-matrices are plotted in a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>color_map</strong> (<em>matplotlib.colors.ListedColormap</em>) – Color map for the plot</p></li>
+<li><p><strong>output_path</strong> (<em>str</em>) – Path of the output plot</p></li>
+<li><p><strong>index_list</strong> (<em>list</em>) – List of the 40 sub-matrix indexes to plot</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.predict_hic.PredictHic.set_predicted_sub_matrices">
+<code class="descname">set_predicted_sub_matrices</code><span class="sig-paren">(</span><em>predicted_sub_matrices</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/predict_hic.html#PredictHic.set_predicted_sub_matrices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.predict_hic.PredictHic.set_predicted_sub_matrices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the sub-matrices predicted by a deep-learning model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>predicted_sub_matrices</strong> (<em>Numpy array</em>) – The predicted sub-matrices</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.predict_hic.PredictHic.write_predicted_matrix">
+<code class="descname">write_predicted_matrix</code><span class="sig-paren">(</span><em>threshold</em>, <em>output_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/predict_hic.html#PredictHic.write_predicted_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.predict_hic.PredictHic.write_predicted_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>The reconstructed and predicted Hi-C matrix is saved in a sparse matrix file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>threshold</strong> (<em>float</em>) – The predicted values under the threshold will be set to 0</p></li>
+<li><p><strong>output_path</strong> (<em>str</em>) – Path of the output plot</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="readme.html" class="btn btn-neutral float-left" title="DeepHicIntegrator" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Papantonis Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -123,13 +123,14 @@ if __name__ == "__main__":
     BATCH_SIZE = int(ARGS['--batch_size'])
     OUTPUT_PATH = ARGS['--output']
     os.makedirs(OUTPUT_PATH+'/model/', exist_ok=True)
+    os.makedirs(OUTPUT_PATH+'/plots/', exist_ok=True)
     # Refine color map of the plots
     REDS = cm.get_cmap('Reds', 300)
     CMP = ListedColormap(np.vstack((np.array([1, 1, 1, 1]), REDS(np.linspace(0, 1, 300)))))
 
     # RESOLUTION = 25000
     # HIC_FILE = 'data/1_binaries/hic/GSE63525_HUVEC_combined_30.hic'
-    # COOL_FILE = HIC_FILE.split('.hic')[0]+'_'+str(RESOLUTION)+'_.cool'
+    # COOL_FILE = HIC_FILE.split('.hic')[0]+'_'+str(RESOLUTION)+'.cool'
     # N = 60
     # EPOCHS = 50
     # BATCH_SIZE = 128
@@ -164,9 +165,9 @@ if __name__ == "__main__":
     TEST.construct_predicted_matrix()
     TEST.write_predicted_matrix(0.1, OUTPUT_PATH)
 
-    RANDOM_INDEX_LIST = rd.sample(range(0, TEST.sub_matrices.shape[0]), 10)
-    TEST.plot_ten_sub_matrices(CMP, OUTPUT_PATH, RANDOM_INDEX_LIST)
-    TEST.plot_ten_predicted_submatrices(CMP, OUTPUT_PATH, RANDOM_INDEX_LIST)
+    RANDOM_INDEX_LIST = rd.sample(range(0, TEST.sub_matrices.shape[0]), 40)
+    TEST.plot_sub_matrices(CMP, OUTPUT_PATH, RANDOM_INDEX_LIST)
+    TEST.plot_predicted_sub_matrices(CMP, OUTPUT_PATH, RANDOM_INDEX_LIST)
     TEST.plot_matrix(CMP, OUTPUT_PATH)
     TEST.plot_predicted_matrix(CMP, OUTPUT_PATH)
 

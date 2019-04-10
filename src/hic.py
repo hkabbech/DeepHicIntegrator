@@ -107,22 +107,24 @@ class Hic:
         sub_matrices = sub_matrices.reshape(-1, self.side, self.side, 1)
         self.sub_matrices = sub_matrices
 
-    def plot_ten_sub_matrices(self, color_map, output_path, index_list):
+    def plot_sub_matrices(self, color_map, output_path, index_list):
         """
-            10 sub-matrices are plotted in a file.
+            40 random sub-matrices are plotted in a file.
 
             Args:
                 color_map(matplotlib.colors.ListedColormap): Color map for the plot
                 output_path(str): Path of the output plot
-                index_list(list): List of the 10 sub-matrix indexes to plot
+                index_list(list): List of the 40 sub-matrix indexes to plot
         """
-        plt.figure(figsize=(18, 2))
-        for i, index in enumerate(index_list):
-            plt.subplot(1, 10, i+1)
-            plt.imshow(self.sub_matrices[index, ..., 0], cmap=color_map)
-            plt.title("submatrix n°{}".format(index))
-        plt.subplots_adjust(left=0.03, right=0.98, wspace=0.3)
-        plt.savefig('{}/10submatrices_chr{}_true.png'.format(output_path, self.chrom))
+        fig, axes = plt.subplots(4, 10, figsize=(24, 11))
+        fig.suptitle('True chr{} Hi-C sub-matrices'.format(self.chrom), fontsize=20)
+        fig.subplots_adjust(left=0.03, right=0.98, wspace=0.3, hspace = 0.4)
+        i = 0
+        for ax, index in zip(axes.flat, self.sub_matrices[index_list, ..., 0]):
+            ax.imshow(index, cmap=color_map)
+            ax.set_title("submatrix n°{}".format(index_list[i]))
+            i += 1
+        plt.savefig('{}/submatrices_chr{}_true.png'.format(output_path, self.chrom))
 
     def plot_matrix(self, color_map, output_path):
         """

@@ -1,0 +1,305 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>DeepHicIntegrator &mdash; DeepIntegrativeHiC 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Implemented classes" href="classes.html" />
+    <link rel="prev" title="DeepHicIntegrator’s Documentation" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> DeepIntegrativeHiC
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">DeepHicIntegrator</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#clone-the-repository">Clone the repository</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#run-the-program">Run the program</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#toy-example">Toy example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#get-help">Get help</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#documentation">Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#authors">Authors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#license">License</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="classes.html">Implemented classes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">DeepIntegrativeHiC</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>DeepHicIntegrator</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/readme.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <a class="reference external image-reference" href="https://img.shields.io/badge/DeepIntegrativeHiC-v0.1-blue.svg"><img alt="DeepIntegrativeHiC release" src="https://img.shields.io/badge/DeepIntegrativeHiC-v0.1-blue.svg" /></a>
+<a class="reference external image-reference" href="https://opensource.org/licenses/gpl-license"><img alt="License: GNU" src="https://img.shields.io/badge/License-GNU-yellow.svg" /></a>
+<a class="reference external image-reference" href="https://img.shields.io/badge/python-3-brightgreen.svg"><img alt="Python version" src="https://img.shields.io/badge/python-3-brightgreen.svg" /></a>
+<a class="reference external image-reference" href="https://deephicintegrator.readthedocs.io/en/latest/?badge=latest"><img alt="Documentation Status" src="https://readthedocs.org/projects/deephicintegrator/badge/?version=latest" /></a>
+<p><span class="raw-html-m2r"><br></span></p>
+<div class="section" id="deephicintegrator">
+<h1>DeepHicIntegrator<a class="headerlink" href="#deephicintegrator" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="clone-the-repository">
+<h3>Clone the repository<a class="headerlink" href="#clone-the-repository" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/kabhel/DeepHicIntegrator.git
+cd DeepHicIntegrator
+</pre></div>
+</div>
+</div>
+<div class="section" id="requirements">
+<h3>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic simple">
+<li><p>A <strong>linux</strong> distribution.</p></li>
+<li><p><strong>Python3</strong> and the following python packages : <strong>tensorflow-gpu</strong>, <strong>keras</strong>, <strong>docopt</strong>, <strong>schema</strong>, <strong>pandas</strong>, <strong>numpy</strong>, <strong>scipy</strong>, <strong>matplotlib</strong>, <strong>sklearn</strong>, <strong>cooler</strong>, <strong>hic2cool</strong> and <strong>m2r</strong> (for Sphinx).</p></li>
+</ol>
+<p>The next command will install all the required packages. Before running this command, make sure that the first line is uncommented. If you do not have GPUs (or do not want to use them) simply replace <strong>tensorflow-gpu</strong> by <strong>tensorflow</strong>.</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>pip install -r requirements.txt
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li><p>A Hi-C matrix in <code class="docutils literal notranslate"><span class="pre">.hic</span></code> file format.</p></li>
+</ol>
+<p>Please, download the <strong>GSE63525 HUVEC</strong> genome in order to run the toy example.</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>wget -i ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE63nnn/GSE63525/suppl/GSE63525_HUVEC_combined_30.hic.gz
+gunzip GSE63525_HUVEC_combined_30.hic.gz
+mv GSE63525_HUVEC_combined_30.hic data/1_binaries/hic/
+rm wget-log
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="run-the-program">
+<h2>Run the program<a class="headerlink" href="#run-the-program" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="toy-example">
+<h3>Toy example<a class="headerlink" href="#toy-example" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>./deep_hic_integrator data/1_binaries/hic/GSE63525_HUVEC_combined_30.hic -a 10 -t 20 -o results/
+</pre></div>
+</div>
+</div>
+<div class="section" id="get-help">
+<h3>Get help<a class="headerlink" href="#get-help" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>Usage:
+    ./deep_hic_integrator &lt;HIC_FILE&gt; [--resolution INT] [--train INT] [--test INT]
+                                     [--square_side INT] [--epochs INT] [--batch_size INT]
+                                     [--output PATH]
+
+Arguments:
+    &lt;HIC_FILE&gt;                      Path to the Hi-C matrix file
+                                    (.hic format)
+
+Options:
+    -r, INT, --resolution INT       Hi-C matrice resolution to use. [default: 25000]
+    -a INT, --train INT             Chromosome for training [default: 1]
+    -t INT, --test INT              Chromosome for test [default: 20]
+    -n INT, --square_side INT       Size n*n of a sub-matrix [default: 60]
+    -e INT, --epochs INT            Number of epochs [default: 50]
+    -b INT, --batch_size INT        Size of a batch [default: 128]
+    -o PATH, --output PATH          Output path [default: results/]
+    -h, --help
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<p>The documentation is generated with Sphinx and built on ReadTheDocs.</p>
+</div>
+<div class="section" id="authors">
+<h2>Authors<a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/kabhel">Hélène Kabbech</a></p></li>
+<li><p><a class="reference external" href="https://github.com/eggduzao">Eduardo Gade Gusmao</a></p></li>
+</ul>
+</div>
+<div class="section" id="license">
+<h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
+<p>This project is licensed under the GNU License.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="classes.html" class="btn btn-neutral float-right" title="Implemented classes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="DeepHicIntegrator’s Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Papantonis Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
