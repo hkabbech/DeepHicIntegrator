@@ -31,6 +31,8 @@ class Hic:
         self.resolution = self.cooler.info['bin-size']
         self.chrom = chrom
         self.side = square_side
+        self.white_sub_matrices_ind = None
+        self.total_sub_matrices = None
         self.matrix = None
         self.sub_matrices = None
 
@@ -92,6 +94,8 @@ class Hic:
             The N resulted sub-matrices are stored and set in a numpy array
             of shape (N, side, side, 1).
         """
+        white_ind = []
+        k = 0
         sub_matrices_list = []
         for i in range(0, self.matrix.shape[1], self.side):
             for j in range(0, self.matrix.shape[1], self.side):
@@ -102,9 +106,14 @@ class Hic:
                 # The empty sub-matrices are not taking into account
                 if sub_matrix.sum() != 0:
                     sub_matrices_list.append(sub_matrix)
+                else:
+                    white_ind.append(k)
+                k += 1
         sub_matrices = np.array(sub_matrices_list)
         # The number of sub-matrices is calculated automatically by using -1 in the first field
         sub_matrices = sub_matrices.reshape(-1, self.side, self.side, 1)
+        self.white_sub_matrices_ind = white_ind
+        self.total_sub_matrices = k
         self.sub_matrices = sub_matrices
 
     def plot_sub_matrices(self, color_map, output_path, index_list):

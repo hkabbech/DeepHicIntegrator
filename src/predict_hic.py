@@ -43,37 +43,36 @@ class PredictHic(Hic):
         """
             Construction and set of the predicted Hi-C matrix from the predicted sub-matrices.
         """
-        white_sub_matrix = np.zeros(shape=(self.side, self.side, 1))
-        nb_sub_matrices = int(self.matrix.shape[0] / self.side)
-        nb_white = 0
-        j = 1
-        for _, sub_matrix in enumerate(self.predicted_sub_matrices):
-            if j == nb_sub_matrices - 1:
+        white = np.zeros(shape=(self.side, self.side, 1))
+        line_limit = int(self.matrix.shape[0] / self.side)
+        nb_sub_matrices = 1
+        pred_sub_matrix_ind = 0
+
+        for ind in range(self.total_sub_matrices):
+            if ind in self.white_sub_matrices_ind:
+                # The current sub-matrix is white
+                sub_matrix = white
+            else:
+                sub_matrix = self.predicted_sub_matrices[pred_sub_matrix_ind]
+                pred_sub_matrix_ind +=1
+
+            if nb_sub_matrices == line_limit:
                 # The current line is concatenated with the previous lines
                 try:
                     line = np.concatenate((line, sub_matrix), axis=1)
                     predicted_matrix = np.concatenate((predicted_matrix, line), axis=0)
                 except NameError:
                     predicted_matrix = line
-                nb_white += 1
-                j = 1
+                nb_sub_matrices = 1
                 del line
             else:
                 # A new sub-matrix is concatenated with the current line
                 try:
                     line = np.concatenate((line, sub_matrix), axis=1)
                 except NameError:
-                    if nb_white == 0:
-                        line = sub_matrix
-                    else:
-                        # The matrix is upper triangular, we have to add white sub-matrices
-                        line = white_sub_matrix
-                        for _ in range(1, nb_white):
-                            line = np.concatenate((line, white_sub_matrix), axis=1)
-                            j += 1
-                        line = np.concatenate((line, sub_matrix), axis=1)
-                        j += 1
-                j += 1
+                    line = sub_matrix
+                nb_sub_matrices += 1   
+
         self.predicted_matrix = predicted_matrix.reshape(predicted_matrix.shape[0],
                                                          predicted_matrix.shape[1])
 
