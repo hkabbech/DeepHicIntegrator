@@ -8,7 +8,7 @@ from contextlib import redirect_stdout
 from sklearn.model_selection import train_test_split
 from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D
 from keras.models import Model
-from keras.optimizers import RMSprop
+# from keras.optimizers import RMSprop
 import matplotlib.pyplot as plt
 
 
@@ -46,47 +46,41 @@ class Autoencoder:
         """
 
         input_img = Input(shape=(self.img_size, self.img_size, 1))
-
-        tmp = Conv2D(32, (3, 3), activation='relu', padding='same')(input_img)
-        tmp = MaxPooling2D((2, 2), padding='same')(tmp)
-        tmp = Conv2D(64, (3, 3), activation='relu', padding='same')(tmp)
-        tmp = MaxPooling2D((2, 2), padding='same')(tmp)
-        tmp = Conv2D(128, (3, 3), activation='relu', padding='same')(tmp)
-        encoded = MaxPooling2D((2, 2), padding='same')(tmp)
-
-        conv_decoded_1 = Conv2D(128, (3, 3), activation='relu', padding='same')
-        up_decoded_1 = UpSampling2D((2, 2))
-        conv_decoded_2 = Conv2D(64, (3, 3), activation='relu', padding='same')
-        up_decoded_2 = UpSampling2D((2, 2))
-        conv_decoded_3 = Conv2D(32, (3, 3), activation='relu')
-        up_decoded_3 = UpSampling2D((2, 2))
-        conv_decoded_4 = Conv2D(1, (3, 3), activation='sigmoid', padding='same')
-
-        self.encoder = Model(input_img, encoded)
-
-        tmp = conv_decoded_1(encoded)
-        tmp = up_decoded_1(tmp)
-        tmp = conv_decoded_2(tmp)
-        tmp = up_decoded_2(tmp)
-        tmp = conv_decoded_3(tmp)
-        tmp = up_decoded_3(tmp)
-        decoded_autoencoder = conv_decoded_4(tmp)
-
-        self.cae = Model(input_img, decoded_autoencoder)
-
         latent_space_input = Input(shape=(8, 8, 128))
-        tmp = conv_decoded_1(latent_space_input)
-        tmp = up_decoded_1(tmp)
-        tmp = conv_decoded_2(tmp)
-        tmp = up_decoded_2(tmp)
-        tmp = conv_decoded_3(tmp)
-        tmp = up_decoded_3(tmp)
-        decoded = conv_decoded_4(tmp)
 
-        self.decoder = Model(latent_space_input, decoded)
+        def encode(input_img):
+            """
+                Encoder network
+            """
+            layer = Conv2D(32, (3, 3), activation='relu', padding='same')(input_img)
+            layer = MaxPooling2D((2, 2), padding='same')(layer)
+            layer = Conv2D(64, (3, 3), activation='relu', padding='same')(layer)
+            layer = MaxPooling2D((2, 2), padding='same')(layer)
+            encoded = Conv2D(128, (3, 3), activation='relu', padding='same')(layer)
+            # encoded = MaxPooling2D((2, 2), padding='same')(layer)
+            return encoded
+
+        def decode(input_img):
+            """
+                Decoder network
+            """
+            layer = Conv2D(128, (3, 3), activation='relu', padding='same')(input_img)
+            layer = UpSampling2D((2, 2))(layer)
+            layer = Conv2D(64, (3, 3), activation='relu', padding='same')(layer)
+            layer = UpSampling2D((2, 2))(layer)
+            # layer = Conv2D(32, (3, 3), activation='relu')(layer)
+            # layer = UpSampling2D((2, 2))(layer)
+            decoded = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(layer)
+            return decoded
+
+        encoded = encode(input_img)
+        self.encoder = Model(input_img, encoded)
+        self.decoder = Model(latent_space_input, decode(latent_space_input))
+        self.cae = Model(input_img, decode(encoded))
 
 
-    def compile(self, loss_function='mean_squared_error', metrics_list=['accuracy']):
+    def compile(self, loss_function='mean_squared_error', optimizer='rmsprop',
+                metrics_list=['accuracy']):
         """
             Compilation of the Autoencoder model.
 
@@ -94,7 +88,7 @@ class Autoencoder:
                 loss_function(str): The loss function to use
                 matrics_list(list): The metrics to generate during compilation
         """
-        self.cae.compile(loss=loss_function, optimizer=RMSprop(), metrics=metrics_list)
+        self.cae.compile(loss=loss_function, optimizer=optimizer, metrics=metrics_list)
         self.cae.summary()
 
     def train(self):

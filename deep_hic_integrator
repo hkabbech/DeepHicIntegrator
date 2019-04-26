@@ -143,6 +143,9 @@ if __name__ == "__main__":
     AE.set_models()
     AE.compile()
     AE.train()
+    AE.save_model(MODEL_PATH)
+    AE.plot_loss_curve(MODEL_PATH)
+    AE.plot_accuracy_curve(MODEL_PATH)
 
 
     ### TESTING OF THE AUTOENCODER
@@ -167,7 +170,9 @@ if __name__ == "__main__":
     #################
     HIC_LATENT_SPACES = AE.encoder.predict(TEST_HIC.sub_matrices)
     PREDICTED_HIC = AE.decoder.predict(HIC_LATENT_SPACES)
-    CHROMHMM_LATENT_SPACES = AE.encoder.predict(np.random.shuffle(TEST_HIC.sub_matrices))
+    tmp = TEST_HIC.sub_matrices.copy()
+    np.random.shuffle(tmp)
+    CHROMHMM_LATENT_SPACES = AE.encoder.predict(tmp)
     PREDICTED_CHROMHMM = AE.decoder.predict(CHROMHMM_LATENT_SPACES)
     INTERPOLATION = Interpolation(ALPHA, HIC_LATENT_SPACES, PREDICTED_HIC,
                                   CHROMHMM_LATENT_SPACES, PREDICTED_CHROMHMM, AE.decoder)
@@ -175,14 +180,10 @@ if __name__ == "__main__":
     INTERPOLATION.interpolate_latent_spaces()
     INTERPOLATION.set_decoded_latent_spaces()
     INTERPOLATION.plot_random_interpolation(RED_CMP, N, TEST_PATH)
-
+    INTERPOLATION.construct_predicted_matrix(TEST_HIC)
 
     ### SAVE PARAMETERS
     ###################
-
-    AE.save_model(MODEL_PATH)
-    AE.plot_loss_curve(MODEL_PATH)
-    AE.plot_accuracy_curve(MODEL_PATH)
 
     TIME = datetime.now() - START_TIME
 
@@ -200,4 +201,5 @@ if __name__ == "__main__":
                    .format(AE.cae.optimizer, AE.cae.loss, AE.cae.metrics))
         file.write('Running time: {}'.format(TIME))
 
-    print("\nTotal runtime: {}.{} seconds".format(TIME.seconds, TIME.microseconds))
+    print("\nTotal runtime: {}h {}min".format(int(TIME.seconds/3600), int((TIME.seconds/3600-int(TIME.seconds/3600))*60)))
+    #  TIME.microseconds

@@ -54,7 +54,7 @@ class PredictHic(Hic):
                 sub_matrix = white
             else:
                 sub_matrix = self.predicted_sub_matrices[pred_sub_matrix_ind]
-                pred_sub_matrix_ind +=1
+                pred_sub_matrix_ind += 1
 
             if nb_sub_matrices == line_limit:
                 # The current line is concatenated with the previous lines
@@ -71,7 +71,7 @@ class PredictHic(Hic):
                     line = np.concatenate((line, sub_matrix), axis=1)
                 except NameError:
                     line = sub_matrix
-                nb_sub_matrices += 1   
+                nb_sub_matrices += 1
 
         self.predicted_matrix = predicted_matrix.reshape(predicted_matrix.shape[0],
                                                          predicted_matrix.shape[1])
