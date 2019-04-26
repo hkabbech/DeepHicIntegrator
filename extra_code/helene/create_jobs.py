@@ -13,7 +13,7 @@ os.makedirs('jobs/', exist_ok=True)
 for i in [25000, 10000, 5000]:
 	res_path = 'results/interpol_resolution_'+str(i)+'/'
 	os.makedirs(res_path, exist_ok=True)
-	with open('jobs/job_resolution_'+str(i)+'.sh', 'w') as filout:
+	with open('jobs/job_interpol_resolution_'+str(i)+'.sh', 'w') as filout:
 		filout.write('#!/bin/bash\n')
 		filout.write('#BSUB -q gpu\n')
 		filout.write('#BSUB -W 10:00\n')
