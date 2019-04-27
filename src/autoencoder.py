@@ -45,9 +45,6 @@ class Autoencoder:
                 decoded(Conv2D keras layer): The last decoded output layer of the Autoencoder
         """
 
-        input_img = Input(shape=(self.img_size, self.img_size, 1))
-        latent_space_input = Input(shape=(8, 8, 128))
-
         def encode(input_img):
             """
                 Encoder network
@@ -72,6 +69,9 @@ class Autoencoder:
             # layer = UpSampling2D((2, 2))(layer)
             decoded = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(layer)
             return decoded
+
+        input_img = Input(shape=(self.img_size, self.img_size, 1))
+        latent_space_input = Input(shape=(15, 15, 128))
 
         encoded = encode(input_img)
         self.encoder = Model(input_img, encoded)

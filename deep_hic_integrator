@@ -199,7 +199,7 @@ if __name__ == "__main__":
                    .format(EPOCHS, BATCH_SIZE))
         file.write(' Optimizer: {}\n Loss function: {}\n Metrics: {}\n\n'
                    .format(AE.cae.optimizer, AE.cae.loss, AE.cae.metrics))
-        file.write('Running time: {}'.format(TIME))
+        file.write('Running time: {}h {}min'.format(TIME.seconds // 3600, TIME.seconds // 60 % 60))
 
-    print("\nTotal runtime: {}h {}min".format(int(TIME.seconds/3600), int((TIME.seconds/3600-int(TIME.seconds/3600))*60)))
+    print('\nTotal runtime: {}h {}min'.format(TIME.seconds // 3600, TIME.seconds // 60 % 60))
     #  TIME.microseconds
