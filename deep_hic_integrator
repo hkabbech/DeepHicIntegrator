@@ -170,9 +170,9 @@ if __name__ == "__main__":
     #################
     HIC_LATENT_SPACES = AE.encoder.predict(TEST_HIC.sub_matrices)
     PREDICTED_HIC = AE.decoder.predict(HIC_LATENT_SPACES)
-    tmp = TEST_HIC.sub_matrices.copy()
-    np.random.shuffle(tmp)
-    CHROMHMM_LATENT_SPACES = AE.encoder.predict(tmp)
+    TMP = TEST_HIC.sub_matrices.copy()
+    np.random.shuffle(TMP)
+    CHROMHMM_LATENT_SPACES = AE.encoder.predict(TMP)
     PREDICTED_CHROMHMM = AE.decoder.predict(CHROMHMM_LATENT_SPACES)
     INTERPOLATION = Interpolation(ALPHA, HIC_LATENT_SPACES, PREDICTED_HIC,
                                   CHROMHMM_LATENT_SPACES, PREDICTED_CHROMHMM, AE.decoder)
@@ -186,6 +186,8 @@ if __name__ == "__main__":
     ###################
 
     TIME = datetime.now() - START_TIME
+    HOURS = TIME.seconds // 3600
+    MINUTES = TIME.seconds // 60 % 60
 
     # All the parameters of the training and testing parts are saved in a log file.
     with open(MODEL_PATH+'parameters.log', 'w') as file:
@@ -199,7 +201,6 @@ if __name__ == "__main__":
                    .format(EPOCHS, BATCH_SIZE))
         file.write(' Optimizer: {}\n Loss function: {}\n Metrics: {}\n\n'
                    .format(AE.cae.optimizer, AE.cae.loss, AE.cae.metrics))
-        file.write('Running time: {}h {}min'.format(TIME.seconds // 3600, TIME.seconds // 60 % 60))
+        file.write('Running time: {}h {}min'.format(HOURS, MINUTES))
 
-    print('\nTotal runtime: {}h {}min'.format(TIME.seconds // 3600, TIME.seconds // 60 % 60))
-    #  TIME.microseconds
+    print('\nTotal runtime: {}h {}min'.format(HOURS, MINUTES))

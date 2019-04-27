@@ -5,6 +5,7 @@
 
 import random as rd
 import matplotlib.pyplot as plt
+import numpy as np
 
 class Interpolation:
     """

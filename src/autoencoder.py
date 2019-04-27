@@ -8,7 +8,7 @@ from contextlib import redirect_stdout
 from sklearn.model_selection import train_test_split
 from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D
 from keras.models import Model
-# from keras.optimizers import RMSprop
+from keras.optimizers import RMSprop
 import matplotlib.pyplot as plt
 
 
@@ -78,9 +78,7 @@ class Autoencoder:
         self.decoder = Model(latent_space_input, decode(latent_space_input))
         self.cae = Model(input_img, decode(encoded))
 
-
-    def compile(self, loss_function='mean_squared_error', optimizer='rmsprop',
-                metrics_list=['accuracy']):
+    def compile(self, loss_function='mean_squared_error', metrics_list=['accuracy']):
         """
             Compilation of the Autoencoder model.
 
@@ -88,7 +86,7 @@ class Autoencoder:
                 loss_function(str): The loss function to use
                 matrics_list(list): The metrics to generate during compilation
         """
-        self.cae.compile(loss=loss_function, optimizer=optimizer, metrics=metrics_list)
+        self.cae.compile(loss=loss_function, optimizer=RMSprop(), metrics=metrics_list)
         self.cae.summary()
 
     def train(self):
