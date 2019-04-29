@@ -49,18 +49,18 @@ class Autoencoder:
             """
                 Encoder network
             """
-            layer = Conv2D(128, (3, 3), activation='relu', padding='same')(input_img)
+            layer = Conv2D(32, (3, 3), activation='relu', padding='same')(input_img)
             layer = MaxPooling2D((2, 2), padding='same')(layer)
             layer = Conv2D(64, (3, 3), activation='relu', padding='same')(layer)
             layer = MaxPooling2D((2, 2), padding='same')(layer)
-            encoded = Conv2D(32, (3, 3), activation='relu', padding='same')(layer)
+            encoded = Conv2D(128, (3, 3), activation='relu', padding='same')(layer)
             return encoded
 
         def decode(input_img):
             """
                 Decoder network
             """
-            layer = Conv2D(32, (3, 3), activation='relu', padding='same')(input_img)
+            layer = Conv2D(128, (3, 3), activation='relu', padding='same')(input_img)
             layer = UpSampling2D((2, 2))(layer)
             layer = Conv2D(64, (3, 3), activation='relu', padding='same')(layer)
             layer = UpSampling2D((2, 2))(layer)
@@ -68,7 +68,7 @@ class Autoencoder:
             return decoded
 
         input_img = Input(shape=(self.img_size, self.img_size, 1))
-        latent_space_input = Input(shape=(self.chr_train.side/4, self.chr_train.side/4, 32))
+        latent_space_input = Input(shape=(self.chr_train.side/4, self.chr_train.side/4, 128))
 
         encoded = encode(input_img)
         self.encoder = Model(input_img, encoded)

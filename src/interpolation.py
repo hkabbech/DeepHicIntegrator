@@ -74,7 +74,7 @@ class Interpolation:
         plt.close()
 
         plt.figure(figsize=(20, 8))
-        plt.imshow(self.interpolated_ls[submatrix].reshape((hic.side/4) * 32, hic.side/4).T,
+        plt.imshow(self.interpolated_ls[submatrix].reshape((hic.side/4) * 128, hic.side/4).T,
                    cmap=color_map)
         plt.title("Latent space")
         plt.axis('off')
