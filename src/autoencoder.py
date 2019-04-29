@@ -49,10 +49,10 @@ class Autoencoder:
             """
                 Encoder network
             """
-            layer = Conv2D(32, (3, 3), activation='relu', padding='same')(input_img)
+            layer = Conv2D(64, (3, 3), activation='relu', padding='same')(input_img)
+            layer = MaxPooling2D((2, 2), padding='same')(layer)
+            layer = Conv2D(32, (3, 3), activation='relu', padding='same')(layer)
             encoded = MaxPooling2D((2, 2), padding='same')(layer)
-            # layer = Conv2D(32, (3, 3), activation='relu', padding='same')(layer)
-            # encoded = MaxPooling2D((2, 2), padding='same')(layer)
             return encoded
 
         def decode(input_img):
@@ -61,8 +61,8 @@ class Autoencoder:
             """
             layer = Conv2D(32, (3, 3), activation='relu', padding='same')(input_img)
             layer = UpSampling2D((2, 2))(layer)
-            # layer = Conv2D(32, (3, 3), activation='relu', padding='same')(layer)
-            # layer = UpSampling2D((2, 2))(layer)
+            layer = Conv2D(64, (3, 3), activation='relu', padding='same')(layer)
+            layer = UpSampling2D((2, 2))(layer)
             decoded = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(layer)
             return decoded
 
