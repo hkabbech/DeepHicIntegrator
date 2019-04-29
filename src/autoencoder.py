@@ -49,9 +49,7 @@ class Autoencoder:
             """
                 Encoder network
             """
-            layer = Conv2D(128, (3, 3), activation='relu', padding='same')(input_img)
-            layer = MaxPooling2D((2, 2), padding='same')(layer)
-            layer = Conv2D(64, (3, 3), activation='relu', padding='same')(layer)
+            layer = Conv2D(64, (3, 3), activation='relu', padding='same')(input_img)
             encoded = MaxPooling2D((2, 2), padding='same')(layer)
             # layer = Conv2D(32, (3, 3), activation='relu', padding='same')(layer)
             # encoded = MaxPooling2D((2, 2), padding='same')(layer)
@@ -62,8 +60,6 @@ class Autoencoder:
                 Decoder network
             """
             layer = Conv2D(64, (3, 3), activation='relu', padding='same')(input_img)
-            layer = UpSampling2D((2, 2))(layer)
-            layer = Conv2D(128, (3, 3), activation='relu', padding='same')(layer)
             layer = UpSampling2D((2, 2))(layer)
             # layer = Conv2D(32, (3, 3), activation='relu', padding='same')(layer)
             # layer = UpSampling2D((2, 2))(layer)
