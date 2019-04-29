@@ -49,11 +49,9 @@ class Autoencoder:
             """
                 Encoder network
             """
-            layer = Conv2D(32, (3, 3), activation='relu', padding='same')(input_img)
-            layer = MaxPooling2D((2, 2), padding='same')(layer)    
-            layer = Conv2D(64, (3, 3), activation='relu', padding='same')(layer)
+            layer = Conv2D(64, (3, 3), activation='relu', padding='same')(input_img)
             layer = MaxPooling2D((2, 2), padding='same')(layer)
-            layer = Conv2D(128, (3, 3), activation='relu', padding='same')(layer)
+            layer = Conv2D(32, (3, 3), activation='relu', padding='same')(layer)
             encoded = MaxPooling2D((2, 2), padding='same')(layer)
             return encoded
 
@@ -61,7 +59,7 @@ class Autoencoder:
             """
                 Decoder network
             """
-            layer = Conv2D(128, (3, 3), activation='relu', padding='same')(input_img)
+            layer = Conv2D(32, (3, 3), activation='relu', padding='same')(input_img)
             layer = UpSampling2D((2, 2))(layer)
             layer = Conv2D(64, (3, 3), activation='relu', padding='same')(layer)
             layer = UpSampling2D((2, 2))(layer)
@@ -69,7 +67,7 @@ class Autoencoder:
             return decoded
 
         input_img = Input(shape=(self.img_size, self.img_size, 1))
-        latent_space_input = Input(shape=(self.chr_train.side/2, self.chr_train.side/2, 128))
+        latent_space_input = Input(shape=(self.chr_train.side/3, self.chr_train.side/3, 32))
 
         encoded = encode(input_img)
         self.encoder = Model(input_img, encoded)
