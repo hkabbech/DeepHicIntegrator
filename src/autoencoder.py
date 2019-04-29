@@ -67,7 +67,7 @@ class Autoencoder:
             return decoded
 
         input_img = Input(shape=(self.img_size, self.img_size, 1))
-        latent_space_input = Input(shape=(10, 10, 64))
+        latent_space_input = Input(shape=(self.chr_train.side/2, self.chr_train.side/2, 64))
 
         encoded = encode(input_img)
         self.encoder = Model(input_img, encoded)

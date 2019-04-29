@@ -40,17 +40,17 @@ class Interpolation:
         """
         self.decoded_interpolated_ls = decoder.predict(self.interpolated_ls)
 
-    def plot_random_interpolation(self, predicted_hic, predicted_ngs, color_map, size_img, path):
+    def plot_random_interpolation(self, hic, predicted_ngs, color_map, size_img, path):
         """
             TO DO
         """
-        submatrix = rd.randint(0, predicted_hic.shape[0])
+        submatrix = rd.randint(0, hic.matrix.shape[0])
 
         fig, axes = plt.subplots(2, 3, figsize=(24, 11))
         fig.suptitle('Interpolation of the sub-matrix n°{}'.format(submatrix), fontsize=20)
         fig.subplots_adjust(left=0.03, right=0.98, wspace=0.3, hspace=0.4)
         for i in range(2):
-            axes[i, 0].imshow(predicted_hic[submatrix].reshape(size_img, size_img),
+            axes[i, 0].imshow(hic.sub_matrices[submatrix].reshape(size_img, size_img),
                               cmap=color_map)
             axes[i, 0].set_title("Hi-C")
             axes[i, 0].axis('off')
@@ -74,7 +74,8 @@ class Interpolation:
         plt.close()
 
         plt.figure(figsize=(20, 8))
-        plt.imshow(self.interpolated_ls[submatrix].reshape(20 * 64, 20).T, cmap=color_map)
+        plt.imshow(self.interpolated_ls[submatrix].reshape((hic.side/2) * 64, hic.side/2).T,
+                   cmap=color_map)
         plt.title("Latent space")
         plt.axis('off')
         plt.savefig('{}/latentSpace_submatrix_{}.png'.format(path, submatrix))
