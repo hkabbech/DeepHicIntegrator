@@ -49,7 +49,7 @@ class Autoencoder:
             """
                 Encoder network
             """
-            layer = Conv2D(64, (3, 3), activation='relu', padding='same')(input_img)
+            layer = Conv2D(128, (3, 3), activation='relu', padding='same')(input_img)
             layer = MaxPooling2D((2, 2), padding='same')(layer)    
             layer = Conv2D(64, (3, 3), activation='relu', padding='same')(layer)
             layer = MaxPooling2D((2, 2), padding='same')(layer)
