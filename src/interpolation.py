@@ -6,6 +6,8 @@
 import random as rd
 import matplotlib.pyplot as plt
 import numpy as np
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
 
 class Interpolation:
     """
@@ -13,54 +15,47 @@ class Interpolation:
         This class groups attributes and functions about the Autoencoder.
     """
 
-    def __init__(self, alpha, hic_latent_spaces, predicted_hic,
-                 chromhmm_latent_spaces, predicted_chromhmm, decoder):
+    def __init__(self, alpha):
         self.alpha = alpha
-        self.hic_ls = hic_latent_spaces
-        self.predicted_hic = predicted_hic
-        self.chromhmm_ls = chromhmm_latent_spaces
-        self.predicted_chromhmm = predicted_chromhmm
-        self.decoder = decoder
         self.interpolated_ls = None
         self.decoded_interpolated_ls = None
         self.interpolated_predicted_img = None
-        self.reconstructed_matrix = None
+        self.integrated_matrix = None
 
-    def interpolate_predicted_img(self):
+    def interpolate_predicted_img(self, predicted_hic, predicted_ngs):
         """
             Image space interpolation
         """
-        self.interpolated_predicted_img = self.predicted_hic*(1-self.alpha) +\
-                                          self.predicted_chromhmm*self.alpha
+        self.interpolated_predicted_img = predicted_hic*(1-self.alpha) + predicted_ngs*self.alpha
 
-    def interpolate_latent_spaces(self):
+    def interpolate_latent_spaces(self, hic_latent_spaces, ngs_latent_spaces):
         """
             Latent space interpolation
         """
-        self.interpolated_ls = self.hic_ls*(1-self.alpha) + self.chromhmm_ls*self.alpha
+        self.interpolated_ls = hic_latent_spaces*(1-self.alpha) + ngs_latent_spaces*self.alpha
 
-    def set_decoded_latent_spaces(self):
+    def set_decoded_latent_spaces(self, decoder):
         """
             Latent space interpolation
         """
-        self.decoded_interpolated_ls = self.decoder.predict(self.interpolated_ls)
+        self.decoded_interpolated_ls = decoder.predict(self.interpolated_ls)
 
-    def plot_random_interpolation(self, color_map, size_img, path):
+    def plot_random_interpolation(self, predicted_hic, predicted_ngs, color_map, size_img, path):
         """
             TO DO
         """
-        submatrix = rd.randint(0, self.predicted_hic.shape[0])
+        submatrix = rd.randint(0, predicted_hic.shape[0])
 
         fig, axes = plt.subplots(2, 3, figsize=(24, 11))
         fig.suptitle('Interpolation of the sub-matrix n°{}'.format(submatrix), fontsize=20)
-        # fig.subplots_adjust(left=0.03, right=0.98, wspace=0.3, hspace=0.4)
+        fig.subplots_adjust(left=0.03, right=0.98, wspace=0.3, hspace=0.4)
         for i in range(2):
-            axes[i, 0].imshow(self.predicted_hic[submatrix].reshape(size_img, size_img),
+            axes[i, 0].imshow(predicted_hic[submatrix].reshape(size_img, size_img),
                               cmap=color_map)
             axes[i, 0].set_title("Hi-C")
             axes[i, 0].axis('off')
 
-            axes[i, 2].imshow(self.predicted_chromhmm[submatrix].reshape(size_img, size_img),
+            axes[i, 2].imshow(predicted_ngs[submatrix].reshape(size_img, size_img),
                               cmap=color_map)
             axes[i, 2].set_title("ChromHMM")
             axes[i, 2].axis('off')
@@ -79,23 +74,23 @@ class Interpolation:
         plt.close()
 
         plt.figure(figsize=(20, 8))
-        plt.imshow(self.interpolated_ls[i].reshape(15 * 128, 15).T, cmap=color_map)
+        plt.imshow(self.interpolated_ls[submatrix].reshape(10 * 64, 10).T, cmap=color_map)
         plt.title("Latent space")
         plt.axis('off')
         plt.savefig('{}/latentSpace_submatrix_{}.png'.format(path, submatrix))
         plt.close()
 
-    def construct_predicted_matrix(self, predicted_hic):
+    def construct_integrated_matrix(self, hic):
         """
             Construction and set of the predicted Hi-C matrix from the predicted sub-matrices.
         """
-        white = np.zeros(shape=(predicted_hic.side, predicted_hic.side, 1))
-        line_limit = int(predicted_hic.matrix.shape[0] / predicted_hic.side)
+        white = np.zeros(shape=(hic.side, hic.side, 1))
+        line_limit = int(hic.matrix.shape[0] / hic.side)
         nb_sub_matrices = 1
         pred_sub_matrix_ind = 0
 
-        for ind in range(predicted_hic.total_sub_matrices):
-            if ind in predicted_hic.white_sub_matrices_ind:
+        for ind in range(hic.total_sub_matrices):
+            if ind in hic.white_sub_matrices_ind:
                 # The current sub-matrix is white
                 sub_matrix = white
             else:
@@ -106,9 +101,9 @@ class Interpolation:
                 # The current line is concatenated with the previous lines
                 try:
                     line = np.concatenate((line, sub_matrix), axis=1)
-                    predicted_matrix = np.concatenate((predicted_matrix, line), axis=0)
+                    integrated_matrix = np.concatenate((integrated_matrix, line), axis=0)
                 except NameError:
-                    predicted_matrix = line
+                    integrated_matrix = line
                 nb_sub_matrices = 1
                 del line
             else:
@@ -119,8 +114,8 @@ class Interpolation:
                     line = sub_matrix
                 nb_sub_matrices += 1
 
-        self.reconstructed_matrix = predicted_matrix.reshape(predicted_matrix.shape[0],
-                                                             predicted_matrix.shape[1])
+        self.integrated_matrix = integrated_matrix.reshape(integrated_matrix.shape[0],
+                                                           integrated_matrix.shape[1])
 
     # def plot_sub_matrices(self, color_map, output_path, index_list):
     #     """
@@ -139,24 +134,25 @@ class Interpolation:
     #         axe.imshow(index, cmap=color_map)
     #         axe.set_title("submatrix n°{}".format(index_list[i]))
     #         i += 1
-    #     plt.savefig('{}/interpolated_pred_submatrices_chr{}_true.png'.format(output_path, self.chrom))
+    #     plt.savefig('{}/interpolated_pred_submatrices_chr{}_true.png'.format(output_path,
+    #                 self.chrom))
     #     plt.close()
 
-    # def plot_matrix(self, color_map, output_path):
-    #     """
-    #         The Hi-C matrix is plotted in a file.
+    def plot_integrated_matrix(self, color_map, output_path):
+        """
+            The reconstructed and predicted Hi-C matrix is plotted in a file.
 
-    #         Args:
-    #             color_map(matplotlib.colors.ListedColormap): Color map for the plot
-    #             output_path(str): Path of the output plot
-    #     """
-    #     fig = plt.figure(figsize=(12, 12))
-    #     axes = plt.subplot(111, aspect='equal')
-    #     img = axes.matshow(self.matrix, cmap=color_map)
-    #     divider = make_axes_locatable(axes)
-    #     cax = divider.append_axes("right", size="2%", pad=0.15)
-    #     plt.colorbar(img, cax=cax)
-    #     plt.subplots_adjust(left=0.07, bottom=0, right=0.95, top=0.91, wspace=0, hspace=0)
-    #     axes.set_title('True chr{} Hi-C matrix'.format(self.chrom), fontsize=25)
-    #     fig.savefig('{}/chr{}_true.png'.format(output_path, self.chrom))
-    #     plt.close()
+            Args:
+                color_map(matplotlib.colors.ListedColormap): Color map for the plot
+                output_path(str): Path of the output plot
+        """
+        fig = plt.figure(figsize=(12, 12))
+        axes = plt.subplot(111, aspect='equal')
+        img = axes.matshow(self.integrated_matrix, cmap=color_map)
+        divider = make_axes_locatable(axes)
+        cax = divider.append_axes("right", size="2%", pad=0.15)
+        plt.colorbar(img, cax=cax)
+        plt.subplots_adjust(left=0.07, bottom=0, right=0.95, top=0.91, wspace=0, hspace=0)
+        axes.set_title('Predicted chr{} Hi-C matrix'.format('x'), fontsize=25)
+        fig.savefig('{}/chr{}_integrated.png'.format(output_path, 'x'))
+        plt.close()

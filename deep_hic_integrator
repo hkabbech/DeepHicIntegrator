@@ -9,18 +9,18 @@
     Medical Center University of Göttingen (Germany), Institute of Pathologie, Papantonis Lab
 
     Usage:
-        ./deep_hic_integrator <HIC_FILE> <CHROMHMM_FILE> [--hic_resolution INT]
-                                                         [--chr_train INT]
-                                                         [--chr_test INT]
-                                                         [--alpha FLOAT]
-                                                         [--square_side INT]
-                                                         [--epochs INT]
-                                                         [--batch_size INT]
-                                                         [--output PATH]
+        ./deep_hic_integrator <HIC_FILE> <NGS_FILE> [--hic_resolution INT]
+                                                    [--chr_train INT]
+                                                    [--chr_test INT]
+                                                    [--alpha FLOAT]
+                                                    [--square_side INT]
+                                                    [--epochs INT]
+                                                    [--batch_size INT]
+                                                    [--output PATH]
 
     Arguments:
         <HIC_FILE>                          Path to the Hi-C matrix file (.hic format)
-        <CHROMHMM_FILE>                     Path to the ChromHMM bed file
+        <NGS_FILE>                          Path to the NGS bed file
 
     Options:
         -r, INT, --hic_resolution INT       Hi-C matrix resolution to use. [default: 25000]
@@ -29,7 +29,7 @@
         -a FLOAT, --alpha FLOAT             Parameter alpha of the interpolation [default: 0.5]
         -n INT, --square_side INT           Size n*n of a sub-matrix [default: 60]
         -e INT, --epochs INT                Number of epochs [default: 50]
-        -b INT, --batch_size INT            Size of a batch [default: 128]
+        -b INT, --batch_size INT            Size of a batch [default: 64]
         -o PATH, --output PATH              Output path [default: output/]
         -h, --help                          Show this
 
@@ -51,7 +51,7 @@ from hic2cool import hic2cool_convert
 
 # Local modules
 from src.hic import Hic
-from src.chromhmm import ChromHMM
+# from src.NGS import NGS
 from src.predict_hic import PredictHic
 from src.autoencoder import Autoencoder
 from src.interpolation import Interpolation
@@ -66,7 +66,7 @@ def check_args(arguments):
     """
     schema = Schema({
         '<HIC_FILE>': Use(open, error='HIC_FILE should be readable'),
-        '<CHROMHMM_FILE>': Use(open, error='CHROMHMM_FILE should be readable'),
+        '<NGS_FILE>': Use(open, error='NGS_FILE should be readable'),
         '--hic_resolution': And(Use(int), lambda n: n%5000 == 0 and 5000 <= n <= 2500000,
                                 error='--resolution should be between 5,000 and 2,500,000'),
         '--chr_train': And(Use(int), lambda n: 1 <= n <= 23,
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     check_args(ARGS)
 
     # Files :
-    CHROMHMM_FILENAME = ARGS['<CHROMHMM_FILE>'] # File containing the ChromHMM file
+    NGS_FILENAME = ARGS['<NGS_FILE>'] # File containing the NGS file
     RESOLUTION = int(ARGS['--hic_resolution']) # Resolution of the Hi-C matrix
     HIC_FILENAME = ARGS['<HIC_FILE>'] # File containing the Hi-C matrix
     COOL_FILENAME = HIC_FILENAME.split('.hic')[0]+'_'+str(RESOLUTION)+'.cool'
@@ -111,7 +111,7 @@ if __name__ == "__main__":
     # Parameters of the deep-learning framework :
     CHR_TRAIN = int(ARGS['--chr_train']) # Chromosome used to train the Autoencoder
     CHR_TEST = int(ARGS['--chr_test']) # Chromosome used to test
-    N = int(ARGS['--square_side'])
+    SIDE = int(ARGS['--square_side'])
     EPOCHS = int(ARGS['--epochs'])
     BATCH_SIZE = int(ARGS['--batch_size'])
 
@@ -129,17 +129,17 @@ if __name__ == "__main__":
                                         cm.get_cmap('Reds', 300)(np.linspace(0, 1, 300)))))
 
 
-    ### TRAINING OF THE AUTOENCODER
-    ###############################
+    ### TRAIN THE AUTOENCODER
+    #########################
 
-    TRAIN_HIC = Hic(cooler.Cooler(COOL_FILENAME), CHR_TRAIN, N)
+    TRAIN_HIC = Hic(cooler.Cooler(COOL_FILENAME), CHR_TRAIN, SIDE)
     TRAIN_HIC.set_matrix()
     TRAIN_HIC.plot_matrix(RED_CMP, MODEL_PATH)
     TRAIN_HIC.set_sub_matrices()
 
-    # TRAIN_CHROMHMM = ChromHMM(CHROMHMM_FILENAME, CHR_TRAIN)
+    # TRAIN_NGS = NGS(NGS_FILENAME, CHR_TRAIN)
 
-    AE = Autoencoder(TRAIN_HIC, N, EPOCHS, BATCH_SIZE)
+    AE = Autoencoder(TRAIN_HIC, SIDE, EPOCHS, BATCH_SIZE)
     AE.set_models()
     AE.compile()
     AE.train()
@@ -148,39 +148,46 @@ if __name__ == "__main__":
     AE.plot_accuracy_curve(MODEL_PATH)
 
 
-    ### TESTING OF THE AUTOENCODER
-    ##############################
+    ### INTERPOLATION ON CHROMOSOME TEST
+    ####################################
 
-    TEST_HIC = PredictHic(cooler.Cooler(COOL_FILENAME), CHR_TEST, N)
+    TEST_HIC = PredictHic(cooler.Cooler(COOL_FILENAME), CHR_TEST, SIDE)
     TEST_HIC.set_matrix()
     TEST_HIC.set_sub_matrices()
-    TEST_HIC.set_predicted_sub_matrices(AE.cae.predict(TEST_HIC.sub_matrices))
+    # TEST_HIC.set_predicted_sub_matrices(AE.cae.predict(TEST_HIC.sub_matrices))
+    TEST_HIC.set_predicted_latent_spaces(AE.encoder.predict(TEST_HIC.sub_matrices))
+    TEST_HIC.set_predicted_sub_matrices(AE.decoder.predict(TEST_HIC.latent_spaces))
     TEST_HIC.construct_predicted_matrix()
     TEST_HIC.write_predicted_matrix(0.1, TEST_PATH)
 
-    # Plots
-    RANDOM_INDEX_LIST = rd.sample(range(0, TEST_HIC.sub_matrices.shape[0]), 40)
-    TEST_HIC.plot_sub_matrices(RED_CMP, TEST_PATH, RANDOM_INDEX_LIST)
-    TEST_HIC.plot_predicted_sub_matrices(RED_CMP, TEST_PATH, RANDOM_INDEX_LIST)
-    TEST_HIC.plot_matrix(RED_CMP, TEST_PATH)
-    TEST_HIC.plot_predicted_matrix(RED_CMP, TEST_PATH)
 
-
-    ### INTERPOLATION
-    #################
-    HIC_LATENT_SPACES = AE.encoder.predict(TEST_HIC.sub_matrices)
-    PREDICTED_HIC = AE.decoder.predict(HIC_LATENT_SPACES)
     TMP = TEST_HIC.sub_matrices.copy()
     np.random.shuffle(TMP)
-    CHROMHMM_LATENT_SPACES = AE.encoder.predict(TMP)
-    PREDICTED_CHROMHMM = AE.decoder.predict(CHROMHMM_LATENT_SPACES)
-    INTERPOLATION = Interpolation(ALPHA, HIC_LATENT_SPACES, PREDICTED_HIC,
-                                  CHROMHMM_LATENT_SPACES, PREDICTED_CHROMHMM, AE.decoder)
-    INTERPOLATION.interpolate_predicted_img()
-    INTERPOLATION.interpolate_latent_spaces()
-    INTERPOLATION.set_decoded_latent_spaces()
-    INTERPOLATION.plot_random_interpolation(RED_CMP, N, TEST_PATH)
-    INTERPOLATION.construct_predicted_matrix(TEST_HIC)
+    NGS_LATENT_SPACES = AE.encoder.predict(TMP)
+    NGS_PREDICTED_SUB_MATRICES = AE.decoder.predict(NGS_LATENT_SPACES)
+
+
+    INTERPOLATION = Interpolation(ALPHA)
+    INTERPOLATION.interpolate_predicted_img(TEST_HIC.predicted_sub_matrices,
+                                            NGS_PREDICTED_SUB_MATRICES)
+    INTERPOLATION.interpolate_latent_spaces(TEST_HIC.latent_spaces, NGS_LATENT_SPACES)
+    INTERPOLATION.set_decoded_latent_spaces(AE.decoder)
+    INTERPOLATION.construct_integrated_matrix(TEST_HIC)
+
+
+    ### PLOTS
+    #########
+
+    RANDOM_INDEX_LIST = rd.sample(range(0, TEST_HIC.sub_matrices.shape[0]), 40)
+    TEST_HIC.plot_sub_matrices(RED_CMP, TEST_PATH, RANDOM_INDEX_LIST)
+    TEST_HIC.plot_matrix(RED_CMP, TEST_PATH)
+    TEST_HIC.plot_predicted_sub_matrices(RED_CMP, TEST_PATH, RANDOM_INDEX_LIST)
+    TEST_HIC.plot_predicted_matrix(RED_CMP, TEST_PATH)
+    INTERPOLATION.plot_random_interpolation(TEST_HIC.predicted_sub_matrices,
+                                            NGS_PREDICTED_SUB_MATRICES,
+                                            RED_CMP, SIDE, TEST_PATH)
+    INTERPOLATION.plot_integrated_matrix(RED_CMP, TEST_PATH)
+
 
     ### SAVE PARAMETERS
     ###################
@@ -192,11 +199,12 @@ if __name__ == "__main__":
     # All the parameters of the training and testing parts are saved in a log file.
     with open(MODEL_PATH+'parameters.log', 'w') as file:
         file.write('Hi-C parameters:\n Resolution: {}\n Size sub-matrices: {}*{}\n\n'
-                   .format(RESOLUTION, N, N))
+                   .format(RESOLUTION, SIDE, SIDE))
         file.write('Train:\n Chromosome: {}\n Shape matrix: {}\n Shape sub_matrices: {}\n\n'
-                   .format(TRAIN_HIC.chrom, TRAIN_HIC.matrix.shape, TRAIN_HIC.sub_matrices.shape))
+                   .format(TRAIN_HIC.chrom_num, TRAIN_HIC.matrix.shape,
+                           TRAIN_HIC.sub_matrices.shape))
         file.write('Test:\n Chromosome: {}\n Shape matrix: {}\n Shape sub_matrices: {}\n\n'
-                   .format(TEST_HIC.chrom, TEST_HIC.matrix.shape, TEST_HIC.sub_matrices.shape))
+                   .format(TEST_HIC.chrom_num, TEST_HIC.matrix.shape, TEST_HIC.sub_matrices.shape))
         file.write('Autoencoder parameters:\n Epochs: {}\n Batch size: {}\n'
                    .format(EPOCHS, BATCH_SIZE))
         file.write(' Optimizer: {}\n Loss function: {}\n Metrics: {}\n\n'

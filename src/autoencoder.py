@@ -49,11 +49,11 @@ class Autoencoder:
             """
                 Encoder network
             """
-            layer = Conv2D(32, (3, 3), activation='relu', padding='same')(input_img)
+            layer = Conv2D(128, (3, 3), activation='relu', padding='same')(input_img)
             layer = MaxPooling2D((2, 2), padding='same')(layer)
             layer = Conv2D(64, (3, 3), activation='relu', padding='same')(layer)
-            layer = MaxPooling2D((2, 2), padding='same')(layer)
-            encoded = Conv2D(128, (3, 3), activation='relu', padding='same')(layer)
+            encoded = MaxPooling2D((2, 2), padding='same')(layer)
+            # layer = Conv2D(32, (3, 3), activation='relu', padding='same')(layer)
             # encoded = MaxPooling2D((2, 2), padding='same')(layer)
             return encoded
 
@@ -61,17 +61,17 @@ class Autoencoder:
             """
                 Decoder network
             """
-            layer = Conv2D(128, (3, 3), activation='relu', padding='same')(input_img)
+            layer = Conv2D(64, (3, 3), activation='relu', padding='same')(input_img)
             layer = UpSampling2D((2, 2))(layer)
-            layer = Conv2D(64, (3, 3), activation='relu', padding='same')(layer)
+            layer = Conv2D(128, (3, 3), activation='relu', padding='same')(layer)
             layer = UpSampling2D((2, 2))(layer)
-            # layer = Conv2D(32, (3, 3), activation='relu')(layer)
+            # layer = Conv2D(32, (3, 3), activation='relu', padding='same')(layer)
             # layer = UpSampling2D((2, 2))(layer)
             decoded = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(layer)
             return decoded
 
         input_img = Input(shape=(self.img_size, self.img_size, 1))
-        latent_space_input = Input(shape=(15, 15, 128))
+        latent_space_input = Input(shape=(10, 10, 64))
 
         encoded = encode(input_img)
         self.encoder = Model(input_img, encoded)
@@ -101,6 +101,29 @@ class Autoencoder:
         self.trained_cae = self.cae.fit(train_x, train_ground, verbose=1,
                                         batch_size=self.batch_size, epochs=self.epochs,
                                         validation_data=(valid_x, valid_ground))
+
+    def save_model(self, path):
+        """
+            The model is saved in h5 and JSON formats, the weights are saved in h5 format and
+            the summary of the model (the network layers) is saved in a txt file.
+
+            Args:
+                path(str): Path to the different files
+        """
+        # Model in HDF5 format
+        self.cae.save(path+'model.h5')
+
+        # Serialize weights to HDF5
+        self.cae.save_weights(path+'model_weights.h5')
+
+        # Model in JSON format
+        with open(path+'model.json', 'w') as json_file:
+            json_file.write(self.cae.to_json())
+
+        # Model Summary
+        with open(path+'model_summary.txt', 'w') as file:
+            with redirect_stdout(file):
+                self.cae.summary()
 
     def plot_loss_curve(self, path):
         """
@@ -135,26 +158,3 @@ class Autoencoder:
         plt.legend()
         plt.savefig(path+'training_validation_acc.png')
         plt.close()
-
-    def save_model(self, path):
-        """
-            The model is saved in h5 and JSON formats, the weights are saved in h5 format and
-            the summary of the model (the network layers) is saved in a txt file.
-
-            Args:
-                path(str): Path to the different files
-        """
-        # Model in HDF5 format
-        self.cae.save(path+'model.h5')
-
-        # Serialize weights to HDF5
-        self.cae.save_weights(path+'model_weights.h5')
-
-        # Model in JSON format
-        with open(path+'model.json', 'w') as json_file:
-            json_file.write(self.cae.to_json())
-
-        # Model Summary
-        with open(path+'model_summary.txt', 'w') as file:
-            with redirect_stdout(file):
-                self.cae.summary()

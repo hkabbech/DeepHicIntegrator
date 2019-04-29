@@ -27,12 +27,23 @@ class PredictHic(Hic):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.latent_spaces = None
         self.predicted_sub_matrices = None
         self.predicted_matrix = None
 
+
+    def set_predicted_latent_spaces(self, latent_spaces):
+        """
+            Set the latent spaces predicted by an encoder.
+
+            Args:
+                latent_spaces(Numpy array): The predicted latent_spaces
+        """
+        self.latent_spaces = latent_spaces
+
     def set_predicted_sub_matrices(self, predicted_sub_matrices):
         """
-            Set the sub-matrices predicted by a deep-learning model.
+            Set the sub-matrices predicted by an autoencoder.
 
             Args:
                 predicted_sub_matrices(Numpy array): The predicted sub-matrices
@@ -44,7 +55,7 @@ class PredictHic(Hic):
             Construction and set of the predicted Hi-C matrix from the predicted sub-matrices.
         """
         white = np.zeros(shape=(self.side, self.side, 1))
-        line_limit = int(self.matrix.shape[0] / self.side)
+        limit = int(self.matrix.shape[0] / self.side)
         nb_sub_matrices = 1
         pred_sub_matrix_ind = 0
 
@@ -56,7 +67,7 @@ class PredictHic(Hic):
                 sub_matrix = self.predicted_sub_matrices[pred_sub_matrix_ind]
                 pred_sub_matrix_ind += 1
 
-            if nb_sub_matrices == line_limit:
+            if nb_sub_matrices == limit:
                 # The current line is concatenated with the previous lines
                 try:
                     line = np.concatenate((line, sub_matrix), axis=1)
@@ -86,14 +97,14 @@ class PredictHic(Hic):
                 index_list(list): List of the 40 sub-matrix indexes to plot
         """
         fig, axes = plt.subplots(4, 10, figsize=(24, 11))
-        fig.suptitle('Predicted chr{} Hi-C sub-matrices'.format(self.chrom), fontsize=20)
+        fig.suptitle('Predicted chr{} Hi-C sub-matrices'.format(self.chrom_num), fontsize=20)
         fig.subplots_adjust(left=0.03, right=0.98, wspace=0.3, hspace=0.4)
         i = 0
         for axe, index in zip(axes.flat, self.predicted_sub_matrices[index_list, ..., 0]):
             axe.imshow(index, cmap=color_map)
             axe.set_title("submatrix n°{}".format(index_list[i]))
             i += 1
-        plt.savefig('{}/submatrices_chr{}_predicted.png'.format(output_path, self.chrom))
+        plt.savefig('{}/submatrices_chr{}_predicted.png'.format(output_path, self.chrom_num))
         plt.close()
 
     def plot_predicted_matrix(self, color_map, output_path):
@@ -111,8 +122,8 @@ class PredictHic(Hic):
         cax = divider.append_axes("right", size="2%", pad=0.15)
         plt.colorbar(img, cax=cax)
         plt.subplots_adjust(left=0.07, bottom=0, right=0.95, top=0.91, wspace=0, hspace=0)
-        axes.set_title('Predicted chr{} Hi-C matrix'.format(self.chrom), fontsize=25)
-        fig.savefig('{}/chr{}_predicted.png'.format(output_path, self.chrom))
+        axes.set_title('Predicted chr{} Hi-C matrix'.format(self.chrom_num), fontsize=25)
+        fig.savefig('{}/chr{}_predicted.png'.format(output_path, self.chrom_num))
         plt.close()
 
     def write_predicted_matrix(self, threshold, output_path):
@@ -127,8 +138,8 @@ class PredictHic(Hic):
         self.predicted_matrix[self.predicted_matrix < threshold] = 0
         # Creation of the sparse matrix
         sparse = coo_matrix(self.predicted_matrix)
-        with open(output_path+'/predicted_chr'+str(self.chrom)+'.txt', 'w') as file:
+        with open(output_path+'/predicted_chr'+str(self.chrom_num)+'.txt', 'w') as file:
             writer = csv.writer(file, delimiter='\t')
-            writer.writerows(zip(['chr'+str(self.chrom)]*len(sparse.row),
+            writer.writerows(zip(['chr'+str(self.chrom_num)]*len(sparse.row),
                                  sparse.row*self.resolution,
                                  sparse.col*self.resolution, sparse.data))
