@@ -108,10 +108,14 @@ class Autoencoder:
                 path(str): Path to the different files
         """
         # Model in HDF5 format
-        self.cae.save(path+'model.h5')
+        self.encoder.save(path+'encoder.h5')
+        self.decoder.save(path+'decoder.h5')
+        self.cae.save(path+'autoencoder.h5')
 
         # Serialize weights to HDF5
-        self.cae.save_weights(path+'model_weights.h5')
+        self.encoder.save_weights(path+'encoder_weights.h5')
+        self.decoder.save_weights(path+'decoder_weights.h5')
+        self.cae.save_weights(path+'autoencoder_weights.h5')
 
         # Model in JSON format
         with open(path+'model.json', 'w') as json_file:
