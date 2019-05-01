@@ -1,0 +1,13 @@
+https://www.encodeproject.org/files/ENCFF000BSM/@@download/ENCFF000BSM.bam
+https://www.encodeproject.org/files/ENCFF000BSN/@@download/ENCFF000BSN.bam
+https://www.encodeproject.org/files/ENCFF000BSO/@@download/ENCFF000BSO.bam
+https://www.encodeproject.org/files/ENCFF001SYM/@@download/ENCFF001SYM.bed.gz
+https://www.encodeproject.org/files/ENCFF353JMR/@@download/ENCFF353JMR.bam
+https://www.encodeproject.org/files/ENCFF456FFM/@@download/ENCFF456FFM.bam
+https://www.encodeproject.org/files/ENCFF841GLJ/@@download/ENCFF841GLJ.bed.gz
+https://www.encodeproject.org/files/ENCFF977XML/@@download/ENCFF977XML.bam
+https://www.encodeproject.org/files/ENCFF757GIT/@@download/ENCFF757GIT.bam
+https://www.encodeproject.org/files/ENCFF340XWP/@@download/ENCFF340XWP.bed.gz
+https://www.encodeproject.org/files/ENCFF921ASC/@@download/ENCFF921ASC.bam
+https://www.encodeproject.org/files/ENCFF028HLI/@@download/ENCFF028HLI.bam
+https://www.encodeproject.org/files/ENCFF368GVE/@@download/ENCFF368GVE.bed.gz
