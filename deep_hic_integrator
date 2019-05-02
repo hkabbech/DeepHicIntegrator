@@ -3,28 +3,35 @@
 
 """
 
-    Integrative Deep-Learning Framework for Analyzing Native Spatial Chromatin Dynamics.
-    Auteurs: Hélène Kabbech and Eduardo Gade Gusmão
+    Integrative Deep-Learning Framework for Analyzing the Interplay between Chromatin Conformation
+    and Epigenetics
+    Autor: Hélène Kabbech
     Medical Center University of Göttingen (Germany), Institute of Pathologie, Papantonis Lab
 
     Usage:
-        ./deep_hic_integrator <HIC_FILE> [--resolution INT] [--train INT] [--test INT]
-                                         [--square_side INT] [--epochs INT] [--batch_size INT]
-                                         [--output PATH]
+        ./deep_hic_integrator <HIC_FILE> <NGS_FILE> [--hic_resolution INT]
+                                                    [--chr_train INT]
+                                                    [--chr_test INT]
+                                                    [--alpha FLOAT]
+                                                    [--square_side INT]
+                                                    [--epochs INT]
+                                                    [--batch_size INT]
+                                                    [--output PATH]
 
     Arguments:
-        <HIC_FILE>                      Path to the Hi-C matrix file
-                                        (.hic format)
+        <HIC_FILE>                          Path to the Hi-C matrix file (.hic format)
+        <NGS_FILE>                          Path to the NGS bed file
 
     Options:
-        -r, INT, --resolution INT       Hi-C matrice resolution to use. [default: 25000]
-        -a INT, --train INT             Chromosome for training [default: 1]
-        -t INT, --test INT              Chromosome for test [default: 20]
-        -n INT, --square_side INT       Size n*n of a sub-matrix [default: 60]
-        -e INT, --epochs INT            Number of epochs [default: 50]
-        -b INT, --batch_size INT        Size of a batch [default: 128]
-        -o PATH, --output PATH          Output path [default: output/]
-        -h, --help                      Show this
+        -r, INT, --hic_resolution INT       Hi-C matrix resolution to use. [default: 25000]
+        -g INT, --chr_train INT             Chromosome used to train the autoencoder [default: 1]
+        -t INT, --chr_test INT              Chromosome used to test [default: 20]
+        -a FLOAT, --alpha FLOAT             Parameter alpha of the interpolation [default: 0.5]
+        -n INT, --square_side INT           Size n*n of a sub-matrix [default: 60]
+        -e INT, --epochs INT                Number of epochs [default: 100]
+        -b INT, --batch_size INT            Size of a batch [default: 64]
+        -o PATH, --output PATH              Output path [default: results/]
+        -h, --help                          Show this
 
 """
 
@@ -36,7 +43,6 @@ import random as rd
 from schema import Schema, And, Use, SchemaError
 import numpy as np
 from docopt import docopt
-from keras.layers import Input
 from matplotlib import cm
 from matplotlib.colors import ListedColormap
 import cooler
@@ -45,8 +51,10 @@ from hic2cool import hic2cool_convert
 
 # Local modules
 from src.hic import Hic
+# from src.NGS import NGS
 from src.predict_hic import PredictHic
 from src.autoencoder import Autoencoder
+from src.interpolation import Interpolation
 
 
 def check_args(arguments):
@@ -58,12 +66,15 @@ def check_args(arguments):
     """
     schema = Schema({
         '<HIC_FILE>': Use(open, error='HIC_FILE should be readable'),
-        '--resolution': And(Use(int), lambda n: n%5000 == 0 and 5000 <= n <= 2500000,
-                            error='--resolution should be between 5,000 and 2,500,000'),
-        '--train': And(Use(int), lambda n: 1 <= n <= 23,
-                       error='--train shoud be integer 1<= N <= 23'),
-        '--test': And(Use(int), lambda n: 1 <= n <= 23,
-                      error='--test shoud be integer 1<= N <= 23'),
+        '<NGS_FILE>': Use(open, error='NGS_FILE should be readable'),
+        '--hic_resolution': And(Use(int), lambda n: n%5000 == 0 and 5000 <= n <= 2500000,
+                                error='--resolution should be between 5,000 and 2,500,000'),
+        '--chr_train': And(Use(int), lambda n: 1 <= n <= 23,
+                           error='--train shoud be integer 1<= N <= 23'),
+        '--chr_test': And(Use(int), lambda n: 1 <= n <= 23,
+                          error='--test shoud be integer 1<= N <= 23'),
+        '--alpha': And(Use(float), lambda n: 0 < n < 1,
+                       error='--alpha shoud be float 0< N < 1'),
         '--square_side': And(Use(int), lambda n: 1 <= n <= 210,
                              error='--square_side shoud be integer 1<= N <= 23'),
         '--epochs': And(Use(int), lambda n: 1 <= n <= 10000,
@@ -88,75 +99,116 @@ if __name__ == "__main__":
     # Check the types and ranges of the command line arguments parsed by docopt
     check_args(ARGS)
 
-    # Resolution of the Hi-C matrix
-    RESOLUTION = int(ARGS['--resolution'])
-
-    # Files containing the Hi-C matrix
-    HIC_FILE = ARGS['<HIC_FILE>']
-    COOL_FILE = HIC_FILE.split('.hic')[0]+'_'+str(RESOLUTION)+'.cool'
+    # Files :
+    NGS_FILENAME = ARGS['<NGS_FILE>'] # File containing the NGS file
+    RESOLUTION = int(ARGS['--hic_resolution']) # Resolution of the Hi-C matrix
+    HIC_FILENAME = ARGS['<HIC_FILE>'] # File containing the Hi-C matrix
+    COOL_FILENAME = HIC_FILENAME.split('.hic')[0]+'_'+str(RESOLUTION)+'.cool'
     # Conversion from .hic to .cool
-    if not os.path.exists(COOL_FILE):
-        hic2cool_convert(HIC_FILE, COOL_FILE, RESOLUTION)
+    if not os.path.exists(COOL_FILENAME):
+        hic2cool_convert(HIC_FILENAME, COOL_FILENAME, RESOLUTION)
 
-    # Chromosome for training
-    CHROM_TRAIN = int(ARGS['--train'])
-    # Chromosome for test
-    CHROM_TEST = int(ARGS['--test'])
-
-    # Parameters of the deep-learning framework
-    N = int(ARGS['--square_side'])
+    # Parameters of the deep-learning framework :
+    CHR_TRAIN = int(ARGS['--chr_train']) # Chromosome used to train the Autoencoder
+    CHR_TEST = int(ARGS['--chr_test']) # Chromosome used to test
+    SIDE = int(ARGS['--square_side'])
     EPOCHS = int(ARGS['--epochs'])
     BATCH_SIZE = int(ARGS['--batch_size'])
 
-    # Output paths
+    # Parameter for the interpolation :
+    ALPHA = float(ARGS['--alpha'])
+
+    # Output paths :
     MODEL_PATH = ARGS['--output']+'/model/'
     os.makedirs(MODEL_PATH, exist_ok=True)
-    TEST_PATH = ARGS['--output']+'/test_chr'+str(CHROM_TEST)+'/'
+    TEST_PATH = ARGS['--output']+'/test_chr'+str(CHR_TEST)+'/'
     os.makedirs(TEST_PATH, exist_ok=True)
 
-    # Refine color map for the plots
-    REDS = cm.get_cmap('Reds', 300)
-    CMP = ListedColormap(np.vstack((np.array([1, 1, 1, 1]), REDS(np.linspace(0, 1, 300)))))
+    # Refine color map for the plots :
+    RED_CMP = ListedColormap(np.vstack((np.array([1, 1, 1, 1]),
+                                        cm.get_cmap('Reds', 300)(np.linspace(0, 1, 300)))))
 
 
-    ### TRAINING OF THE MODEL
+    ### TRAIN THE AUTOENCODER
     #########################
 
-    TRAIN = Hic(cooler.Cooler(COOL_FILE), CHROM_TRAIN, N)
-    TRAIN.set_matrix()
-    TRAIN.plot_matrix(CMP, MODEL_PATH)
-    TRAIN.set_sub_matrices()
+    TRAIN_HIC = Hic(cooler.Cooler(COOL_FILENAME), CHR_TRAIN, SIDE)
+    TRAIN_HIC.set_matrix()
+    TRAIN_HIC.plot_matrix(RED_CMP, MODEL_PATH)
+    TRAIN_HIC.set_sub_matrices()
 
-    AE = Autoencoder(Input(shape=(N, N, 1)), TRAIN)
-    AE.compile_model()
-    AE.train_model(BATCH_SIZE, EPOCHS)
+    # TRAIN_NGS = NGS(NGS_FILENAME, CHR_TRAIN)
+
+    AE = Autoencoder(TRAIN_HIC, SIDE, EPOCHS, BATCH_SIZE)
+    AE.set_models()
+    AE.compile()
+    AE.train()
+    AE.save_model(MODEL_PATH)
+    AE.plot_loss_curve(MODEL_PATH)
+    AE.plot_accuracy_curve(MODEL_PATH)
 
 
-    ### TEST OF THE MODEL
-    #####################
+    ### INTERPOLATION ON CHROMOSOME TEST
+    ####################################
 
-    TEST = PredictHic(cooler.Cooler(COOL_FILE), CHROM_TEST, N)
-    TEST.set_matrix()
-    TEST.set_sub_matrices()
-    TEST.set_predicted_sub_matrices(AE.model.predict(TEST.sub_matrices))
-    TEST.construct_predicted_matrix()
-    TEST.write_predicted_matrix(0.1, TEST_PATH)
+    TEST_HIC = PredictHic(cooler.Cooler(COOL_FILENAME), CHR_TEST, SIDE)
+    TEST_HIC.set_matrix()
+    TEST_HIC.set_sub_matrices()
+    TEST_HIC.set_predicted_latent_spaces(AE.encoder.predict(TEST_HIC.sub_matrices))
+    TEST_HIC.set_predicted_sub_matrices(AE.decoder.predict(TEST_HIC.latent_spaces))
+    # TEST_HIC.set_predicted_sub_matrices(AE.cae.predict(TEST_HIC.sub_matrices))
+    TEST_HIC.construct_predicted_matrix()
+    TEST_HIC.write_predicted_matrix(0.1, TEST_PATH)
 
-    # Plots
-    RANDOM_INDEX_LIST = rd.sample(range(0, TEST.sub_matrices.shape[0]), 40)
-    TEST.plot_sub_matrices(CMP, TEST_PATH, RANDOM_INDEX_LIST)
-    TEST.plot_predicted_sub_matrices(CMP, TEST_PATH, RANDOM_INDEX_LIST)
-    TEST.plot_matrix(CMP, TEST_PATH)
-    TEST.plot_predicted_matrix(CMP, TEST_PATH)
+
+    TMP = TEST_HIC.sub_matrices.copy()
+    np.random.shuffle(TMP)
+    NGS_LATENT_SPACES = AE.encoder.predict(TMP)
+    NGS_PREDICTED_SUB_MATRICES = AE.decoder.predict(NGS_LATENT_SPACES)
+
+
+    INTERPOLATION = Interpolation(ALPHA)
+    INTERPOLATION.interpolate_predicted_img(TEST_HIC.predicted_sub_matrices,
+                                            NGS_PREDICTED_SUB_MATRICES)
+    INTERPOLATION.interpolate_latent_spaces(TEST_HIC.latent_spaces, NGS_LATENT_SPACES)
+    INTERPOLATION.set_decoded_latent_spaces(AE.decoder)
+    INTERPOLATION.construct_integrated_matrix(TEST_HIC)
+
+
+    ### PLOTS
+    #########
+
+    RANDOM_INDEX_LIST = rd.sample(range(0, TEST_HIC.sub_matrices.shape[0]), 40)
+    TEST_HIC.plot_sub_matrices(RED_CMP, TEST_PATH, RANDOM_INDEX_LIST)
+    TEST_HIC.plot_matrix(RED_CMP, TEST_PATH)
+    TEST_HIC.plot_predicted_sub_matrices(RED_CMP, TEST_PATH, RANDOM_INDEX_LIST)
+    TEST_HIC.plot_predicted_matrix(RED_CMP, TEST_PATH)
+    INTERPOLATION.plot_random_interpolation(TEST_HIC, TEST_HIC.predicted_sub_matrices,
+                                            NGS_PREDICTED_SUB_MATRICES,
+                                            RED_CMP, SIDE, TEST_PATH)
+    INTERPOLATION.plot_integrated_matrix(RED_CMP, TEST_PATH)
 
 
     ### SAVE PARAMETERS
     ###################
 
-    AE.save_model(MODEL_PATH)
-    AE.plot_loss_curve(EPOCHS, MODEL_PATH)
-    AE.plot_accuracy_curve(EPOCHS, MODEL_PATH)
     TIME = datetime.now() - START_TIME
-    AE.save_parameters(MODEL_PATH, RESOLUTION, N, TEST, EPOCHS, BATCH_SIZE, TIME)
+    HOURS = TIME.seconds // 3600
+    MINUTES = TIME.seconds // 60 % 60
 
-    print("\nTotal runtime: {}.{} seconds".format(TIME.seconds, TIME.microseconds))
+    # All the parameters of the training and testing parts are saved in a log file.
+    with open(MODEL_PATH+'parameters.log', 'w') as file:
+        file.write('Hi-C parameters:\n Resolution: {}\n Size sub-matrices: {}*{}\n\n'
+                   .format(RESOLUTION, SIDE, SIDE))
+        file.write('Train:\n Chromosome: {}\n Shape matrix: {}\n Shape sub_matrices: {}\n\n'
+                   .format(TRAIN_HIC.chrom_num, TRAIN_HIC.matrix.shape,
+                           TRAIN_HIC.sub_matrices.shape))
+        file.write('Test:\n Chromosome: {}\n Shape matrix: {}\n Shape sub_matrices: {}\n\n'
+                   .format(TEST_HIC.chrom_num, TEST_HIC.matrix.shape, TEST_HIC.sub_matrices.shape))
+        file.write('Autoencoder parameters:\n Epochs: {}\n Batch size: {}\n'
+                   .format(EPOCHS, BATCH_SIZE))
+        file.write(' Optimizer: {}\n Loss function: {}\n Metrics: {}\n\n'
+                   .format(AE.cae.optimizer, AE.cae.loss, AE.cae.metrics))
+        file.write('Running time: {}h {}min'.format(HOURS, MINUTES))
+
+    print('\nTotal runtime: {}h {}min'.format(HOURS, MINUTES))
