@@ -40,7 +40,8 @@ class Interpolation:
         """
         self.decoded_interpolated_ls = decoder.predict(self.interpolated_ls)
 
-    def plot_random_interpolation(self, hic, predicted_ngs, color_map, size_img, path):
+    def plot_random_interpolation(self, hic, predicted_hic, predicted_ngs,
+                                  color_map, size_img, path):
         """
             TO DO
         """
@@ -50,14 +51,14 @@ class Interpolation:
         fig.suptitle('Interpolation of the sub-matrix n°{}'.format(submatrix), fontsize=20)
         fig.subplots_adjust(left=0.03, right=0.98, wspace=0.3, hspace=0.4)
         for i in range(2):
-            axes[i, 0].imshow(hic.sub_matrices[submatrix].reshape(size_img, size_img),
+            axes[i, 0].imshow(predicted_hic[submatrix].reshape(size_img, size_img),
                               cmap=color_map)
             axes[i, 0].set_title("Hi-C")
             axes[i, 0].axis('off')
 
             axes[i, 2].imshow(predicted_ngs[submatrix].reshape(size_img, size_img),
                               cmap=color_map)
-            axes[i, 2].set_title("ChromHMM")
+            axes[i, 2].set_title("NGS")
             axes[i, 2].axis('off')
 
         axes[0, 1].imshow(self.interpolated_predicted_img[submatrix].reshape(size_img, size_img),
@@ -74,7 +75,7 @@ class Interpolation:
         plt.close()
 
         plt.figure(figsize=(20, 8))
-        plt.imshow(self.interpolated_ls[submatrix].reshape((hic.side/4) * 128, hic.side/4).T,
+        plt.imshow(self.interpolated_ls[submatrix].reshape((hic.side//4) * 128, hic.side//4).T,
                    cmap=color_map)
         plt.title("Latent space")
         plt.axis('off')
@@ -117,27 +118,6 @@ class Interpolation:
 
         self.integrated_matrix = integrated_matrix.reshape(integrated_matrix.shape[0],
                                                            integrated_matrix.shape[1])
-
-    # def plot_sub_matrices(self, color_map, output_path, index_list):
-    #     """
-    #         40 random sub-matrices are plotted in a file.
-
-    #         Args:
-    #             color_map(matplotlib.colors.ListedColormap): Color map for the plot
-    #             output_path(str): Path of the output plot
-    #             index_list(list): List of the 40 sub-matrix indexes to plot
-    #     """
-    #     fig, axes = plt.subplots(4, 10, figsize=(24, 11))
-    #     fig.suptitle('True chr{} Hi-C sub-matrices'.format(self.chrom), fontsize=20)
-    #     fig.subplots_adjust(left=0.03, right=0.98, wspace=0.3, hspace=0.4)
-    #     i = 0
-    #     for axe, index in zip(axes.flat, self.sub_matrices[index_list, ..., 0]):
-    #         axe.imshow(index, cmap=color_map)
-    #         axe.set_title("submatrix n°{}".format(index_list[i]))
-    #         i += 1
-    #     plt.savefig('{}/interpolated_pred_submatrices_chr{}_true.png'.format(output_path,
-    #                 self.chrom))
-    #     plt.close()
 
     def plot_integrated_matrix(self, color_map, output_path):
         """

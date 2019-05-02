@@ -21,7 +21,6 @@ class Autoencoder:
         chr_train(Hic object): Instance of the HicPredict class - Chromosome for training the model
         model(Model object): Instance of the Model keras class - Model of the Autoencoder
         trained_model(Model object): Instance of the Model keras class - The trained Model
-
     """
 
     def __init__(self, chr_train, img_size, epochs, batch_size):
@@ -34,6 +33,7 @@ class Autoencoder:
         self.cae = None
         self.trained_cae = None
 
+
     def set_models(self):
         """
             Layers of the Autoencoder network.
@@ -45,35 +45,26 @@ class Autoencoder:
                 decoded(Conv2D keras layer): The last decoded output layer of the Autoencoder
         """
 
-        def encode(input_img):
-            """
-                Encoder network
-            """
-            layer = Conv2D(32, (3, 3), activation='relu', padding='same')(input_img)
-            layer = MaxPooling2D((2, 2), padding='same')(layer)
-            layer = Conv2D(64, (3, 3), activation='relu', padding='same')(layer)
-            layer = MaxPooling2D((2, 2), padding='same')(layer)
-            encoded = Conv2D(128, (3, 3), activation='relu', padding='same')(layer)
-            return encoded
-
-        def decode(input_img):
-            """
-                Decoder network
-            """
-            layer = Conv2D(128, (3, 3), activation='relu', padding='same')(input_img)
-            layer = UpSampling2D((2, 2))(layer)
-            layer = Conv2D(64, (3, 3), activation='relu', padding='same')(layer)
-            layer = UpSampling2D((2, 2))(layer)
-            decoded = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(layer)
-            return decoded
-
         input_img = Input(shape=(self.img_size, self.img_size, 1))
-        latent_space_input = Input(shape=(self.chr_train.side/4, self.chr_train.side/4, 128))
+        layer = Conv2D(32, (3, 3), activation='relu', padding='same')(input_img)
+        layer = MaxPooling2D((2, 2), padding='same')(layer)
+        layer = Conv2D(64, (3, 3), activation='relu', padding='same')(layer)
+        layer = MaxPooling2D((2, 2), padding='same')(layer)
+        latent = Conv2D(128, (3, 3), activation='relu', padding='same')(layer)
+        self.encoder = Model(input_img, latent, name='Encoder')
+        self.encoder.summary()
 
-        encoded = encode(input_img)
-        self.encoder = Model(input_img, encoded)
-        self.decoder = Model(latent_space_input, decode(latent_space_input))
-        self.cae = Model(input_img, decode(encoded))
+        input_ls = Input(shape=(self.img_size/4, self.img_size/4, 128))
+        layer = Conv2D(128, (3, 3), activation='relu', padding='same')(input_ls)
+        layer = UpSampling2D((2, 2))(layer)
+        layer = Conv2D(64, (3, 3), activation='relu', padding='same')(layer)
+        layer = UpSampling2D((2, 2))(layer)
+        output = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(layer)
+        self.decoder = Model(input_ls, output, name='Decoder')
+        self.decoder.summary()
+
+        self.cae = Model(input_img, self.decoder(self.encoder(input_img)), name='Autoencoder')
+        self.cae.summary()
 
     def compile(self, loss_function='mean_squared_error', metrics_list=['accuracy']):
         """
@@ -84,7 +75,6 @@ class Autoencoder:
                 matrics_list(list): The metrics to generate during compilation
         """
         self.cae.compile(loss=loss_function, optimizer=RMSprop(), metrics=metrics_list)
-        self.cae.summary()
 
     def train(self):
         """
@@ -124,7 +114,12 @@ class Autoencoder:
         # Model Summary
         with open(path+'model_summary.txt', 'w') as file:
             with redirect_stdout(file):
+                print('Autoencoder Model')
                 self.cae.summary()
+                print('\n\nEncoder Model')
+                self.encoder.summary()
+                print('\n\nDecoder Model')
+                self.decoder.summary()
 
     def plot_loss_curve(self, path):
         """

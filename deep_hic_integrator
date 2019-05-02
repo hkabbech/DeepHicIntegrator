@@ -154,9 +154,9 @@ if __name__ == "__main__":
     TEST_HIC = PredictHic(cooler.Cooler(COOL_FILENAME), CHR_TEST, SIDE)
     TEST_HIC.set_matrix()
     TEST_HIC.set_sub_matrices()
-    # TEST_HIC.set_predicted_sub_matrices(AE.cae.predict(TEST_HIC.sub_matrices))
     TEST_HIC.set_predicted_latent_spaces(AE.encoder.predict(TEST_HIC.sub_matrices))
     TEST_HIC.set_predicted_sub_matrices(AE.decoder.predict(TEST_HIC.latent_spaces))
+    # TEST_HIC.set_predicted_sub_matrices(AE.cae.predict(TEST_HIC.sub_matrices))
     TEST_HIC.construct_predicted_matrix()
     TEST_HIC.write_predicted_matrix(0.1, TEST_PATH)
 
@@ -183,7 +183,7 @@ if __name__ == "__main__":
     TEST_HIC.plot_matrix(RED_CMP, TEST_PATH)
     TEST_HIC.plot_predicted_sub_matrices(RED_CMP, TEST_PATH, RANDOM_INDEX_LIST)
     TEST_HIC.plot_predicted_matrix(RED_CMP, TEST_PATH)
-    INTERPOLATION.plot_random_interpolation(TEST_HIC.predicted_sub_matrices,
+    INTERPOLATION.plot_random_interpolation(TEST_HIC, TEST_HIC.predicted_sub_matrices,
                                             NGS_PREDICTED_SUB_MATRICES,
                                             RED_CMP, SIDE, TEST_PATH)
     INTERPOLATION.plot_integrated_matrix(RED_CMP, TEST_PATH)
