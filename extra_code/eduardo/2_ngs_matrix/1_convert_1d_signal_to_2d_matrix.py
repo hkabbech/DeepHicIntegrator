@@ -7,6 +7,15 @@ import math
 import numpy as np
 from pysam import Samfile
 
+
+# Input
+chromosome = sys.argv[1]
+resolution = int(sys.argv[2])
+chromosome_sizes_file_name = sys.argv[3]
+region_file_name = sys.argv[4]
+signal_bam_file_name = sys.argv[5]
+output_matrix_file_name = sys.argv[6]
+
 ###################################################################################################
 # AUXILIARY FUNCTIONS
 ###################################################################################################
@@ -73,7 +82,7 @@ def writing_mark_matrix_sparse(chromosome, resolution, chromosome_list, chrom_si
     region_list1 = fetch_regions_in_iterval(region_file, region1)
 
     # Fetching reads
-    for region in region_list1
+    for region in region_list1:
       try: total_reads1 = fetch_total_reads_bam(signal_bam_file, region)
       except Exception: continue
       if(math.isnan(total_reads1) or not np.isfinite(total_reads1)): continue
@@ -95,7 +104,7 @@ def writing_mark_matrix_sparse(chromosome, resolution, chromosome_list, chrom_si
       region_list2 = fetch_regions_in_iterval(region_file, region2)
 
       # Fetching reads
-      for region in region_list2
+      for region in region_list2:
         try: total_reads2 = fetch_total_reads_bam(signal_bam_file, region)
         except Exception: continue
         if(math.isnan(total_reads2) or not np.isfinite(total_reads2)): continue
