@@ -24,7 +24,7 @@ def get_chromosome_sizes_dictionary(chromosome_sizes_file_name):
 
   # Read chromosome sizes
   chrom_sizes_dict = dict()
-  chrom_sizes_file = open(chromosome_sizes_file_name,"rU")
+  chrom_sizes_file = open(chromosome_sizes_file_name,"r")
   for line in chrom_sizes_file:
     ll = line.strip().split("\t")
     chrom_sizes_dict[ll[0]] = int(ll[1])
@@ -68,7 +68,6 @@ def writing_mark_matrix_sparse(chromosome, resolution, chromosome_list, chrom_si
 
   # Iterating on genome
   for pos1 in range(0, chrom_sizes_dict[chromosome]+resolution, resolution):
-
     # Initializing read_list1
     read_list1 = []
 
@@ -111,7 +110,12 @@ def writing_mark_matrix_sparse(chromosome, resolution, chromosome_list, chrom_si
         read_list2.append(total_reads2)
 
       # Writing to file
-      total_reads = np.average(read_list1 + read_list2)
+      if read_list1 or read_list2:
+        total_reads = np.average(read_list1 + read_list2)
+      else:
+        continue
+      if total_reads == 0 or math.isnan(total_reads) or not np.isfinite(total_reads):
+        continue
       output_matrix_file.write("\t".join([chromosome, str(start1), str(start2), str(total_reads)])+"\n") # Upper triangle
       output_matrix_file.write("\t".join([chromosome, str(start2), str(start1), str(total_reads)])+"\n") # Lower triangle
 
@@ -128,11 +132,6 @@ def writing_mark_matrix_sparse(chromosome, resolution, chromosome_list, chrom_si
 ###################################################################################################
 
 def convert_1d_to_2d(chromosome, resolution, chromosome_sizes_file_name, region_file_name, signal_bam_file_name, output_matrix_file_name):
-
-  # Create output location
-  output_location
-  command = "mkdir -p "+output_location
-  os.system(command)
 
   # Reading chromosome sizes
   chromosome_list, chrom_sizes_dict = get_chromosome_sizes_dictionary(chromosome_sizes_file_name)
@@ -154,3 +153,5 @@ def convert_1d_to_2d(chromosome, resolution, chromosome_sizes_file_name, region_
   chrom_sizes_dict = None
   gc.collect()
 
+
+convert_1d_to_2d(chromosome, resolution, chromosome_sizes_file_name, region_file_name, signal_bam_file_name, output_matrix_file_name)
