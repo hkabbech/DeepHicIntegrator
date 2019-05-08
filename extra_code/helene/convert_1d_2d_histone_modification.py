@@ -159,7 +159,7 @@ def write_mark_matrix_sparse(chromosome, size, resolution, args, output, pseudoc
             # Fetching reads
             for region in region_list2:
                 try:
-                    total_reads2 = fetch_total_reads_bam(signal_bam_file, region) /  (region[2] - region[1])
+                    total_reads2 = fetch_total_reads_bam(signal_bam_file, region) / (region[2] - region[1])
                 except Exception:
                     continue
                 if(math.isnan(total_reads2) or not np.isfinite(total_reads2)):
@@ -168,7 +168,7 @@ def write_mark_matrix_sparse(chromosome, size, resolution, args, output, pseudoc
             total_sum_reads2 = sum(read_list2) + pseudocount
 
             # Writing to file
-            total_reads = round(total_sum_reads1 * total_sum_reads2, 4)
+            total_reads = total_sum_reads1 * total_sum_reads2
             if math.isnan(total_reads) or not np.isfinite(total_reads):
                 continue
             # Upper triangle
