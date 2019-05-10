@@ -23,15 +23,14 @@
 """
 
 # Third-party modules
-
 from datetime import datetime
-import math
 from schema import Schema, And, Use, SchemaError
 from docopt import docopt
 import numpy as np
 from pysam import Samfile
 import pandas as pd
 from scipy.sparse import coo_matrix
+
 
 def check_args():
     """
@@ -69,110 +68,112 @@ def create_dictionary(filename):
             info_dict[contents[0]] = int(contents[1])
     return info_dict
 
-def fetch_total_reads_bam(bam_file, region):
+def count_total_reads(bam_file, region):
     """
-        TO DO
+        Count the number of reads in the region.
+
+        Args:
+            bam_file():
+            region(dict):
+
+        Returns:
+            int: The number of reads in the region
     """
-
-    # Reding bam file
-    num = 0
-    try:
-        for _ in bam_file.fetch(region[0], region[1], region[2]):
-            num += 1
-    except Exception:
-        pass
-
-    # Returning objects
-    return num
+    total = 0
+    for _ in bam_file.fetch(region['chrom'], region['start'], region['end']):
+        total += 1
+    return total
 
 def fetch_regions_in_iterval(bam_file, region):
     """
-        TO DO
-    """
+        Fetch all regions in the intervalle.
 
+        Args:
+            bam_file():
+            region(dict):
+
+        Returns:
+            list: List of all regions
+    """
     # Initializing region_list that will contain the regions fetched
     region_list = []
-
     # Fetching regions
-    try:
-        for read in bam_file.fetch(region[0], region[1], region[2]):
-            pos1 = max(region[1], read.reference_start)
-            pos2 = min(region[2], read.reference_end)
-            if pos1 < pos2:
-                region_list.append([region[0], pos1, pos2])
-    except Exception:
-        pass
-
-    # Returning objects
+    for read in bam_file.fetch(region['chrom'], region['start'], region['end']):
+        pos_1 = max(region['start'], read.reference_start)
+        pos_2 = min(region['end'], read.reference_end)
+        if pos_1 < pos_2:
+            new_region = {'chrom': region['chrom'], 'start': pos_1, 'end': pos_2}
+            region_list.append(new_region)
     return region_list
 
-def write_mark_matrix_sparse(chromosome, size, resolution, args, output, pseudocount=1):
+def write_mark_matrix_sparse(chromosome, size, resolution, args, output, pseudo_count=1):
     """
         TO DO
+
+        Args:
+            chromosome(str):
+            size(int):
+            resolution(int):
+            args():
+            output(str):
+            pseudo_count(int):
     """
     signal_bam_file = Samfile(args['<signal_bam_file>'], "rb")
     region_bam_file = Samfile(args['--region_bam_file'], "rb")
 
     lines = ""
     # Iterating on genome
-    for pos1 in range(0, size+resolution, resolution):
-        # Initializing read_list1
-        read_list1 = []
+    for start_1 in range(0, size+resolution, resolution):
+        # Initializing read_list_1
+        read_list_1 = []
 
         # Calculating start/end locations
-        start1 = pos1
-        end1 = min(pos1+resolution, size)
-        if end1 <= start1:
-            continue
-        region1 = [chromosome, start1, end1]
+        end_1 = min(start_1+resolution, size)
+        region_1 = {'chrom': chromosome, 'start': start_1, 'end': end_1}
 
-        # Fetching the regions that fall within [start1, end1]
-        region_list1 = fetch_regions_in_iterval(region_bam_file, region1)
+        # Fetching the regions that fall within [start_1, end_1]
+        region_list_1 = fetch_regions_in_iterval(region_bam_file, region_1)
 
         # Fetching reads
-        for region in region_list1:
+        for region in region_list_1:
             try:
-                total_reads1 = fetch_total_reads_bam(signal_bam_file, region) / (region[2] - region[1])
+                region_size = region['end'] - region['start']
+                total_reads_1 = count_total_reads(signal_bam_file, region) / region_size
             except Exception:
                 continue
-            if (math.isnan(total_reads1) or not np.isfinite(total_reads1)):
+            if not np.isfinite(total_reads_1):
                 continue
-            read_list1.append(total_reads1)
-        total_sum_reads1 = sum(read_list1) + pseudocount
+            read_list_1.append(total_reads_1)
+        total_sum_reads_1 = sum(read_list_1) + pseudo_count
 
         # Iterating on genome
-        for pos2 in range(start1, size+resolution, resolution):
+        for start_2 in range(start_1, size+resolution, resolution):
 
-            # Initializing read_list2
-            read_list2 = []
+            # Initializing read_list_2
+            read_list_2 = []
 
             # Calculating start/end locations
-            start2 = pos2
-            end2 = min(pos2+resolution, size)
-            if end2 <= start2:
-                continue
-            region2 = [chromosome, start2, end2]
+            end_2 = min(start_2+resolution, size)
+            region_2 = {'chrom': chromosome, 'start': start_2, 'end': end_2}
 
-            # Fetching the regions that fall within [start1, end1]
-            region_list2 = fetch_regions_in_iterval(region_bam_file, region2)
+            # Fetching the regions that fall within [start_2, end_2]
+            region_list_2 = fetch_regions_in_iterval(region_bam_file, region_2)
 
             # Fetching reads
-            for region in region_list2:
+            for region in region_list_2:
                 try:
-                    total_reads2 = fetch_total_reads_bam(signal_bam_file, region) / (region[2] - region[1])
+                    region_size = region['end'] - region['start']
+                    total_reads_2 = count_total_reads(signal_bam_file, region) / region_size
                 except Exception:
                     continue
-                if(math.isnan(total_reads2) or not np.isfinite(total_reads2)):
+                if not np.isfinite(total_reads_2):
                     continue
-                read_list2.append(total_reads2)
-            total_sum_reads2 = sum(read_list2) + pseudocount
+                read_list_2.append(total_reads_2)
+            total_sum_reads_2 = sum(read_list_2) + pseudo_count
 
-            # Writing to file
-            total_reads = total_sum_reads1 * total_sum_reads2
-            if math.isnan(total_reads) or not np.isfinite(total_reads):
-                continue
+            total_reads = total_sum_reads_1 * total_sum_reads_2
             # Upper triangle
-            lines = lines+"\t".join([chromosome, str(start1), str(start2), str(total_reads)])+"\n"
+            lines = lines+"\t".join([chromosome, str(start_1), str(start_2), str(total_reads)])+"\n"
 
     with open(output+'.bed', 'w') as file:
         file.write(lines)
@@ -184,6 +185,10 @@ def write_mark_matrix_sparse(chromosome, size, resolution, args, output, pseudoc
 def create_sparse_numpy(resolution, output):
     """
         TO DO
+
+        Args:
+            resolution(int):
+            output(str):
     """
     mark_df = pd.read_csv(output+'.bed', sep='\t', header=None)
     mark_df.columns = ['chr', 'base_1', 'base_2', 'value']
