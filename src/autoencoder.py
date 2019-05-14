@@ -46,24 +46,27 @@ class Autoencoder:
         """
 
         input_img = Input(shape=(self.img_size, self.img_size, 1))
-        layer = Conv2D(32, (3, 3), activation='relu', padding='same')(input_img)
+        layer = Conv2D(128, (3, 3), activation='relu', padding='same')(input_img)
         layer = MaxPooling2D((2, 2), padding='same')(layer)
         layer = Conv2D(64, (3, 3), activation='relu', padding='same')(layer)
         layer = MaxPooling2D((2, 2), padding='same')(layer)
-        latent = Conv2D(128, (3, 3), activation='relu', padding='same')(layer)
+        latent = Conv2D(32, (3, 3), activation='relu', padding='same')(layer)
         self.encoder = Model(input_img, latent, name='Encoder')
+        print("\nEncoder Model")
         self.encoder.summary()
 
-        input_ls = Input(shape=(self.img_size/4, self.img_size/4, 128))
-        layer = Conv2D(128, (3, 3), activation='relu', padding='same')(input_ls)
+        input_ls = Input(shape=(self.img_size/4, self.img_size/4, 32))
+        layer = Conv2D(32, (3, 3), activation='relu', padding='same')(input_ls)
         layer = UpSampling2D((2, 2))(layer)
         layer = Conv2D(64, (3, 3), activation='relu', padding='same')(layer)
         layer = UpSampling2D((2, 2))(layer)
         output = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(layer)
         self.decoder = Model(input_ls, output, name='Decoder')
+        print("\nDecoder Model")
         self.decoder.summary()
 
         self.cae = Model(input_img, self.decoder(self.encoder(input_img)), name='Autoencoder')
+        print("\nAutoencoder Model")
         self.cae.summary()
 
     def compile(self, loss_function='mean_squared_error', metrics_list=['accuracy']):
@@ -80,8 +83,8 @@ class Autoencoder:
         """
             Training of the Autoencoder model and set of the trained_model attribute.
         """
-        train_x, valid_x, train_ground, valid_ground = train_test_split(self.chr_train.sub_matrices,
-                                                                        self.chr_train.sub_matrices,
+        train_x, valid_x, train_ground, valid_ground = train_test_split(self.chr_train,
+                                                                        self.chr_train,
                                                                         test_size=0.2,
                                                                         random_state=13)
 

@@ -4,11 +4,12 @@
 """
 
 # Third-party modules
+import csv
 import math as m
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd
 from scipy.sparse import coo_matrix
+import pandas as pd
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
@@ -37,6 +38,8 @@ class Matrix:
         self.sub_matrices = None
         self.white_sub_matrices_ind = None
         self.total_sub_matrices = None
+        self.latent_spaces = None
+        self.predicted_sub_matrices = None
 
     def set_sub_matrices(self):
         """
@@ -55,25 +58,80 @@ class Matrix:
                 if sub_matrix.shape != (self.side, self.side):
                     break
                 # The empty sub-matrices are not taking into account
-                if sub_matrix.sum() != 0:
-                    sub_matrices_list.append(sub_matrix)
-                else:
-                    white_ind.append(k)
+                # if sub_matrix.sum() != 0:
+                sub_matrices_list.append(sub_matrix)
+                # else:
+                    # white_ind.append(k)
                 k += 1
         sub_matrices = np.array(sub_matrices_list)
         # The number of sub-matrices is calculated automatically by using -1 in the first field
         sub_matrices = sub_matrices.reshape(-1, self.side, self.side, 1)
-        self.white_sub_matrices_ind = white_ind
+        # self.white_sub_matrices_ind = white_ind
         self.total_sub_matrices = k
         self.sub_matrices = sub_matrices
 
-    def plot_sub_matrices(self, color_map, output_path, index_list, matrix_type):
+    def set_predicted_latent_spaces(self, latent_spaces):
+        """
+            Set the latent spaces predicted by an encoder.
+
+            Args:
+                latent_spaces(Numpy array): The predicted latent_spaces
+        """
+        self.latent_spaces = latent_spaces
+
+    def set_predicted_sub_matrices(self, predicted_sub_matrices):
+        """
+            Set the sub-matrices predicted by an autoencoder.
+
+            Args:
+                predicted_sub_matrices(Numpy array): The predicted sub-matrices
+        """
+        self.predicted_sub_matrices = predicted_sub_matrices
+
+    def write_sparse_matrix(self, matrix_type, path, threshold=0.0001):
+        """
+            The reconstructed and predicted Hi-C matrix is saved in a sparse matrix file.
+
+            Args:
+                threshold(float): The predicted values under the threshold will be set to 0
+                output_path(str): Path of the output plot
+        """
+        # Prediction under threshold value are set to 0
+        # matrix[matrix < threshold] = 0
+        # Creation of the sparse matrix
+        sparse = coo_matrix(self.matrix)
+        with open('{}/{}_true.bed'.format(path, matrix_type), 'w') as file:
+            writer = csv.writer(file, delimiter='\t')
+            writer.writerows(zip(['chr'+str(self.chrom_num)]*len(sparse.row),
+                                 sparse.row*self.resolution,
+                                 sparse.col*self.resolution, sparse.data))
+
+    def plot_matrix(self, matrix_type, color_map, path):
+        """
+            The matrix is plotted in a file.
+
+            Args:
+                color_map(matplotlib.colors.ListedColormap): Color map for the plot
+                path(str): Path of the output plot
+        """
+        fig = plt.figure(figsize=(12, 12))
+        axes = plt.subplot(111, aspect='equal')
+        img = axes.matshow(self.matrix, cmap=color_map)
+        divider = make_axes_locatable(axes)
+        cax = divider.append_axes("right", size="2%", pad=0.15)
+        plt.colorbar(img, cax=cax)
+        plt.subplots_adjust(left=0.07, bottom=0, right=0.95, top=0.91, wspace=0, hspace=0)
+        axes.set_title('True chr{} {} matrix'.format(self.chrom_num, matrix_type), fontsize=25)
+        fig.savefig('{}/{}_true.png'.format(path, matrix_type))
+        plt.close()
+
+    def plot_sub_matrices(self, matrix_type, index_list, color_map, path):
         """
             40 random sub-matrices are plotted in a file.
 
             Args:
                 color_map(matplotlib.colors.ListedColormap): Color map for the plot
-                output_path(str): Path of the output plot
+                path(str): Path of the output plot
                 index_list(list): List of the 40 sub-matrix indexes to plot
         """
         fig, axes = plt.subplots(4, 10, figsize=(24, 11))
@@ -84,31 +142,11 @@ class Matrix:
             axe.imshow(index, cmap=color_map)
             axe.set_title("submatrix n°{}".format(index_list[i]))
             i += 1
-        plt.savefig('{}/submatrices_chr{}_{}_true.png'.format(output_path, self.chrom_num,
-                                                              matrix_type))
-        plt.close()
-
-    def plot_matrix(self, color_map, output_path, matrix_type):
-        """
-            The matrix is plotted in a file.
-
-            Args:
-                color_map(matplotlib.colors.ListedColormap): Color map for the plot
-                output_path(str): Path of the output plot
-        """
-        fig = plt.figure(figsize=(12, 12))
-        axes = plt.subplot(111, aspect='equal')
-        img = axes.matshow(self.matrix, cmap=color_map)
-        divider = make_axes_locatable(axes)
-        cax = divider.append_axes("right", size="2%", pad=0.15)
-        plt.colorbar(img, cax=cax)
-        plt.subplots_adjust(left=0.07, bottom=0, right=0.95, top=0.91, wspace=0, hspace=0)
-        axes.set_title('True chr{} {} matrix'.format(self.chrom_num, matrix_type), fontsize=25)
-        fig.savefig('{}/chr{}_{}_true.png'.format(output_path, self.chrom_num, matrix_type))
+        plt.savefig('{}/submatrices_{}_true.png'.format(path, matrix_type))
         plt.close()
 
 
-class HistoneModification(Matrix):
+class HistoneMark(Matrix):
     """
     .. class:: HistoneModification
         This class groups informations about a histone modification matrix.
@@ -121,6 +159,7 @@ class HistoneModification(Matrix):
         super().__init__(*args, **kwargs)
         self.mark_df = pd.read_csv(bed_file, sep='\t', header=None)
         self.mark_df.columns = ['chr', 'base_1', 'base_2', 'value']
+        self.mark_df = self.mark_df[self.mark_df['chr'] == 'chr'+str(self.chrom_num)]
 
     def set_matrix(self):
         """
