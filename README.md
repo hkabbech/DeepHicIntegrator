@@ -8,6 +8,8 @@
 
 # DeepHicIntegrator
 
+This tool permits the interpolation of a Hi-C matrix with one or several histone marks.
+
 ## Installation
 
 ### Clone the repository
@@ -20,13 +22,7 @@ cd DeepHicIntegrator
 
 1. A **linux** distribution.
 
-2. **Python3** and the following python packages : **tensorflow-gpu**, **keras**, **docopt**, **schema**, **pandas**, **numpy**, **scipy**, **matplotlib**, **sklearn**, **cooler**, **hic2cool** and **m2r** (for Sphinx).
-
-The next command will install all the required packages. Before running this command, make sure that the first line is uncommented. If you do not have GPUs (or do not want to use them) simply replace **tensorflow-gpu** by **tensorflow**.
-
-```
-pip install -r requirements.txt
-```
+2. **Python3** and the following python packages : **tensorflow**, **keras**, **docopt**, **schema**, **pandas**, **numpy**, **scipy**, **matplotlib**, **sklearn**, **cooler**, **hic2cool** and **m2r** (for Sphinx).
 
 3. A Hi-C matrix in `.hic` file format.
 
@@ -39,6 +35,8 @@ mv GSE63525_HUVEC_combined_30.hic data/1_binaries/hic/
 rm wget-log
 ```
 
+4. One or several histone marks in 2D dimension
+
 ## Run the program
 
 ### Toy example
@@ -50,23 +48,36 @@ rm wget-log
 ### Get help
 ```
     Usage:
-        ./deep_hic_integrator <HIC_FILE> [--resolution INT] [--train INT] [--test INT]
-                                         [--square_side INT] [--epochs INT] [--batch_size INT]
-                                         [--output PATH]
+        ./deep_hic_integrator <HIC_FILE> <HM_PATH> [--resolution INT]
+                                                   [--chr_train INT]
+                                                   [--chr_test INT]
+                                                   [--hist_mark_train STR]
+                                                   [--square_side INT]
+                                                   [--epochs INT]
+                                                   [--batch_size INT]
+                                                   [--encoder STR]
+                                                   [--decoder STR]
+                                                   [--output PATH]
+                                                   [--help]
 
     Arguments:
-        <HIC_FILE>                      Path to the Hi-C matrix file
-                                        (.hic format)
+        <HIC_FILE>                          Path of the Hi-C matrix file (.hic format)
+        <HM_PATH>                           Path of the repository containing the histone mark files
 
     Options:
-        -r, INT, --resolution INT       Hi-C matrice resolution to use. [default: 25000]
-        -a INT, --train INT             Chromosome for training [default: 1]
-        -t INT, --test INT              Chromosome for test [default: 20]
-        -n INT, --square_side INT       Size n*n of a sub-matrix [default: 60]
-        -e INT, --epochs INT            Number of epochs [default: 50]
-        -b INT, --batch_size INT        Size of a batch [default: 128]
-        -o PATH, --output PATH          Output path [default: results/]
-        -h, --help  
+        -r, INT, --resolution INT           Resolution representing the number of pair-ended reads
+                                            spanning between a pair of bins. [default: 25000]
+        -a INT, --chr_train INT             Chromosome used to train the autoencoder [default: 1]
+        -t INT, --chr_test INT              Chromosome used to test the autoencoder [default: 20]
+        -m STR, --hist_mark_train STR       Name of the histone mark used to train the autoencoder
+                                            [default: h3k4me3]
+        -n INT, --square_side INT           Size N*N of a sub-matrix [default: 20]
+        -p INT, --epochs INT                Number of epochs for the training [default: 50]
+        -b INT, --batch_size INT            Batch size for the training [default: 64]
+        -e STR, --encoder STR               Trained encoder model (H5 format) [default: None]
+        -d STR, --decoder STR               Trained decoder model (H5 format) [default: None]
+        -o PATH, --output PATH              Output path [default: results/]
+        -h, --help                          Show this
 ```
 
 ## Documentation
@@ -74,10 +85,9 @@ rm wget-log
 The documentation is generated with Sphinx and built on ReadTheDocs.
 
 
-## Authors
+## Author
 
 - [Hélène Kabbech](https://github.com/kabhel)
-- [Eduardo Gade Gusmao](https://github.com/eggduzao)
 
 ## License
 
