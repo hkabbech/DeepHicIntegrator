@@ -31,18 +31,16 @@ Please, download the **GSE63525 HUVEC** genome in order to run the toy example.
 ```
 wget -i ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE63nnn/GSE63525/suppl/GSE63525_HUVEC_combined_30.hic.gz
 gunzip GSE63525_HUVEC_combined_30.hic.gz
-mv GSE63525_HUVEC_combined_30.hic data/1_binaries/hic/
-rm wget-log
 ```
 
-4. One or several histone marks in 2D dimension
+4. One or several histone marks in 2D dimension.
 
 ## Run the program
 
 ### Toy example
 
 ```
-./deep_hic_integrator data/1_binaries/hic/GSE63525_HUVEC_combined_30.hic -a 10 -t 20 -o results/
+./deep_hic_integrator data/hic_matrix/GSE63525_HUVEC_combined_30.hic data/histone_marks/100K/ -r 100000 -p 10 -o results/100K_p10/
 ```
 
 ### Get help
