@@ -8,15 +8,15 @@ Autoencoder
    :members:
 
 
-Hic
-***
+Matrix
+******
 
-.. automodule:: src.hic
+.. automodule:: src.matrix
    :members:
 
 
-PredictHic
-**********
+Interpolation
+*************
 
-.. automodule:: src.predict_hic
+.. automodule:: src.interpolation
    :members:
