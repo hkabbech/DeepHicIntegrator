@@ -13,7 +13,6 @@ install_requires = [
     'sklearn',
     'cooler==0.8.3',
     'hic2cool==0.5.1',
-    'hyperas',
     'm2r==0.2.1'
 ]
 
