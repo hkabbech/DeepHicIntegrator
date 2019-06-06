@@ -108,7 +108,7 @@ html_theme = "sphinx_rtd_theme"
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'DeepIntegrativeHiCdoc'
+htmlhelp_basename = 'DeepHicIntegratorDoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -135,7 +135,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'DeepIntegrativeHiC.tex', 'DeepIntegrativeHiC Documentation',
+    (master_doc, 'DeepHicIntegrator.tex', 'DeepHicIntegrator Documentation',
      'Helene Kabbech, Eduardo Gade Gusmao, Akis Papantonis', 'manual'),
 ]
 
@@ -145,7 +145,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'deepintegrativehic', 'DeepIntegrativeHiC Documentation',
+    (master_doc, 'DeepHicIntegrator', 'DeepHicIntegrator Documentation',
      [author], 1)
 ]
 
@@ -156,8 +156,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'DeepIntegrativeHiC', 'DeepIntegrativeHiC Documentation',
-     author, 'DeepIntegrativeHiC', 'One line description of project.',
+    (master_doc, 'DeepHicIntegrator', 'DeepHicIntegrator Documentation',
+     author, 'DeepHicIntegrator', 'One line description of project.',
      'Miscellaneous'),
 ]
 

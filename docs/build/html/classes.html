@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Implemented classes &mdash; DeepIntegrativeHiC 0.1 documentation</title>
+  <title>Implemented classes &mdash; DeepHiCIntegrator 0.1 documentation</title>
   
 
   
@@ -49,7 +49,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> DeepIntegrativeHiC
+            <a href="index.html" class="icon icon-home"> DeepHiCIntegrator
           
 
           
@@ -87,8 +87,8 @@
 <li class="toctree-l1"><a class="reference internal" href="readme.html">DeepHicIntegrator</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Implemented classes</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-src.autoencoder">Autoencoder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-src.hic">Hic</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-src.predict_hic">PredictHic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-src.matrix">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-src.interpolation">Interpolation</a></li>
 </ul>
 </li>
 </ul>
@@ -105,7 +105,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">DeepIntegrativeHiC</a>
+          <a href="index.html">DeepHiCIntegrator</a>
         
       </nav>
 
@@ -161,55 +161,112 @@
 <span id="autoencoder"></span><h2>Autoencoder<a class="headerlink" href="#module-src.autoencoder" title="Permalink to this headline">¶</a></h2>
 <span class="target" id="module-Autoencoder"></span><dl class="class">
 <dt id="src.autoencoder.Autoencoder">
-<em class="property">class </em><code class="descclassname">src.autoencoder.</code><code class="descname">Autoencoder</code><span class="sig-paren">(</span><em>input_img</em>, <em>chr_train</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/autoencoder.html#Autoencoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.autoencoder.Autoencoder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">src.autoencoder.</code><code class="descname">Autoencoder</code><span class="sig-paren">(</span><em>chr_train</em>, <em>img_size</em>, <em>epochs</em>, <em>batch_size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/autoencoder.html#Autoencoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.autoencoder.Autoencoder" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="class">
 <dt id="src.autoencoder.Autoencoder.Autoencoder">
 <em class="property">class </em><code class="descname">Autoencoder</code><a class="headerlink" href="#src.autoencoder.Autoencoder.Autoencoder" title="Permalink to this definition">¶</a></dt>
 <dt>
-<code class="descname">This class groups attributes and functions about the Autoencoder.</code></dt>
+<code class="descname">This class groups attributes and functions for building compiling, training and saving the</code></dt>
+<dt>
+<code class="descname">parameters of an Autoencoder.</code></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="src.autoencoder.Autoencoder.chr_train">
 <code class="descname">chr_train</code><a class="headerlink" href="#src.autoencoder.Autoencoder.chr_train" title="Permalink to this definition">¶</a></dt>
-<dd><p>Instance of the HicPredict class - Chromosome for training the model</p>
+<dd><p>Chromosome for training the model</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Hic object</p>
+<dd class="field-odd"><p><a class="reference internal" href="#src.matrix.Hic" title="src.matrix.Hic">Hic</a>(<a class="reference internal" href="#src.matrix.Matrix" title="src.matrix.Matrix">Matrix</a>) object</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="src.autoencoder.Autoencoder.model">
-<code class="descname">model</code><a class="headerlink" href="#src.autoencoder.Autoencoder.model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Instance of the Model keras class - Model of the Autoencoder</p>
+<dt id="src.autoencoder.Autoencoder.img_size">
+<code class="descname">img_size</code><a class="headerlink" href="#src.autoencoder.Autoencoder.img_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Square side of a numpy array sub-matrix</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Model object</p>
+<dd class="field-odd"><p>int</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="src.autoencoder.Autoencoder.trained_model">
-<code class="descname">trained_model</code><a class="headerlink" href="#src.autoencoder.Autoencoder.trained_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Instance of the Model keras class - The trained Model</p>
+<dt id="src.autoencoder.Autoencoder.epochs">
+<code class="descname">epochs</code><a class="headerlink" href="#src.autoencoder.Autoencoder.epochs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of epochs for training the cae</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Model object</p>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.autoencoder.Autoencoder.batch_size">
+<code class="descname">batch_size</code><a class="headerlink" href="#src.autoencoder.Autoencoder.batch_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Batch size</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.autoencoder.Autoencoder.cae">
+<code class="descname">cae</code><a class="headerlink" href="#src.autoencoder.Autoencoder.cae" title="Permalink to this definition">¶</a></dt>
+<dd><p>Model of the whole convolutional autoencoder (cae)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>keras model object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.autoencoder.Autoencoder.trained_cae">
+<code class="descname">trained_cae</code><a class="headerlink" href="#src.autoencoder.Autoencoder.trained_cae" title="Permalink to this definition">¶</a></dt>
+<dd><p>The trained cae</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>keras model object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.autoencoder.Autoencoder.encoder">
+<code class="descname">encoder</code><a class="headerlink" href="#src.autoencoder.Autoencoder.encoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encoder part of the cae</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>keras model object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.autoencoder.Autoencoder.decoder">
+<code class="descname">decoder</code><a class="headerlink" href="#src.autoencoder.Autoencoder.decoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decoder part of the cae</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>keras model object</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.autoencoder.Autoencoder.compile_model">
-<code class="descname">compile_model</code><span class="sig-paren">(</span><em>loss_function='mean_squared_error', metrics_list=['accuracy']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/autoencoder.html#Autoencoder.compile_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.autoencoder.Autoencoder.compile_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compilation of the Autoencoder model.</p>
+<dt id="src.autoencoder.Autoencoder.compile">
+<code class="descname">compile</code><span class="sig-paren">(</span><em>loss_function='mean_squared_error', metrics_list=['accuracy']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/autoencoder.html#Autoencoder.compile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.autoencoder.Autoencoder.compile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compilation of the cae model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>loss_function</strong> (<em>str</em>) – The loss function to use</p></li>
+<li><p><strong>loss_function</strong> (<em>str</em>) – The loss function</p></li>
 <li><p><strong>matrics_list</strong> (<em>list</em>) – The metrics to generate during compilation</p></li>
 </ul>
 </dd>
@@ -218,28 +275,22 @@
 
 <dl class="method">
 <dt id="src.autoencoder.Autoencoder.plot_accuracy_curve">
-<code class="descname">plot_accuracy_curve</code><span class="sig-paren">(</span><em>epochs</em>, <em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/autoencoder.html#Autoencoder.plot_accuracy_curve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.autoencoder.Autoencoder.plot_accuracy_curve" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_accuracy_curve</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/autoencoder.html#Autoencoder.plot_accuracy_curve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.autoencoder.Autoencoder.plot_accuracy_curve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot of the accuracy curve in a file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>epochs</strong> (<em>int</em>) – Number of epochs</p></li>
-<li><p><strong>path</strong> (<em>str</em>) – Path of the output plot</p></li>
-</ul>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – Path of the output plot</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="src.autoencoder.Autoencoder.plot_loss_curve">
-<code class="descname">plot_loss_curve</code><span class="sig-paren">(</span><em>epochs</em>, <em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/autoencoder.html#Autoencoder.plot_loss_curve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.autoencoder.Autoencoder.plot_loss_curve" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_loss_curve</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/autoencoder.html#Autoencoder.plot_loss_curve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.autoencoder.Autoencoder.plot_loss_curve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot of the loss curve in a file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>epochs</strong> (<em>int</em>) – Number of epochs</p></li>
-<li><p><strong>path</strong> (<em>str</em>) – Path of the output plot</p></li>
-</ul>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – Path of the output plot</p>
 </dd>
 </dl>
 </dd></dl>
@@ -247,8 +298,8 @@
 <dl class="method">
 <dt id="src.autoencoder.Autoencoder.save_model">
 <code class="descname">save_model</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/autoencoder.html#Autoencoder.save_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.autoencoder.Autoencoder.save_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>The model is saved in h5 and JSON formats, the weights are saved in h5 format and
-the summary of the model (the network layers) is saved in a txt file.</p>
+<dd><p>The model (h5 and JSON formats), the weights (h5 format) and the summary of the models
+are saved in a txt file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – Path to the different files</p>
@@ -257,65 +308,41 @@ the summary of the model (the network layers) is saved in a txt file.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.autoencoder.Autoencoder.save_parameters">
-<code class="descname">save_parameters</code><span class="sig-paren">(</span><em>path</em>, <em>resolution</em>, <em>side</em>, <em>chr_test</em>, <em>epochs</em>, <em>batch_size</em>, <em>time</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/autoencoder.html#Autoencoder.save_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.autoencoder.Autoencoder.save_parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>All the parameters of the training and test of the model are saved in a log file.</p>
+<dt id="src.autoencoder.Autoencoder.set_models">
+<code class="descname">set_models</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/autoencoder.html#Autoencoder.set_models"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.autoencoder.Autoencoder.set_models" title="Permalink to this definition">¶</a></dt>
+<dd><p>Building of the convolutional autoencoder and setting of the encoder, decoder and cae
+attributes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – Path of the log file</p>
+<dd class="field-odd"><p><strong>input_img</strong> (<em>Input class</em>) – Input image for the encoder</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.autoencoder.Autoencoder.train_model">
-<code class="descname">train_model</code><span class="sig-paren">(</span><em>batch_size</em>, <em>epochs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/autoencoder.html#Autoencoder.train_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.autoencoder.Autoencoder.train_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Training of the Autoencoder model and set of the trained_model attribute.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>batch_size</strong> (<em>int</em>) – Size of a batch</p></li>
-<li><p><strong>epochs</strong> (<em>int</em>) – Number of epochs</p></li>
-</ul>
-</dd>
-</dl>
+<dt id="src.autoencoder.Autoencoder.train">
+<code class="descname">train</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/autoencoder.html#Autoencoder.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.autoencoder.Autoencoder.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Training of the cae model and setting of the trained_cae attribute.</p>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="function">
-<dt id="src.autoencoder.build_network">
-<code class="descclassname">src.autoencoder.</code><code class="descname">build_network</code><span class="sig-paren">(</span><em>input_img</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/autoencoder.html#build_network"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.autoencoder.build_network" title="Permalink to this definition">¶</a></dt>
-<dd><p>Layers of the Autoencoder network.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>input_img</strong> (<em>Input class</em>) – Input of the network</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The last decoded output layer of the Autoencoder</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>decoded(Conv2D keras layer)</p>
-</dd>
-</dl>
 </dd></dl>
 
 </div>
-<div class="section" id="module-src.hic">
-<span id="hic"></span><h2>Hic<a class="headerlink" href="#module-src.hic" title="Permalink to this headline">¶</a></h2>
-<span class="target" id="module-Hic"></span><dl class="class">
-<dt id="src.hic.Hic">
-<em class="property">class </em><code class="descclassname">src.hic.</code><code class="descname">Hic</code><span class="sig-paren">(</span><em>cooler</em>, <em>chrom</em>, <em>square_side</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/hic.html#Hic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.hic.Hic" title="Permalink to this definition">¶</a></dt>
+<div class="section" id="module-src.matrix">
+<span id="matrix"></span><h2>Matrix<a class="headerlink" href="#module-src.matrix" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-matrix"></span><dl class="class">
+<dt id="src.matrix.Hic">
+<em class="property">class </em><code class="descclassname">src.matrix.</code><code class="descname">Hic</code><span class="sig-paren">(</span><em>cooler</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/matrix.html#Hic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.matrix.Hic" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="class">
-<dt id="src.hic.Hic.Hic">
-<em class="property">class </em><code class="descname">Hic</code><a class="headerlink" href="#src.hic.Hic.Hic" title="Permalink to this definition">¶</a></dt>
+<dt id="src.matrix.Hic.Hic">
+<em class="property">class </em><code class="descname">Hic</code><a class="headerlink" href="#src.matrix.Hic.Hic" title="Permalink to this definition">¶</a></dt>
 <dt>
-<code class="descname">This class groups informations about a Hi-C matrix.</code></dt>
+<code class="descname">This class inherits the Matrix class and set the matrix numpy array for a Hi-C data.</code></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="src.hic.Hic.cooler">
-<code class="descname">cooler</code><a class="headerlink" href="#src.hic.Hic.cooler" title="Permalink to this definition">¶</a></dt>
+<dt id="src.matrix.Hic.cooler">
+<code class="descname">cooler</code><a class="headerlink" href="#src.matrix.Hic.cooler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Storage of the Hi-C matrix</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -324,65 +351,9 @@ the summary of the model (the network layers) is saved in a txt file.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="src.hic.Hic.resolution">
-<code class="descname">resolution</code><a class="headerlink" href="#src.hic.Hic.resolution" title="Permalink to this definition">¶</a></dt>
-<dd><p>Resolution (or bin-size) of the Hi-C matrix</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.hic.Hic.chrom">
-<code class="descname">chrom</code><a class="headerlink" href="#src.hic.Hic.chrom" title="Permalink to this definition">¶</a></dt>
-<dd><p>Chromosome chosen among all chromosomes in cooler</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.hic.Hic.side">
-<code class="descname">side</code><a class="headerlink" href="#src.hic.Hic.side" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of raws and columns of a numpy array sub-matrix</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.hic.Hic.matrix">
-<code class="descname">matrix</code><a class="headerlink" href="#src.hic.Hic.matrix" title="Permalink to this definition">¶</a></dt>
-<dd><p>Hi-C matrix of the chromosome chosen stored in a numpy array</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>numpy array</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="src.hic.Hic.sub_matrices">
-<code class="descname">sub_matrices</code><a class="headerlink" href="#src.hic.Hic.sub_matrices" title="Permalink to this definition">¶</a></dt>
-<dd><p>The splitted Hi-C matrix into N sub-matrices of size side*side
-stored in a numpy array of shape (Samples, side, side, 1)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>numpy array</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
-<dt id="src.hic.Hic.calculate_cum_length">
-<code class="descname">calculate_cum_length</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/hic.html#Hic.calculate_cum_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.hic.Hic.calculate_cum_length" title="Permalink to this definition">¶</a></dt>
+<dt id="src.matrix.Hic.calculate_cum_length">
+<code class="descname">calculate_cum_length</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/matrix.html#Hic.calculate_cum_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.matrix.Hic.calculate_cum_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates and returns the cumulated length from chromosome 1 to N.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -395,145 +366,440 @@ stored in a numpy array of shape (Samples, side, side, 1)</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.hic.Hic.plot_matrix">
-<code class="descname">plot_matrix</code><span class="sig-paren">(</span><em>color_map</em>, <em>output_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/hic.html#Hic.plot_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.hic.Hic.plot_matrix" title="Permalink to this definition">¶</a></dt>
-<dd><p>The Hi-C matrix is plotted in a file.</p>
+<dt id="src.matrix.Hic.set_matrix">
+<code class="descname">set_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/matrix.html#Hic.set_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.matrix.Hic.set_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the Hi-C numpy array  of the chromosome chrom_num.
+The matrix is transformed into an upper triangular matrix and the values are converted
+in float32 and rescaled by log10 and normalized.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.matrix.HistoneMark">
+<em class="property">class </em><code class="descclassname">src.matrix.</code><code class="descname">HistoneMark</code><span class="sig-paren">(</span><em>bed_file</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/matrix.html#HistoneMark"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.matrix.HistoneMark" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="class">
+<dt id="src.matrix.HistoneMark.HistoneModification">
+<em class="property">class </em><code class="descname">HistoneModification</code><a class="headerlink" href="#src.matrix.HistoneMark.HistoneModification" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="descname">This class inherits the Matrix class and set the matrix numpy array for a histone mark.</code></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.matrix.HistoneMark.mark_df">
+<code class="descname">mark_df</code><a class="headerlink" href="#src.matrix.HistoneMark.mark_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Histone modification sparse matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Pandas Dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.matrix.HistoneMark.set_matrix">
+<code class="descname">set_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/matrix.html#HistoneMark.set_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.matrix.HistoneMark.set_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the histone modification numpy array of the chromosome chrom_num.
+The values of the matrix are converted in float32 and rescaled by log10 and normalized.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.matrix.Matrix">
+<em class="property">class </em><code class="descclassname">src.matrix.</code><code class="descname">Matrix</code><span class="sig-paren">(</span><em>resolution</em>, <em>chrom_num</em>, <em>side</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/matrix.html#Matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.matrix.Matrix" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="class">
+<dt id="src.matrix.Matrix.Matrix">
+<em class="property">class </em><code class="descname">Matrix</code><a class="headerlink" href="#src.matrix.Matrix.Matrix" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="descname">This class stores a matrix and different related numpy array, plots and writes this matrix.</code></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.matrix.Matrix.resolution">
+<code class="descname">resolution</code><a class="headerlink" href="#src.matrix.Matrix.resolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resolution (or bin size) of the matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.matrix.Matrix.chrom_num">
+<code class="descname">chrom_num</code><a class="headerlink" href="#src.matrix.Matrix.chrom_num" title="Permalink to this definition">¶</a></dt>
+<dd><p>Chromosome chosen for processing</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.matrix.Matrix.side">
+<code class="descname">side</code><a class="headerlink" href="#src.matrix.Matrix.side" title="Permalink to this definition">¶</a></dt>
+<dd><p>Square side of a numpy array sub-matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.matrix.Matrix.matrix">
+<code class="descname">matrix</code><a class="headerlink" href="#src.matrix.Matrix.matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Matrix stored in a numpy array</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.matrix.Matrix.sub_matrices">
+<code class="descname">sub_matrices</code><a class="headerlink" href="#src.matrix.Matrix.sub_matrices" title="Permalink to this definition">¶</a></dt>
+<dd><p>The matrix is divided into S sub-matrices of size side*side
+and stored in a numpy array of shape (X, side, side, 1)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.matrix.Matrix.white_sub_matrices_ind">
+<code class="descname">white_sub_matrices_ind</code><a class="headerlink" href="#src.matrix.Matrix.white_sub_matrices_ind" title="Permalink to this definition">¶</a></dt>
+<dd><p>Position of the blank sub-matrices</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.matrix.Matrix.total_sub_matrices">
+<code class="descname">total_sub_matrices</code><a class="headerlink" href="#src.matrix.Matrix.total_sub_matrices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Total number of sub-matrices</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.matrix.Matrix.latent_spaces">
+<code class="descname">latent_spaces</code><a class="headerlink" href="#src.matrix.Matrix.latent_spaces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Latent spaces (encoded sub-matrices) stored in a numpy array</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.matrix.Matrix.predicted_sub_matrices">
+<code class="descname">predicted_sub_matrices</code><a class="headerlink" href="#src.matrix.Matrix.predicted_sub_matrices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predicted sub_matrices (decoded latent spaces) stored
+in a numpy array</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.matrix.Matrix.plot_matrix">
+<code class="descname">plot_matrix</code><span class="sig-paren">(</span><em>matrix_type</em>, <em>color_map</em>, <em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/matrix.html#Matrix.plot_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.matrix.Matrix.plot_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>The matrix is plotted in a file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>color_map</strong> (<em>matplotlib.colors.ListedColormap</em>) – Color map for the plot</p></li>
-<li><p><strong>output_path</strong> (<em>str</em>) – Path of the output plot</p></li>
+<li><p><strong>matrix_type</strong> (<em>str</em>) – Matrix’s name</p></li>
+<li><p><strong>color_map</strong> (<em>matplotlib.colors.ListedColormap</em>) – Color map</p></li>
+<li><p><strong>path</strong> (<em>str</em>) – Path of the output plot</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.hic.Hic.plot_sub_matrices">
-<code class="descname">plot_sub_matrices</code><span class="sig-paren">(</span><em>color_map</em>, <em>output_path</em>, <em>index_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/hic.html#Hic.plot_sub_matrices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.hic.Hic.plot_sub_matrices" title="Permalink to this definition">¶</a></dt>
+<dt id="src.matrix.Matrix.plot_sub_matrices">
+<code class="descname">plot_sub_matrices</code><span class="sig-paren">(</span><em>matrix_type</em>, <em>index_list</em>, <em>color_map</em>, <em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/matrix.html#Matrix.plot_sub_matrices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.matrix.Matrix.plot_sub_matrices" title="Permalink to this definition">¶</a></dt>
 <dd><p>40 random sub-matrices are plotted in a file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>color_map</strong> (<em>matplotlib.colors.ListedColormap</em>) – Color map for the plot</p></li>
-<li><p><strong>output_path</strong> (<em>str</em>) – Path of the output plot</p></li>
+<li><p><strong>matrix_type</strong> (<em>str</em>) – Matrix’s name</p></li>
 <li><p><strong>index_list</strong> (<em>list</em>) – List of the 40 sub-matrix indexes to plot</p></li>
+<li><p><strong>color_map</strong> (<em>matplotlib.colors.ListedColormap</em>) – Color map</p></li>
+<li><p><strong>path</strong> (<em>str</em>) – Path of the output plot</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.hic.Hic.set_matrix">
-<code class="descname">set_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/hic.html#Hic.set_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.hic.Hic.set_matrix" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the numpy array Hi-C matrix of the chromosome chrom.
-The matrix is transformed into an upper triangular matrix and the values are converted
-in float32, rescaled by log10 and normalized.</p>
+<dt id="src.matrix.Matrix.set_predicted_latent_spaces">
+<code class="descname">set_predicted_latent_spaces</code><span class="sig-paren">(</span><em>latent_spaces</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/matrix.html#Matrix.set_predicted_latent_spaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.matrix.Matrix.set_predicted_latent_spaces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the latent spaces predicted by the encoder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>latent_spaces</strong> (<em>numpy array</em>) – The predicted latent_spaces</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.hic.Hic.set_sub_matrices">
-<code class="descname">set_sub_matrices</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/hic.html#Hic.set_sub_matrices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.hic.Hic.set_sub_matrices" title="Permalink to this definition">¶</a></dt>
-<dd><p>Split the Hi-C matrix of the chromosome chrom into N sub-matrices of size side*side.
-The empty sub-matrices (sum(values)==0) are ignored.
-The N resulted sub-matrices are stored and set in a numpy array
-of shape (N, side, side, 1).</p>
+<dt id="src.matrix.Matrix.set_predicted_sub_matrices">
+<code class="descname">set_predicted_sub_matrices</code><span class="sig-paren">(</span><em>predicted_sub_matrices</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/matrix.html#Matrix.set_predicted_sub_matrices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.matrix.Matrix.set_predicted_sub_matrices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the sub-matrices predicted by the whole autoencoder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>predicted_sub_matrices</strong> (<em>numpy array</em>) – The predicted sub-matrices</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.matrix.Matrix.set_sub_matrices">
+<code class="descname">set_sub_matrices</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/matrix.html#Matrix.set_sub_matrices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.matrix.Matrix.set_sub_matrices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Divide the matrix into S sub-matrices of size side*side.
+The empty sub-matrices (sum(values)==0) are removed from the data set.
+The S resulted sub-matrices are stored in a numpy array of shape (X, side, side, 1).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.matrix.Matrix.write_sparse_matrix">
+<code class="descname">write_sparse_matrix</code><span class="sig-paren">(</span><em>matrix_type</em>, <em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/matrix.html#Matrix.write_sparse_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.matrix.Matrix.write_sparse_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>The reconstructed and predicted Hi-C matrix is saved in a sparse matrix file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>matrix_type</strong> (<em>str</em>) – Matrix’s name</p></li>
+<li><p><strong>path</strong> (<em>str</em>) – Path of the output</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
 </div>
-<div class="section" id="module-src.predict_hic">
-<span id="predicthic"></span><h2>PredictHic<a class="headerlink" href="#module-src.predict_hic" title="Permalink to this headline">¶</a></h2>
-<span class="target" id="module-PredictHic"></span><dl class="class">
-<dt id="src.predict_hic.PredictHic">
-<em class="property">class </em><code class="descclassname">src.predict_hic.</code><code class="descname">PredictHic</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/predict_hic.html#PredictHic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.predict_hic.PredictHic" title="Permalink to this definition">¶</a></dt>
+<div class="section" id="module-src.interpolation">
+<span id="interpolation"></span><h2>Interpolation<a class="headerlink" href="#module-src.interpolation" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-Interpolation"></span><dl class="class">
+<dt id="src.interpolation.Interpolation">
+<em class="property">class </em><code class="descclassname">src.interpolation.</code><code class="descname">Interpolation</code><span class="sig-paren">(</span><em>alphas</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/interpolation.html#Interpolation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.interpolation.Interpolation" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="class">
-<dt id="src.predict_hic.PredictHic.PredictHic">
-<em class="property">class </em><code class="descname">PredictHic</code><a class="headerlink" href="#src.predict_hic.PredictHic.PredictHic" title="Permalink to this definition">¶</a></dt>
+<dt id="src.interpolation.Interpolation.Interpolation">
+<em class="property">class </em><code class="descname">Interpolation</code><a class="headerlink" href="#src.interpolation.Interpolation.Interpolation" title="Permalink to this definition">¶</a></dt>
 <dt>
-<code class="descname">This class herits attributes and methods from Hic class and</code></dt>
+<code class="descname">This class groups attributes and functions which aim to construct, write in a sparse matrix</code></dt>
 <dt>
-<code class="descname">groups informations about a predicted Hi-C matrix.</code></dt>
+<code class="descname">and plot two or several interpolated matrices.</code></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="src.predict_hic.PredictHic.predicted_sub_matrices">
-<code class="descname">predicted_sub_matrices</code><a class="headerlink" href="#src.predict_hic.PredictHic.predicted_sub_matrices" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sub-matrices predicted by a deep-learning model</p>
+<dt id="src.interpolation.Interpolation.alphas">
+<code class="descname">alphas</code><a class="headerlink" href="#src.interpolation.Interpolation.alphas" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of float values to use for the interpolation (alpha parameter)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>numpy array</p>
+<dd class="field-odd"><p>list</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="src.predict_hic.PredictHic.predicted_matrix">
-<code class="descname">predicted_matrix</code><a class="headerlink" href="#src.predict_hic.PredictHic.predicted_matrix" title="Permalink to this definition">¶</a></dt>
-<dd><p>The reconstructed matrix from the predicted sub-matrices</p>
+<dt id="src.interpolation.Interpolation.interpolated_submatrices">
+<code class="descname">interpolated_submatrices</code><a class="headerlink" href="#src.interpolation.Interpolation.interpolated_submatrices" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of all the interpolated sub-matrices. Each item in
+the list contains an interpolation with a different alpha.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>numpy array</p>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.interpolation.Interpolation.integrated_matrix">
+<code class="descname">integrated_matrix</code><a class="headerlink" href="#src.interpolation.Interpolation.integrated_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of all the integrated (interpolated) reconstructed matrices.
+Each item in the list contains an interpolation with a different
+alpha.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.predict_hic.PredictHic.construct_predicted_matrix">
-<code class="descname">construct_predicted_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/predict_hic.html#PredictHic.construct_predicted_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.predict_hic.PredictHic.construct_predicted_matrix" title="Permalink to this definition">¶</a></dt>
-<dd><p>Construction and set of the predicted Hi-C matrix from the predicted sub-matrices.</p>
+<dt id="src.interpolation.Interpolation.construct_integrated_matrix">
+<code class="descname">construct_integrated_matrix</code><span class="sig-paren">(</span><em>hic</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/interpolation.html#Interpolation.construct_integrated_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.interpolation.Interpolation.construct_integrated_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construction of the whole integrated matrices from the interpolated sub-matrices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>hic</strong> (<a class="reference internal" href="#src.matrix.Hic" title="src.matrix.Hic"><em>Hic</em></a><em>(</em><a class="reference internal" href="#src.matrix.Matrix" title="src.matrix.Matrix"><em>Matrix</em></a><em>) </em><em>object</em>) – Hi-C matrix</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.predict_hic.PredictHic.plot_predicted_matrix">
-<code class="descname">plot_predicted_matrix</code><span class="sig-paren">(</span><em>color_map</em>, <em>output_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/predict_hic.html#PredictHic.plot_predicted_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.predict_hic.PredictHic.plot_predicted_matrix" title="Permalink to this definition">¶</a></dt>
-<dd><p>The reconstructed and predicted Hi-C matrix is plotted in a file.</p>
+<dt id="src.interpolation.Interpolation.plot_integrated_matrix">
+<code class="descname">plot_integrated_matrix</code><span class="sig-paren">(</span><em>hic</em>, <em>color_map</em>, <em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/interpolation.html#Interpolation.plot_integrated_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.interpolation.Interpolation.plot_integrated_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>The integrated matrices are plotted for each alpha value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>color_map</strong> (<em>matplotlib.colors.ListedColormap</em>) – Color map for the plot</p></li>
-<li><p><strong>output_path</strong> (<em>str</em>) – Path of the output plot</p></li>
+<li><p><strong>hic</strong> (<a class="reference internal" href="#src.matrix.Hic" title="src.matrix.Hic"><em>Hic</em></a><em>(</em><a class="reference internal" href="#src.matrix.Matrix" title="src.matrix.Matrix"><em>Matrix</em></a><em>) </em><em>object</em>) – Hi-C matrix</p></li>
+<li><p><strong>color_map</strong> (<em>matplotlib.colors.ListedColormap</em>) – Color map</p></li>
+<li><p><strong>path</strong> (<em>str</em>) – Path of the output plot</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.predict_hic.PredictHic.plot_predicted_sub_matrices">
-<code class="descname">plot_predicted_sub_matrices</code><span class="sig-paren">(</span><em>color_map</em>, <em>output_path</em>, <em>index_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/predict_hic.html#PredictHic.plot_predicted_sub_matrices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.predict_hic.PredictHic.plot_predicted_sub_matrices" title="Permalink to this definition">¶</a></dt>
-<dd><p>40 predicted random sub-matrices are plotted in a file.</p>
+<dt id="src.interpolation.Interpolation.plot_interpolated_submatrices">
+<code class="descname">plot_interpolated_submatrices</code><span class="sig-paren">(</span><em>hic</em>, <em>index_list</em>, <em>color_map</em>, <em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/interpolation.html#Interpolation.plot_interpolated_submatrices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.interpolation.Interpolation.plot_interpolated_submatrices" title="Permalink to this definition">¶</a></dt>
+<dd><p>40 random integrated sub-matrices are plotted for each alpha value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>color_map</strong> (<em>matplotlib.colors.ListedColormap</em>) – Color map for the plot</p></li>
-<li><p><strong>output_path</strong> (<em>str</em>) – Path of the output plot</p></li>
+<li><p><strong>hic</strong> (<a class="reference internal" href="#src.matrix.Hic" title="src.matrix.Hic"><em>Hic</em></a><em>(</em><a class="reference internal" href="#src.matrix.Matrix" title="src.matrix.Matrix"><em>Matrix</em></a><em>) </em><em>object</em>) – Hi-C matrix</p></li>
 <li><p><strong>index_list</strong> (<em>list</em>) – List of the 40 sub-matrix indexes to plot</p></li>
+<li><p><strong>color_map</strong> (<em>matplotlib.colors.ListedColormap</em>) – Color map</p></li>
+<li><p><strong>path</strong> (<em>str</em>) – Path of the output plot</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.predict_hic.PredictHic.set_predicted_sub_matrices">
-<code class="descname">set_predicted_sub_matrices</code><span class="sig-paren">(</span><em>predicted_sub_matrices</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/predict_hic.html#PredictHic.set_predicted_sub_matrices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.predict_hic.PredictHic.set_predicted_sub_matrices" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the sub-matrices predicted by a deep-learning model.</p>
+<dt id="src.interpolation.Interpolation.write_predicted_sparse_matrix">
+<code class="descname">write_predicted_sparse_matrix</code><span class="sig-paren">(</span><em>hic</em>, <em>path</em>, <em>threshold=0.0001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/interpolation.html#Interpolation.write_predicted_sparse_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.interpolation.Interpolation.write_predicted_sparse_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>The integrated matrices are saved in sparse matrix files for each alpha value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>predicted_sub_matrices</strong> (<em>Numpy array</em>) – The predicted sub-matrices</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hic</strong> (<a class="reference internal" href="#src.matrix.Hic" title="src.matrix.Hic"><em>Hic</em></a><em>(</em><a class="reference internal" href="#src.matrix.Matrix" title="src.matrix.Matrix"><em>Matrix</em></a><em>) </em><em>object</em>) – Hi-C matrix</p></li>
+<li><p><strong>path</strong> (<em>str</em>) – Path of the output</p></li>
+<li><p><strong>threshold</strong> (<em>float</em>) – The values under the threshold will be set to 0</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.interpolation.InterpolationInLatentSpace">
+<em class="property">class </em><code class="descclassname">src.interpolation.</code><code class="descname">InterpolationInLatentSpace</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/interpolation.html#InterpolationInLatentSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.interpolation.InterpolationInLatentSpace" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="class">
+<dt id="src.interpolation.InterpolationInLatentSpace.InterpolationInLatentSpace">
+<em class="property">class </em><code class="descname">InterpolationInLatentSpace</code><a class="headerlink" href="#src.interpolation.InterpolationInLatentSpace.InterpolationInLatentSpace" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="descname">This class inherits the Interpolation class and interpolate sub-matrices in the latent space</code></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.interpolation.InterpolationInLatentSpace.interpolate_latent_spaces">
+<code class="descname">interpolate_latent_spaces</code><span class="sig-paren">(</span><em>hist_marks</em>, <em>hic_latent_spaces</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/interpolation.html#InterpolationInLatentSpace.interpolate_latent_spaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.interpolation.InterpolationInLatentSpace.interpolate_latent_spaces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Double linear interpolation of the latent spaces of the Hi-C and histone marks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hist_marks</strong> (<em>dict</em>) – Dictionary containing all histone mark HistoneMark objects.</p></li>
+<li><p><strong>predicted_hic</strong> (<em>numpy array</em>) – Predicted sub-matrices of the Hi-C</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
-<dt id="src.predict_hic.PredictHic.write_predicted_matrix">
-<code class="descname">write_predicted_matrix</code><span class="sig-paren">(</span><em>threshold</em>, <em>output_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/predict_hic.html#PredictHic.write_predicted_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.predict_hic.PredictHic.write_predicted_matrix" title="Permalink to this definition">¶</a></dt>
-<dd><p>The reconstructed and predicted Hi-C matrix is saved in a sparse matrix file.</p>
+<dt id="src.interpolation.InterpolationInLatentSpace.set_decoded_latent_spaces">
+<code class="descname">set_decoded_latent_spaces</code><span class="sig-paren">(</span><em>decoder</em>, <em>side</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/interpolation.html#InterpolationInLatentSpace.set_decoded_latent_spaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.interpolation.InterpolationInLatentSpace.set_decoded_latent_spaces" title="Permalink to this definition">¶</a></dt>
+<dd><p>The interpolated latent spaces are decoded.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>threshold</strong> (<em>float</em>) – The predicted values under the threshold will be set to 0</p></li>
-<li><p><strong>output_path</strong> (<em>str</em>) – Path of the output plot</p></li>
+<li><p><strong>decoder</strong> (<em>keras model object</em>) – Hi-C matrix</p></li>
+<li><p><strong>side</strong> (<em>int</em>) – Square side</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.interpolation.NormalInterpolation">
+<em class="property">class </em><code class="descclassname">src.interpolation.</code><code class="descname">NormalInterpolation</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/interpolation.html#NormalInterpolation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.interpolation.NormalInterpolation" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="class">
+<dt id="src.interpolation.NormalInterpolation.InterpolationInLatentSpace">
+<em class="property">class </em><code class="descname">InterpolationInLatentSpace</code><a class="headerlink" href="#src.interpolation.NormalInterpolation.InterpolationInLatentSpace" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="descname">This class inherits the Interpolation class and interpolate sub-matrices in the pixel space</code></dt>
+<dt>
+<code class="descname">(= without the use of encoder and decoder).</code></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="src.interpolation.NormalInterpolation.alphas">
+<code class="descname">alphas</code><a class="headerlink" href="#src.interpolation.NormalInterpolation.alphas" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of float values to use for the interpolation (alpha parameter)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.interpolation.NormalInterpolation.interpolated_submatrices">
+<code class="descname">interpolated_submatrices</code><a class="headerlink" href="#src.interpolation.NormalInterpolation.interpolated_submatrices" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of all the interpolated sub-matrices. Each item in
+the list contains an interpolation with a different alpha.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="src.interpolation.NormalInterpolation.integrated_matrix">
+<code class="descname">integrated_matrix</code><a class="headerlink" href="#src.interpolation.NormalInterpolation.integrated_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of all the integrated (interpolated) reconstructed matrices.
+Each item in the list contains an interpolation with a different
+alpha.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.interpolation.NormalInterpolation.interpolate_predicted_img">
+<code class="descname">interpolate_predicted_img</code><span class="sig-paren">(</span><em>hist_marks</em>, <em>predicted_hic</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/interpolation.html#NormalInterpolation.interpolate_predicted_img"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.interpolation.NormalInterpolation.interpolate_predicted_img" title="Permalink to this definition">¶</a></dt>
+<dd><p>Double linear interpolation of the predicted sub-matrices of the Hi-C and histone marks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hist_marks</strong> (<em>dict</em>) – Dictionary containing all histone mark HistoneMark objects.</p></li>
+<li><p><strong>predicted_hic</strong> (<em>numpy array</em>) – Predicted sub-matrices of the Hi-C</p></li>
 </ul>
 </dd>
 </dl>

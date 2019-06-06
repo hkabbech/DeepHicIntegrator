@@ -6,7 +6,7 @@
 DeepHicIntegrator's Documentation
 ---------------------------------
 
-Hello World !
+DeepHicIntegrator permits the integration of a Hi-C matrix with one or several histone marks by interpolating in the latent space of an Autoencoder.
 
 
 -----------------
