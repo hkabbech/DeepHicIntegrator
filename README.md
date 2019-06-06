@@ -24,6 +24,10 @@ cd DeepHicIntegrator
 
 2. **Python3** and the following python packages : **tensorflow**, **keras**, **docopt**, **schema**, **pandas**, **numpy**, **scipy**, **matplotlib**, **sklearn**, **cooler**, **hic2cool** and **m2r** (for Sphinx).
 
+```
+pip3 install -r requirements.txt
+```
+
 3. A Hi-C matrix in `.hic` file format.
 
 Please, download the **GSE63525 HUVEC** genome in order to run the toy example.
