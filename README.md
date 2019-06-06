@@ -40,7 +40,7 @@ gunzip GSE63525_HUVEC_combined_30.hic.gz
 ### Toy example
 
 ```
-./deep_hic_integrator data/hic_matrix/GSE63525_HUVEC_combined_30.hic data/histone_marks/100K/ -r 100000 -p 10 -o results/100K_p10/
+./deep_hic_integrator data/hic_matrix/GSE63525_HUVEC_combined_30.hic data/histone_marks/100K/
 ```
 
 ### Get help
