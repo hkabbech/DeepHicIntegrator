@@ -8,7 +8,7 @@
 
 # DeepHicIntegrator
 
-This tool permits the interpolation of a Hi-C matrix with one or several histone marks.
+This tool permits the integration of a Hi-C matrix with one or several histone marks by interpolating in the latent space of an Autoencoder.
 
 ## Installation
 
@@ -85,7 +85,7 @@ The documentation is generated with Sphinx and built on ReadTheDocs.
 
 ## Author
 
-- [Hélène Kabbech](https://github.com/kabhel)
+[Hélène Kabbech](https://github.com/kabhel) : Bioinformatics master student intern at the Medical Center University of Goettingen (Germany)
 
 ## License
 
