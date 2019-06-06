@@ -1,5 +1,5 @@
 """
-.. module:: Matrix
+.. module:: matrix
    :synopsis: This module implements the Matrix, HistoneModification and Hic classes.
 """
 
@@ -15,25 +15,27 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 class Matrix:
     """
-
-        .. class:: Matrix
-        This class groups informations about a matrix.
+    .. class:: Matrix
+        This class stores a matrix and different related numpy array, plots and writes this matrix.
 
     Attributes:
-        resolution (int): Resolution (or bin-size) of the Hi-C matrix
-        chrom_num (int): Chromosome chosen among all chromosomes in cooler
-        side (int): Number of raws and columns of a numpy array sub-matrix
-        matrix (numpy array): Hi-C matrix of the chromosome chosen stored in a numpy array
-        sub_matrices (numpy array): The splitted Hi-C matrix into N sub-matrices of size side*side
-                                    stored in a numpy array of shape (Samples, side, side, 1)
-        white_sub_matrices_ind (list): Position of the white sub-matrices.
+        resolution (int): Resolution (or bin size) of the matrix
+        chrom_num (int): Chromosome chosen for processing
+        side (int): Square side of a numpy array sub-matrix
+        matrix (numpy array): Matrix stored in a numpy array
+        sub_matrices (numpy array): The matrix is divided into S sub-matrices of size side*side
+                                    and stored in a numpy array of shape (X, side, side, 1)
+        white_sub_matrices_ind (list): Position of the blank sub-matrices
         total_sub_matrices (int): Total number of sub-matrices
+        latent_spaces (numpy array): Latent spaces (encoded sub-matrices) stored in a numpy array
+        predicted_sub_matrices (numpy array): Predicted sub_matrices (decoded latent spaces) stored
+                                              in a numpy array
     """
 
-    def __init__(self, resolution, chrom_num, square_side):
+    def __init__(self, resolution, chrom_num, side):
         self.resolution = resolution
         self.chrom_num = chrom_num
-        self.side = square_side
+        self.side = side
         self.matrix = None
         self.sub_matrices = None
         self.white_sub_matrices_ind = None
@@ -43,10 +45,9 @@ class Matrix:
 
     def set_sub_matrices(self):
         """
-            Split the matrix into X sub-matrices of size side*side.
+            Divide the matrix into S sub-matrices of size side*side.
             The empty sub-matrices (sum(values)==0) are removed from the data set.
-            The X resulted sub-matrices are stored and set in a numpy array
-            of shape (X, side, side, 1).
+            The S resulted sub-matrices are stored in a numpy array of shape (X, side, side, 1).
         """
         white_ind = [] # Index of the white sub-matrices are stored in a list
         k = 0
@@ -58,46 +59,50 @@ class Matrix:
                 if sub_matrix.shape != (self.side, self.side):
                     break
                 # The empty sub-matrices are not taking into account
-                # if sub_matrix.sum() != 0:
-                sub_matrices_list.append(sub_matrix)
-                # else:
-                    # white_ind.append(k)
+                if sub_matrix.sum() != 0:
+                    sub_matrices_list.append(sub_matrix)
+                else:
+                    white_ind.append(k)
                 k += 1
         sub_matrices = np.array(sub_matrices_list)
         # The number of sub-matrices is calculated automatically by using -1 in the first field
         sub_matrices = sub_matrices.reshape(-1, self.side, self.side, 1)
-        # self.white_sub_matrices_ind = white_ind
+        self.white_sub_matrices_ind = white_ind
         self.total_sub_matrices = k
         self.sub_matrices = sub_matrices
 
     def set_predicted_latent_spaces(self, latent_spaces):
         """
-            Set the latent spaces predicted by an encoder.
+            Set the latent spaces predicted by the encoder.
 
             Args:
-                latent_spaces(Numpy array): The predicted latent_spaces
+                latent_spaces(numpy array): The predicted latent_spaces
         """
+        for ind in range(self.total_sub_matrices):
+            if ind in self.white_sub_matrices_ind:
+                latent_spaces = np.insert(latent_spaces, ind, 0, axis=0)
         self.latent_spaces = latent_spaces
 
     def set_predicted_sub_matrices(self, predicted_sub_matrices):
         """
-            Set the sub-matrices predicted by an autoencoder.
+            Set the sub-matrices predicted by the whole autoencoder.
 
             Args:
-                predicted_sub_matrices(Numpy array): The predicted sub-matrices
+                predicted_sub_matrices(numpy array): The predicted sub-matrices
         """
+        for ind in range(self.total_sub_matrices):
+            if ind in self.white_sub_matrices_ind:
+                predicted_sub_matrices = np.insert(predicted_sub_matrices, ind, 0, axis=0)
         self.predicted_sub_matrices = predicted_sub_matrices
 
-    def write_sparse_matrix(self, matrix_type, path, threshold=0.0001):
+    def write_sparse_matrix(self, matrix_type, path):
         """
             The reconstructed and predicted Hi-C matrix is saved in a sparse matrix file.
 
             Args:
-                threshold(float): The predicted values under the threshold will be set to 0
-                output_path(str): Path of the output plot
+                matrix_type(str): Matrix's name
+                path(str): Path of the output
         """
-        # Prediction under threshold value are set to 0
-        # matrix[matrix < threshold] = 0
         # Creation of the sparse matrix
         sparse = coo_matrix(self.matrix)
         with open('{}/{}_true.bed'.format(path, matrix_type), 'w') as file:
@@ -111,7 +116,8 @@ class Matrix:
             The matrix is plotted in a file.
 
             Args:
-                color_map(matplotlib.colors.ListedColormap): Color map for the plot
+                matrix_type(str): Matrix's name
+                color_map(matplotlib.colors.ListedColormap): Color map
                 path(str): Path of the output plot
         """
         fig = plt.figure(figsize=(12, 12))
@@ -122,7 +128,8 @@ class Matrix:
         plt.colorbar(img, cax=cax)
         plt.subplots_adjust(left=0.07, bottom=0, right=0.95, top=0.91, wspace=0, hspace=0)
         axes.set_title('True chr{} {} matrix'.format(self.chrom_num, matrix_type), fontsize=25)
-        fig.savefig('{}/{}_true.png'.format(path, matrix_type))
+        axes.axis('off')
+        fig.savefig('{}/{}_true.pdf'.format(path, matrix_type))
         plt.close()
 
     def plot_sub_matrices(self, matrix_type, index_list, color_map, path):
@@ -130,9 +137,10 @@ class Matrix:
             40 random sub-matrices are plotted in a file.
 
             Args:
-                color_map(matplotlib.colors.ListedColormap): Color map for the plot
-                path(str): Path of the output plot
+                matrix_type(str): Matrix's name
                 index_list(list): List of the 40 sub-matrix indexes to plot
+                color_map(matplotlib.colors.ListedColormap): Color map
+                path(str): Path of the output plot
         """
         fig, axes = plt.subplots(4, 10, figsize=(24, 11))
         fig.suptitle('True chr{} {} sub-matrices'.format(self.chrom_num, matrix_type), fontsize=20)
@@ -141,18 +149,19 @@ class Matrix:
         for axe, index in zip(axes.flat, self.sub_matrices[index_list, ..., 0]):
             axe.imshow(index, cmap=color_map)
             axe.set_title("submatrix n°{}".format(index_list[i]))
+            axe.axis('off')
             i += 1
-        plt.savefig('{}/submatrices_{}_true.png'.format(path, matrix_type))
+        plt.savefig('{}/submatrices_{}_true.pdf'.format(path, matrix_type))
         plt.close()
 
 
 class HistoneMark(Matrix):
     """
     .. class:: HistoneModification
-        This class groups informations about a histone modification matrix.
+        This class inherits the Matrix class and set the matrix numpy array for a histone mark.
 
     Attributes:
-        mark_df (Pandas Dataframe): histone modification sparse matrix
+        mark_df (Pandas Dataframe): Histone modification sparse matrix
     """
 
     def __init__(self, bed_file, *args, **kwargs):
@@ -175,7 +184,10 @@ class HistoneMark(Matrix):
         # Creation of the sparse matrix and conversion into a numpy array
         size = int(max(max(self.mark_df['base_2']), max(self.mark_df['base_1'])) / self.resolution)
         matrix = coo_matrix((data, (row, col)), shape=(size+1, size+1)).toarray()
+        # Conversion into float32
         matrix = np.float32(matrix)
+        # Log scale to visualize better the matrix in plot
+        matrix = np.log10(matrix+1)
         # Rescaling of the values in range 0-1 (min-max scaling method)
         matrix = (matrix - matrix.min()) / (matrix.max() - matrix.min())
         self.matrix = matrix
@@ -184,7 +196,7 @@ class HistoneMark(Matrix):
 class Hic(Matrix):
     """
     .. class:: Hic
-        This class groups informations about a Hi-C matrix.
+        This class inherits the Matrix class and set the matrix numpy array for a Hi-C data.
 
     Attributes:
         cooler (cooler): Storage of the Hi-C matrix

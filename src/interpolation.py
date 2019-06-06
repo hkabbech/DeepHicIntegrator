@@ -5,7 +5,6 @@
 
 # Third-party modules
 import csv
-import random as rd
 import matplotlib.pyplot as plt
 from scipy.sparse import coo_matrix
 import numpy as np
@@ -15,11 +14,16 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 class Interpolation:
     """
     .. class:: Interpolation
-        This class groups attributes and functions about the Interpolation of matrices
+        This class groups attributes and functions which aim to construct, write in a sparse matrix
+        and plot two or several interpolated matrices.
 
     Attributes:
-        alphas (list): ...
-        TO DO
+        alphas (list): List of float values to use for the interpolation (alpha parameter)
+        interpolated_submatrices (list): List of all the interpolated sub-matrices. Each item in
+                                         the list contains an interpolation with a different alpha.
+        integrated_matrix (list): List of all the integrated (interpolated) reconstructed matrices.
+                                  Each item in the list contains an interpolation with a different
+                                  alpha.
     """
 
     def __init__(self, alphas):
@@ -29,23 +33,18 @@ class Interpolation:
 
     def construct_integrated_matrix(self, hic):
         """
-            Construction and set of the predicted Hi-C matrix from the predicted sub-matrices.
+            Construction of the whole integrated matrices from the interpolated sub-matrices.
+
+            Args:
+                hic(Hic(Matrix) object): Hi-C matrix
         """
-        white = np.zeros(shape=(hic.side, hic.side, 1))
         line_limit = int(hic.matrix.shape[0] / hic.side)
 
         integrated_matrix_list = []
         for _, matrix in enumerate(self.interpolated_submatrices):
             nb_sub_matrices = 1
-            pred_sub_matrix_ind = 0
             for ind in range(hic.total_sub_matrices):
-                # if ind in hic.white_sub_matrices_ind:
-                    # The current sub-matrix is white
-                    # sub_matrix = white
-                # else:
-                sub_matrix = matrix[pred_sub_matrix_ind]
-                pred_sub_matrix_ind += 1
-
+                sub_matrix = matrix[ind]
                 if nb_sub_matrices == line_limit:
                     # The current line is concatenated with the previous lines
                     try:
@@ -71,11 +70,12 @@ class Interpolation:
 
     def write_predicted_sparse_matrix(self, hic, path, threshold=0.0001):
         """
-            The reconstructed and predicted Hi-C matrix is saved in a sparse matrix file.
+            The integrated matrices are saved in sparse matrix files for each alpha value.
 
             Args:
-                threshold(float): The predicted values under the threshold will be set to 0
-                output_path(str): Path of the output plot
+                hic(Hic(Matrix) object): Hi-C matrix
+                path(str): Path of the output
+                threshold(float): The values under the threshold will be set to 0
         """
         for i, integrated_matrix in enumerate(self.integrated_matrix):
             # Prediction under threshold value are set to 0
@@ -90,11 +90,12 @@ class Interpolation:
 
     def plot_integrated_matrix(self, hic, color_map, path):
         """
-            The reconstructed and predicted Hi-C matrix is plotted in a file.
+            The integrated matrices are plotted for each alpha value.
 
             Args:
-                color_map(matplotlib.colors.ListedColormap): Color map for the plot
-                output_path(str): Path of the output plot
+                hic(Hic(Matrix) object): Hi-C matrix
+                color_map(matplotlib.colors.ListedColormap): Color map
+                path(str): Path of the output plot
         """
         for i, integrated_matrix in enumerate(self.integrated_matrix):
             fig = plt.figure(figsize=(12, 12))
@@ -106,16 +107,19 @@ class Interpolation:
             plt.subplots_adjust(left=0.07, bottom=0, right=0.95, top=0.91, wspace=0, hspace=0)
             axes.set_title('Integrated matrix (chr{}, resolution={}, alpha={})'\
                            .format(hic.chrom_num, hic.resolution, self.alphas[i]), fontsize=25)
-            fig.savefig('{}/integrated_{}.png'.format(path, i))
+            axes.axis('off')
+            fig.savefig('{}/integrated_{}.pdf'.format(path, i))
             plt.close()
 
     def plot_interpolated_submatrices(self, hic, index_list, color_map, path):
         """
-            The reconstructed and predicted Hi-C matrix is plotted in a file.
+            40 random integrated sub-matrices are plotted for each alpha value.
 
             Args:
-                color_map(matplotlib.colors.ListedColormap): Color map for the plot
-                output_path(str): Path of the output plot
+                hic(Hic(Matrix) object): Hi-C matrix
+                index_list(list): List of the 40 sub-matrix indexes to plot
+                color_map(matplotlib.colors.ListedColormap): Color map
+                path(str): Path of the output plot
         """
         for k, interpolated_submatrix in enumerate(self.interpolated_submatrices):
             fig, axes = plt.subplots(4, 10, figsize=(24, 11))
@@ -126,38 +130,26 @@ class Interpolation:
             for axe, index in zip(axes.flat, interpolated_submatrix[index_list, ..., 0]):
                 axe.imshow(index, cmap=color_map)
                 axe.set_title("submatrix n°{}".format(index_list[i]))
+                axe.axis('off')
                 i += 1
-            plt.savefig('{}/interpolated_submatrices_{}.png'.format(path, k))
+            plt.savefig('{}/interpolated_submatrices_{}.pdf'.format(path, k))
             plt.close()
-
-    # def plot_random_interpolation(self, hic, color_map, path):
-    #     """
-    #         TO DO
-    #     """
-    #     submatrix = rd.randint(0, self.interpolated_pred_submatrices[0].shape[0])
-
-    #     fig, axes = plt.subplots(2, 5, figsize=(24, 11))
-    #     fig.suptitle('Interpolation of the sub-matrix n°{} (chr{}, resolution={})'
-    #                  .format(submatrix, hic.chrom_num, hic.resolution), fontsize=20)
-    #     fig.subplots_adjust(left=0.03, right=0.98, wspace=0.3, hspace=0.4)
-
-    #     i = 0
-    #     for axe, integrated_submatrices in zip(axes.flat, self.interpolated_pred_submatrices+\
-    #                                            self.decoded_interpolated_ls):
-    #         axe.imshow(integrated_submatrices[submatrix].reshape(hic.side, hic.side),
-    #                    cmap=color_map)
-    #         axe.axis('off')
-    #         # axe.set_title('alpha={}'.format(self.alphas[i]))
-    #         i += 1
-
-    #     plt.savefig('{}/intergrated_submatrix_{}.png'.format(path, submatrix))
-    #     plt.close()
 
 
 class NormalInterpolation(Interpolation):
     """
     .. class:: InterpolationInLatentSpace
-        This class groups attributes and functions about the Autoencoder.
+        This class inherits the Interpolation class and interpolate sub-matrices in the pixel space
+        (= without the use of encoder and decoder).
+
+
+    Attributes:
+        alphas (list): List of float values to use for the interpolation (alpha parameter)
+        interpolated_submatrices (list): List of all the interpolated sub-matrices. Each item in
+                                         the list contains an interpolation with a different alpha.
+        integrated_matrix (list): List of all the integrated (interpolated) reconstructed matrices.
+                                  Each item in the list contains an interpolation with a different
+                                  alpha.
     """
 
     def __init__(self, *args, **kwargs):
@@ -165,7 +157,11 @@ class NormalInterpolation(Interpolation):
 
     def interpolate_predicted_img(self, hist_marks, predicted_hic):
         """
-            Image space interpolation
+            Double linear interpolation of the predicted sub-matrices of the Hi-C and histone marks.
+
+            Args:
+                hist_marks(dict): Dictionary containing all histone mark HistoneMark objects.
+                predicted_hic(numpy array): Predicted sub-matrices of the Hi-C
         """
         for hist_mark in hist_marks.values():
             try:
@@ -179,7 +175,7 @@ class NormalInterpolation(Interpolation):
 class InterpolationInLatentSpace(Interpolation):
     """
     .. class:: InterpolationInLatentSpace
-        This class groups attributes and functions about the Autoencoder.
+        This class inherits the Interpolation class and interpolate sub-matrices in the latent space
     """
 
     def __init__(self, *args, **kwargs):
@@ -188,7 +184,11 @@ class InterpolationInLatentSpace(Interpolation):
 
     def interpolate_latent_spaces(self, hist_marks, hic_latent_spaces):
         """
-            Latent space interpolation
+            Double linear interpolation of the latent spaces of the Hi-C and histone marks.
+
+            Args:
+                hist_marks(dict): Dictionary containing all histone mark HistoneMark objects.
+                predicted_hic(numpy array): Predicted sub-matrices of the Hi-C
         """
         for hist_mark in hist_marks.values():
             try:
@@ -198,24 +198,19 @@ class InterpolationInLatentSpace(Interpolation):
         for alpha in self.alphas:
             self.interpolated_ls.append(hic_latent_spaces*(1-alpha) + hm_latent_spaces*alpha)
 
-    def set_decoded_latent_spaces(self, decoder):
+    def set_decoded_latent_spaces(self, decoder, side):
         """
-            Latent space interpolation
+            The interpolated latent spaces are decoded.
+
+            Args:
+                decoder(keras model object): Hi-C matrix
+                side(int): Square side
         """
         for _, latent_spaces in enumerate(self.interpolated_ls):
-            self.interpolated_submatrices.append(decoder.predict(latent_spaces))
-
-    def plot_interpolate_ls(self, submatrix, hic, color_map, path):
-        """
-            TO DO
-        """
-        num_alpha = 2 # alpha=0.5
-        submatrix = rd.randint(0, self.interpolated_ls[num_alpha].shape[0])
-        plt.figure(figsize=(20, 8))
-        plt.imshow(self.interpolated_ls[num_alpha][submatrix].reshape((hic.side//4) * 32,
-                                                                       hic.side//4).T,
-                   cmap=color_map)
-        plt.title("Latent space (alpha={})".format(self.alphas[num_alpha]))
-        plt.axis('off')
-        plt.savefig('{}/latent_space_submatrix_{}.png'.format(path, submatrix))
-        plt.close()
+            decoded_ls = np.array(np.zeros(shape=(latent_spaces.shape[0], side, side, 1)))
+            for i, ls in enumerate(latent_spaces):
+                if ls.sum() == 0:
+                    continue
+                decoded_ls[i] = decoder.predict(ls.reshape(1, ls.shape[0], ls.shape[1],
+                                                           ls.shape[2]))
+            self.interpolated_submatrices.append(decoded_ls)
