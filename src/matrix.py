@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from scipy.sparse import coo_matrix
 import pandas as pd
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from scipy import stats
 
 
 class Matrix:
@@ -132,6 +133,19 @@ class Matrix:
         fig.savefig('{}/{}_true.pdf'.format(path, matrix_type))
         plt.close()
 
+    def plot_distribution_matrix(self, matrix_type, path):
+        """
+            Plot the distribution of the matrix.
+
+            Args:
+                matrix_type(str): Matrix's name
+                path(str): Path of the output plot
+        """
+        plt.hist(self.matrix.reshape(-1), 1000)
+        plt.suptitle("{} distribution".format(matrix_type))
+        plt.savefig('{}/{}_true_distrib.pdf'.format(path, matrix_type))
+        plt.close()
+
     def plot_sub_matrices(self, matrix_type, index_list, color_map, path):
         """
             40 random sub-matrices are plotted in a file.
@@ -176,7 +190,7 @@ class HistoneMark(Matrix):
             The values of the matrix are converted in float32 and rescaled by log10 and normalized.
         """
         data = self.mark_df.value
-        data = data - 1
+        # data = data - 1
         # base_1 and base_2 columns must be converted to index by dividing by the resolution number
         # This step is necesary for the creation of the sparse matrix with scipy.sparse
         row = ((self.mark_df.base_1 / self.resolution)).astype(int)
@@ -187,6 +201,7 @@ class HistoneMark(Matrix):
         # Conversion into float32
         matrix = np.float32(matrix)
         # Log scale to visualize better the matrix in plot
+        matrix = matrix / 
         matrix = np.log10(matrix+1)
         # Rescaling of the values in range 0-1 (min-max scaling method)
         matrix = (matrix - matrix.min()) / (matrix.max() - matrix.min())
@@ -247,5 +262,7 @@ class Hic(Matrix):
         matrix = np.log10(matrix+1)
         # Rescaling of the values in range 0-1
         # (min-max scaling method)
+        # matrix = 2.0*np.sqrt(matrix + 3.0/8.0)
+        # stats.boxcox(matrix)
         matrix = (matrix - matrix.min()) / (matrix.max() - matrix.min())
         self.matrix = matrix

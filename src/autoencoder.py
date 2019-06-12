@@ -58,7 +58,7 @@ class Autoencoder:
         print("\nEncoder Model")
         self.encoder.summary()
         # Decoder part
-        input_ls = Input(shape=(self.img_size/4, self.img_size/4, 32))
+        input_ls = Input(shape=(self.img_size//4, self.img_size//4, 32))
         layer = Conv2D(32, (3, 3), activation='relu', padding='same')(input_ls)
         layer = UpSampling2D((2, 2))(layer)
         layer = Conv2D(64, (3, 3), activation='relu', padding='same')(layer)

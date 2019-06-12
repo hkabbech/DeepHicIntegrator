@@ -25,7 +25,7 @@
         <HM_PATH>                           Path of the repository containing the histone mark files
 
     Options:
-        -r, INT, --resolution INT           Resolution representing the number of pair-ended reads
+        -r INT, --resolution INT           Resolution representing the number of pair-ended reads
                                             spanning between a pair of bins. [default: 25000]
         -a INT, --chr_train INT             Chromosome used to train the autoencoder [default: 1]
         -t INT, --chr_test INT              Chromosome used to test the autoencoder [default: 20]
@@ -190,11 +190,14 @@ if __name__ == "__main__":
         TRAIN_HIC.set_matrix()
         TRAIN_HIC.set_sub_matrices()
         TRAIN_HIC.plot_matrix('Hi-C', RED_CMP, MODEL_PATH+'/plot/')
+        TRAIN_HIC.plot_distribution_matrix('Hi-C', MODEL_PATH+'/plot/')
         # Set and divide the histone mark data
         TRAIN_HM = HistoneMark(HM_FILENAMES[HIST_MARK_TRAIN], RESOLUTION, CHR_TRAIN, SIDE)
         TRAIN_HM.set_matrix()
         TRAIN_HM.set_sub_matrices()
         TRAIN_HM.plot_matrix(HIST_MARK_TRAIN, RED_CMP, MODEL_PATH+'/plot/')
+        TRAIN_HM.plot_distribution_matrix('Hi-C', MODEL_PATH+'/plot/')
+
         # The autoencoder will be trained with the sub-matrices of both TRAIN_HIC and TRAIN_HM
         TRAIN = np.concatenate((TRAIN_HIC.sub_matrices, TRAIN_HM.sub_matrices), 0)
         AE = Autoencoder(TRAIN, SIDE, EPOCHS, BATCH_SIZE)
