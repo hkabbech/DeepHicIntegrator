@@ -189,7 +189,7 @@ class HistoneMark(Matrix):
             Set the histone modification numpy array of the chromosome chrom_num.
             The values of the matrix are converted in float32 and rescaled by log10 and normalized.
         """
-        data = self.mark_df.value
+        data = self.mark_df.value*100
         # data = data - 1
         # base_1 and base_2 columns must be converted to index by dividing by the resolution number
         # This step is necesary for the creation of the sparse matrix with scipy.sparse
@@ -201,8 +201,7 @@ class HistoneMark(Matrix):
         # Conversion into float32
         matrix = np.float32(matrix)
         # Log scale to visualize better the matrix in plot
-        matrix = matrix / 
-        matrix = np.log10(matrix+1)
+        # matrix = np.log10(matrix+1)
         # Rescaling of the values in range 0-1 (min-max scaling method)
         matrix = (matrix - matrix.min()) / (matrix.max() - matrix.min())
         self.matrix = matrix
@@ -250,7 +249,7 @@ class Hic(Matrix):
         if self.chrom_num == 1:
             bin_1 = 0
         else:
-            bin_1 = m.ceil(chroms[self.chrom_num-2:self.chrom_num-1]['cum_length']/self.resolution)
+            bin_1 = m.floor(chroms[self.chrom_num-2:self.chrom_num-1]['cum_length']/self.resolution)
         bin_2 = m.ceil(chroms[self.chrom_num-1:self.chrom_num]['cum_length']/self.resolution)
         # Creation of the sparse matrix and conversion into a numpy array
         matrix = self.cooler.matrix(balance=False, sparse=True)[bin_1:bin_2, bin_1:bin_2].toarray()

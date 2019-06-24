@@ -179,6 +179,7 @@ if __name__ == "__main__":
     ###############
 
     # The user gave in input a trained autoencoder (encoder and decoder models)
+    print('1. get models')
     if ARGS['--encoder'] != 'None' and ARGS['--decoder'] != 'None':
         ENCODER = load_model(ARGS['--encoder'])
         DECODER = load_model(ARGS['--decoder'])
@@ -216,12 +217,19 @@ if __name__ == "__main__":
     ################
 
     # Set and divide the Hi-C data
+    print('2. Hi-C')
     HIC = Hic(cooler.Cooler(COOL_FILENAME), RESOLUTION, CHR_TEST, SIDE)
+    print('2.1 set matrix')
     HIC.set_matrix()
+    print('2.2 set sub-matrices')
     HIC.set_sub_matrices()
+    print('2.3 predictions')
+    print('2.3.1 predictions 1')
     HIC.set_predicted_latent_spaces(ENCODER.predict(HIC.sub_matrices))
+    print('2.3.2 predictions 2')
     HIC.set_predicted_sub_matrices(DECODER.predict(ENCODER.predict(HIC.sub_matrices)))
     RANDOM_INDEX_LIST = rd.sample(range(0, HIC.sub_matrices.shape[0]), 40)
+    print('2.4 plots')
     HIC.plot_sub_matrices('Hi-C', RANDOM_INDEX_LIST, RED_CMP,
                           TEST_PATH+'/true_matrices/plot_sub-matrices/')
     HIC.plot_matrix('Hi-C', RED_CMP, TEST_PATH+'/true_matrices/plot_matrices/')
@@ -230,6 +238,7 @@ if __name__ == "__main__":
     # Set and divide each histone mark data
     HM = {}
     for key, value in HM_FILENAMES.items():
+        print('3. {}'.format(key))
         HM[key] = HistoneMark(value, RESOLUTION, CHR_TEST, SIDE)
         HM[key].set_matrix()
         HM[key].set_sub_matrices()
@@ -241,6 +250,8 @@ if __name__ == "__main__":
         HM[key].write_sparse_matrix(key, TEST_PATH+'/true_matrices/sparse_matrix/')
 
     # Interpolation of the predicted matrix Hi-C with the predicted matrices histone marks
+    print('4. interpolation')
+    print('4.1 normal')
     NORMAL_IP = NormalInterpolation(ALPHAS)
     NORMAL_IP.interpolate_predicted_img(HM, HIC.predicted_sub_matrices)
     NORMAL_IP.construct_integrated_matrix(HIC)
@@ -252,6 +263,7 @@ if __name__ == "__main__":
                                             'sparse_matrix/')
 
     # Interpolation in the latent space of the Hi-C and histone marks
+    print('4.1 latent space')
     IP_LS = InterpolationInLatentSpace(ALPHAS)
     IP_LS.interpolate_latent_spaces(HM, HIC.latent_spaces)
     IP_LS.set_decoded_latent_spaces(DECODER, SIDE)
