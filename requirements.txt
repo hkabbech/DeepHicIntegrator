@@ -1,5 +1,5 @@
 # tensorflow-gpu==1.13.1
-keras==2.2.4
+keras==3.13.2
 docopt==0.6.2
 schema==0.7.0
 pandas==0.23.4
